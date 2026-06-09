@@ -1,0 +1,82 @@
+---
+import { CircleCheck, CircleHelp, Goal, Headset, LogIn, LogOut, Moon, Sun, Ticket } from "lucide-astro";
+
+const navItems = [
+  { href: "/", label: "Partidas", icon: Goal },
+  { href: "/meus-palpites", label: "Palpites", icon: Ticket },
+  { href: "/about", label: "Sobre", icon: CircleHelp },
+  { href: "/support", label: "Suporte", icon: Headset }
+] as const;
+
+const pathname = Astro.url.pathname;
+---
+
+<header class="app-shell sticky top-0 z-40 pt-3" transition:name="app-header" transition:persist>
+  <div class="glass-panel nav-shell">
+    <a class="brand-link focus-ring" href="/" aria-label="Jonakinho">
+      <span class="brand-mark" aria-hidden="true">J</span>
+      <div class="min-w-0">
+        <p class="text-[0.68rem] font-semibold uppercase text-[var(--gold)]">MiniPay</p>
+        <p class="font-display truncate text-base font-bold leading-none text-[var(--text)]">Jonakinho</p>
+      </div>
+    </a>
+
+    <nav class="desktop-nav hide-scrollbar min-w-0 flex-1 justify-end gap-1 overflow-x-auto" aria-label="Principal">
+      {
+        navItems.map((item) => {
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
+          return (
+            <a
+              class="nav-link focus-ring"
+              href={item.href}
+              aria-current={isActive ? "page" : undefined}
+              data-nav-link
+            >
+              <Icon size={16} aria-hidden="true" />
+              {item.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+    <div class="flex shrink-0 items-center gap-2">
+      <button
+        class="icon-button focus-ring"
+        type="button"
+        aria-label="Alternar tema"
+        title="Alternar tema"
+        data-theme-toggle
+      >
+        <Sun size={16} aria-hidden="true" data-theme-icon="light" />
+        <Moon size={16} aria-hidden="true" data-theme-icon="dark" />
+      </button>
+      <div class="flex items-center gap-1.5" data-auth-guest>
+        <a
+          class="btn-secondary focus-ring min-h-10 px-3 text-[var(--green)]"
+          href="/login"
+        >
+          <LogIn size={16} aria-hidden="true" />
+          Login
+        </a>
+      </div>
+      <div class="flex items-center gap-1.5" data-auth-user hidden>
+        <a
+          class="btn-secondary focus-ring min-h-10 max-w-32 px-3 text-[var(--green)]"
+          href="/meus-palpites"
+        >
+          <CircleCheck size={16} aria-hidden="true" />
+          <span class="truncate" data-auth-address>Carteira</span>
+        </a>
+        <button
+          class="icon-button focus-ring"
+          type="button"
+          aria-label="Sair"
+          data-auth-logout
+        >
+          <LogOut size={16} aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

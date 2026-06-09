@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    name: Web and Shared
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Typecheck shared
+        run: pnpm --filter @jonakinho/shared check
+
+      - name: Typecheck web
+        run: pnpm --filter @jonakinho/web check
+
+      - name: Unit tests
+        run: pnpm --filter @jonakinho/web test
+
+      - name: Build web
+        run: pnpm --filter @jonakinho/web build
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @jonakinho/web exec playwright install --with-deps chromium
+
+      - name: Mobile E2E
+        run: pnpm --filter @jonakinho/web test:e2e
+
+  contracts:
+    name: Contracts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/contracts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install forge-std
+        run: forge install foundry-rs/forge-std --no-commit
+
+      - name: Format
+        run: forge fmt --check
+
+      - name: Test
+        run: forge test -vvv

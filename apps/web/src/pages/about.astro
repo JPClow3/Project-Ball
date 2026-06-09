@@ -1,0 +1,103 @@
+---
+import { Clock, RotateCcw, ShieldCheck, Wallet } from "lucide-astro";
+import AppHeader from "../components/AppHeader.astro";
+import PageFooter from "../components/PageFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const steps = [
+  {
+    title: "Escolha a partida",
+    text: "Os jogos aparecem por grupo. Cada card destaca os times, o empate e o valor."
+  },
+  {
+    title: "Confirme uma vez",
+    text: "Tocar no time só seleciona. O palpite só é enviado no botão de confirmar."
+  },
+  {
+    title: "Acompanhe o resultado",
+    text: "Depois do jogo, o palpite entra em liquidação, saque ou reembolso."
+  }
+] as const;
+
+const rules = [
+  {
+    icon: Clock,
+    title: "Bloqueio antes do início",
+    text: "Cada card mostra o horário em BRT. Depois do bloqueio, a partida não aceita novos palpites."
+  },
+  {
+    icon: RotateCcw,
+    title: "Reembolso em jogo anulado",
+    text: "Se uma partida for anulada, o valor fica disponível para reembolso conforme as regras do MVP."
+  },
+  {
+    icon: Wallet,
+    title: "Sem senha",
+    text: "Login e cadastro usam assinatura da carteira. Não há senha para memorizar nem recuperar."
+  },
+  {
+    icon: ShieldCheck,
+    title: "Confirmação explícita",
+    text: "A seleção precisa estar ativa e o valor precisa ser válido antes do botão liberar."
+  }
+] as const;
+---
+
+<BaseLayout title="Jonakinho | Sobre">
+  <AppHeader />
+  <main class="app-shell app-main page-stack" transition:name="page-content">
+    <section class="page-hero" transition:name="about-hero">
+      <div>
+        <p class="hero-kicker">Sobre o Jonakinho</p>
+        <h1 class="page-title mt-4">Um jeito simples de palpitar na Copa.</h1>
+        <p class="page-copy mt-3">
+          A tela inicial fica focada nas partidas. Aqui estão as regras: como confirmar, quando o jogo trava e quando o suporte entra.
+        </p>
+      </div>
+    </section>
+
+    <section class="section-band" aria-labelledby="about-flow">
+      <div class="section-heading">
+        <p class="match-label">Como funciona</p>
+        <h2 id="about-flow" class="font-display text-2xl font-extrabold text-[var(--text)]">Três passos</h2>
+      </div>
+      <div class="timeline-list">
+        {
+          steps.map((step, index) => (
+            <article class="timeline-item">
+              <span class="step-badge">{index + 1}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section-band" aria-labelledby="about-rules">
+      <div class="section-heading">
+        <p class="match-label">Regras rápidas</p>
+        <h2 id="about-rules" class="font-display text-2xl font-extrabold text-[var(--text)]">Clareza antes do clique</h2>
+      </div>
+      <div class="quiet-grid about-rule-grid">
+        {
+          rules.map((rule) => {
+            const Icon = rule.icon;
+            return (
+              <article class="quiet-card about-card-row">
+                <span class="liquid-icon"><Icon size={18} aria-hidden="true" /></span>
+                <div>
+                  <h3>{rule.title}</h3>
+                  <p>{rule.text}</p>
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </section>
+  </main>
+  <PageFooter />
+</BaseLayout>

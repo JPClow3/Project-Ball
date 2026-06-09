@@ -1,0 +1,80 @@
+---
+import AppHeader from "@/components/AppHeader.astro";
+import PageFooter from "@/components/PageFooter.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { BadgeDollarSign, Info, KeyRound, LogIn, ShieldCheck, UserPlus, Wallet } from "lucide-astro";
+
+const requestedNext = Astro.url.searchParams.get("next");
+const nextPath = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/meus-palpites";
+const registerHref = `/register?next=${encodeURIComponent(nextPath)}`;
+const loginContext = nextPath.startsWith("/premios")
+  ? "Entre para sacar prêmios"
+  : nextPath.startsWith("/meus-palpites")
+    ? "Entre para ver seus palpites"
+    : "Entre para continuar";
+const loginContextCopy = nextPath.startsWith("/premios")
+  ? "A área de prêmios usa sua carteira para mostrar valores liberados para saque."
+  : nextPath.startsWith("/meus-palpites")
+    ? "Seu histórico fica ligado à carteira usada na confirmação dos palpites."
+    : "A próxima tela precisa confirmar sua carteira antes de abrir.";
+---
+
+<BaseLayout title="Entrar | Jonakinho">
+  <AppHeader />
+  <main class="app-shell app-main" transition:name="page-content">
+    <section class="auth-shell">
+      <div class="surface-panel auth-panel">
+        <p class="eyebrow">
+          <Wallet size={14} aria-hidden="true" />
+          MetaMask
+        </p>
+        <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Entrar no Jonakinho</h1>
+        <p class="lede mt-3">
+          Assine uma mensagem da sua carteira para abrir sua conta. Não há transação nem taxa.
+        </p>
+        <div class="mt-5 rounded-[8px] border border-[rgba(97,229,149,0.28)] bg-[rgba(97,229,149,0.09)] p-3" data-auth-context>
+          <p class="flex items-center gap-2 text-sm font-black text-[var(--text)]">
+            <Info size={16} class="text-[var(--green)]" aria-hidden="true" />
+            {loginContext}
+          </p>
+          <p class="mt-1 text-sm font-semibold text-[var(--muted)]">{loginContextCopy}</p>
+        </div>
+
+        <div class="mt-6 rounded-[8px] border border-[var(--line)] bg-white/[0.045] p-4" data-auth-action-panel>
+          <p class="text-sm font-bold text-[var(--muted)]" role="status" data-auth-status>
+            Pronto para conectar.
+          </p>
+          <button
+            class="btn-primary focus-ring mt-4 w-full"
+            type="button"
+            data-auth-intent="login"
+            data-auth-redirect={nextPath}
+          >
+            <LogIn size={16} aria-hidden="true" />
+            Entrar com MetaMask
+          </button>
+          <a
+            class="btn-secondary focus-ring mt-3 w-full"
+            href={registerHref}
+          >
+            <UserPlus size={16} class="text-[var(--green)]" aria-hidden="true" />
+            Criar conta nova
+          </a>
+        </div>
+      </div>
+
+      <aside class="surface-panel editorial-side">
+        <div>
+          <p class="text-xs font-black uppercase text-[var(--gold)]">Segurança</p>
+          <h2 class="font-display mt-2 text-2xl font-extrabold text-[var(--text)]">Carteira como identidade</h2>
+        </div>
+        <div class="editorial-list">
+          <p><ShieldCheck size={16} class="text-[var(--green)]" aria-hidden="true" />Assinatura fora da blockchain para iniciar sessão.</p>
+          <p><BadgeDollarSign size={16} class="text-[var(--cyan)]" aria-hidden="true" />Saldo e tokens seguem na sua carteira.</p>
+          <p><KeyRound size={16} class="text-[var(--gold)]" aria-hidden="true" />Sem senha para memorizar ou recuperar.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+  <PageFooter />
+</BaseLayout>

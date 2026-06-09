@@ -1,0 +1,39 @@
+---
+import { env } from "cloudflare:workers";
+import AppLayout from "@/layouts/AppLayout.astro";
+import { getSession } from "@/lib/auth";
+import { Goal, Trophy } from "lucide-astro";
+
+const session = await getSession(env.JONAKINHO_DB, Astro.request);
+if (!session) {
+  return Astro.redirect(`/login?next=${encodeURIComponent(Astro.url.pathname)}`);
+}
+---
+
+<AppLayout title="Prêmios">
+  <section class="page-stack">
+    <div class="surface-panel p-5">
+      <p class="eyebrow">
+        <Trophy size={14} aria-hidden="true" />
+        Prêmios
+      </p>
+      <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)]">Disponíveis</h1>
+      <p class="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-[var(--muted)]">
+        Quando uma partida for resolvida, valores elegíveis aparecem aqui para saque.
+      </p>
+    </div>
+
+    <section class="surface-panel p-5">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="font-display text-xl font-extrabold text-[var(--text)]">Nenhum saque disponível agora</p>
+          <p class="mt-2 text-sm font-semibold text-[var(--muted)]">Continue acompanhando os jogos confirmados para liberar prêmios.</p>
+        </div>
+        <a class="btn-gold focus-ring w-fit" href="/">
+          <Goal size={16} aria-hidden="true" />
+          Ver jogos
+        </a>
+      </div>
+    </section>
+  </section>
+</AppLayout>

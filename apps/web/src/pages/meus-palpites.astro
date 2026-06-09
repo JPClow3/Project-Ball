@@ -1,0 +1,123 @@
+---
+import { env } from "cloudflare:workers";
+import { ArrowRight, Clock, Goal, Ticket, Wallet } from "lucide-astro";
+import MatchCard from "@/components/MatchCard.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
+import { getSession } from "@/lib/auth";
+import { getUserConfirmedPicks } from "@/lib/bets";
+import { formatKickoff } from "@/lib/format";
+import { getMatch, withUserPick } from "@/lib/matches";
+import { getDefaultStablecoin } from "@/lib/tokens";
+
+const session = await getSession(env.JONAKINHO_DB, Astro.request);
+if (!session) {
+  return Astro.redirect(`/login?next=${encodeURIComponent(Astro.url.pathname)}`);
+}
+
+const confirmedPicks = await getUserConfirmedPicks(env.JONAKINHO_DB, session.user.walletAddress);
+const activePicks = confirmedPicks.flatMap((pick) => {
+  const match = getMatch(pick.matchId);
+  return match ? [withUserPick(match, pick.outcome)] : [];
+});
+const activePick = activePicks[0] ?? null;
+const accountLabel = session.user.displayName ?? "Carteira conectada";
+const defaultToken = getDefaultStablecoin();
+---
+
+<AppLayout title="Meus Palpites">
+  <section class="page-stack">
+    <section class="page-hero">
+      <div class="page-hero-row">
+        <div>
+          <p class="eyebrow">
+            <Ticket size={14} aria-hidden="true" />
+            {accountLabel}
+          </p>
+          <h1 class="page-title mt-4">Palpites</h1>
+          <p class="page-copy mt-3">
+            Seus jogos confirmados ficam aqui, separados da lista de partidas. Menos ruído, mais acompanhamento.
+          </p>
+        </div>
+        <div class="quiet-meta-grid">
+          <div class="quiet-meta">
+            <span>Ativos</span>
+            <strong>{activePicks.length.toLocaleString("pt-BR")}</strong>
+          </div>
+          <div class="quiet-meta">
+            <span>Padrão</span>
+            <strong>{defaultToken.label}</strong>
+          </div>
+          <div class="quiet-meta">
+            <span>Status</span>
+            <strong>{activePick ? "Aguardando jogo" : "Sem palpites"}</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="picks-layout" aria-label="Área de palpites">
+      <div class="pick-column">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="match-label">Rodada atual</p>
+            <h2 class="mt-2 text-xl">Seu palpite</h2>
+          </div>
+          <a class="btn-secondary focus-ring min-h-11 w-fit px-4" href="/">
+            <Goal size={16} aria-hidden="true" />
+            Ver jogos
+          </a>
+        </div>
+
+        {
+          activePick ? (
+            <div class="mt-2">
+              <MatchCard match={activePick} compact />
+            </div>
+          ) : (
+            <div class="empty-state-panel">
+              <Wallet size={22} aria-hidden="true" class="text-[var(--gold)]" />
+              <div>
+                <h3 class="font-display text-lg font-extrabold text-[var(--text)]">Nenhum palpite ainda</h3>
+                <p class="mt-2 text-sm font-semibold leading-relaxed text-[var(--muted)]">
+                  Escolha uma partida na tela inicial para criar seu primeiro palpite.
+                </p>
+              </div>
+              <a class="btn-primary focus-ring" href="/">
+                Ver partidas
+                <ArrowRight size={16} aria-hidden="true" />
+              </a>
+            </div>
+          )
+        }
+      </div>
+
+      <aside class="quiet-card">
+        <p class="match-label">Depois da confirmação</p>
+        <h2 class="text-xl">Acompanhamento</h2>
+        <div class="timeline-list">
+          <article class="timeline-item">
+            <span class="liquid-icon"><Clock size={18} aria-hidden="true" /></span>
+            <div>
+              <h3>Trava da partida</h3>
+              <p>{activePick ? formatKickoff(activePick.kickoffIso) : "O horário aparece no card antes de confirmar."}</p>
+            </div>
+          </article>
+          <article class="timeline-item">
+            <span class="liquid-icon"><Goal size={18} aria-hidden="true" /></span>
+            <div>
+              <h3>Resultado confirmado</h3>
+              <p>Quando o jogo termina, o palpite passa para liquidação, saque ou reembolso.</p>
+            </div>
+          </article>
+          <article class="timeline-item">
+            <span class="liquid-icon"><Wallet size={18} aria-hidden="true" /></span>
+            <div>
+              <h3>Saque</h3>
+              <p>No MVP, o saque passa pelo suporte para manter o processo simples e rastreável.</p>
+            </div>
+          </article>
+        </div>
+      </aside>
+    </section>
+  </section>
+</AppLayout>

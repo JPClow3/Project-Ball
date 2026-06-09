@@ -1,0 +1,114 @@
+---
+import AppHeader from "../components/AppHeader.astro";
+import MatchRail from "../components/MatchRail.astro";
+import PageFooter from "../components/PageFooter.astro";
+import { matches } from "../data/matches";
+import { tournamentConfig } from "../data/tournament";
+import { formatKickoffFull } from "../lib/format";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const groupCount = new Set(matches.map((match) => match.groupLabel)).size;
+const now = Date.now();
+const nextMatch = matches.find((match) => new Date(match.kickoffIso).getTime() > now) ?? matches[0];
+const msUntilNext = nextMatch ? new Date(nextMatch.kickoffIso).getTime() - now : 0;
+const hoursUntilNext = Math.max(0, Math.ceil(msUntilNext / (1000 * 60 * 60)));
+const countdownLabel = hoursUntilNext >= 48
+  ? `${Math.ceil(hoursUntilNext / 24)} dias`
+  : hoursUntilNext > 0
+    ? `${hoursUntilNext} horas`
+    : "Ao vivo";
+const nextHomeFlag = nextMatch ? `https://flagcdn.com/w80/${nextMatch.homeFlagCode}.png` : "";
+const nextAwayFlag = nextMatch ? `https://flagcdn.com/w80/${nextMatch.awayFlagCode}.png` : "";
+const heroFlags = [
+  ...new Map(
+    matches
+      .flatMap((match) => [
+        [match.homeFlagCode, match.homeCountry] as const,
+        [match.awayFlagCode, match.awayCountry] as const
+      ])
+      .map(([code, country]) => [code, { code, country }])
+  ).values()
+].slice(0, 10);
+const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: tournamentConfig.displayTimeZone
+}).format(new Date(`${tournamentConfig.scheduleVerifiedAt}T12:00:00Z`));
+---
+
+<BaseLayout title="Jonakinho | Palpites">
+  <AppHeader />
+  <main transition:name="page-content">
+    <section class="board-masthead matchday-hero" transition:name="page-hero">
+      <div class="app-shell board-masthead-inner matchday-hero-grid">
+        <div class="board-title-block matchday-copy">
+          <p class="matchday-stamp">
+            <span>Jonakinho</span>
+            <strong>{tournamentConfig.name}</strong>
+          </p>
+          <h1 class="board-title">72 jogos. Palpites sem rodeio.</h1>
+          <p class="board-subtitle">
+            Escolha a partida, marque o time ou empate e confirme o valor. A tela existe para isso.
+          </p>
+          <div class="hero-flag-strip" aria-label="Seleções no painel">
+            {heroFlags.map((flag) => (
+              <img src={`https://flagcdn.com/w80/${flag.code}.png`} alt={`Bandeira: ${flag.country}`} loading="lazy" />
+            ))}
+          </div>
+          <div class="hero-command-row" aria-label="Resumo das partidas">
+            <span><strong>{matches.length}</strong> jogos</span>
+            <span><strong>{groupCount}</strong> grupos</span>
+            <span><strong>{countdownLabel}</strong> até travar</span>
+          </div>
+        </div>
+
+        <aside class="matchday-ticket" aria-label="Próxima partida">
+          <div class="ticket-topbar">
+            <span>Próxima partida</span>
+            <strong>{countdownLabel}</strong>
+          </div>
+          {
+            nextMatch && (
+              <div class="ticket-fixture">
+                <div class="ticket-team">
+                  <img src={nextHomeFlag} alt={`Bandeira: ${nextMatch.homeCountry}`} loading="lazy" />
+                  <strong>{nextMatch.homeTeam}</strong>
+                  <span>{nextMatch.homeCountry}</span>
+                </div>
+                <span class="ticket-versus">vs</span>
+                <div class="ticket-team">
+                  <img src={nextAwayFlag} alt={`Bandeira: ${nextMatch.awayCountry}`} loading="lazy" />
+                  <strong>{nextMatch.awayTeam}</strong>
+                  <span>{nextMatch.awayCountry}</span>
+                </div>
+              </div>
+            )
+          }
+          <div class="ticket-meta-grid">
+            <span>
+              <small>Trava</small>
+              <strong>{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : "Calendário pendente"}</strong>
+            </span>
+            <span>
+              <small>Tabela</small>
+              <strong>{scheduleVerifiedLabel}</strong>
+            </span>
+          </div>
+          {
+            nextMatch && (
+              <div class="ticket-market-line" aria-hidden="true">
+                <span>{nextMatch.homeTeam}</span>
+                <span>Empate</span>
+                <span>{nextMatch.awayTeam}</span>
+              </div>
+            )
+          }
+        </aside>
+      </div>
+    </section>
+
+    <MatchRail />
+  </main>
+  <PageFooter />
+</BaseLayout>

@@ -1,0 +1,50 @@
+---
+import { matches } from "../data/matches";
+import { formatUsd } from "../lib/format";
+import { Coins, Flag, Users } from "lucide-astro";
+
+const openMatches = matches.filter((match) => match.status === "open");
+const nextMatch = openMatches[0];
+const totalPoolUsd = matches.reduce((total, match) => total + Number.parseFloat(match.poolUsd), 0);
+const totalSupporters = matches.reduce((total, match) => total + match.supporterCount, 0);
+
+const feed = [
+  {
+    icon: Flag,
+    label: "Próxima partida",
+    value: nextMatch ? `${nextMatch.homeTeam} x ${nextMatch.awayTeam}` : "Sem partidas",
+    tone: "text-[var(--green)]"
+  },
+  {
+    icon: Users,
+    label: "Palpites registrados",
+    value: totalSupporters.toLocaleString("pt-BR"),
+    tone: "text-[var(--gold)]"
+  },
+  {
+    icon: Coins,
+    label: "Pote total",
+    value: formatUsd(totalPoolUsd),
+    tone: "text-[var(--cyan)]"
+  }
+] as const;
+---
+
+<section class="app-shell pt-4" aria-label="Ritmo do app" transition:name="status-feed">
+  <div class="grid gap-3 md:grid-cols-3">
+    {
+      feed.map((item) => {
+        const Icon = item.icon;
+        return (
+          <div class="stat-tile">
+            <p class="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)]">
+              <Icon size={16} aria-hidden="true" />
+              {item.label}
+            </p>
+            <p class:list={["font-display mt-2 text-2xl font-bold", item.tone]}>{item.value}</p>
+          </div>
+        );
+      })
+    }
+  </div>
+</section>

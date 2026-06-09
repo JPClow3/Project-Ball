@@ -1,0 +1,9 @@
+{
+  "name": "Jonakinho",
+  "short_name": "Jonakinho",
+  "description": "Palpites de futebol com dolar digital na MiniPay.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1511",
+  "theme_color": "#0d1511"
+}

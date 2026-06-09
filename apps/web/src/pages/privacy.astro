@@ -1,0 +1,26 @@
+---
+import AppHeader from "../components/AppHeader.astro";
+import PageFooter from "../components/PageFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { ShieldCheck } from "lucide-astro";
+---
+
+<BaseLayout title="Jonakinho | Privacidade">
+  <AppHeader />
+  <main class="app-shell app-main" transition:name="page-content">
+    <article class="surface-panel max-w-3xl p-5 leading-relaxed md:p-6" transition:name="legal-content">
+      <p class="eyebrow">
+        <ShieldCheck size={14} aria-hidden="true" />
+        Legal
+      </p>
+      <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)]">Privacidade</h1>
+      <p class="mt-5 text-[var(--muted)]">
+        O app usa registros públicos da rede Celo e dados leves de confirmação para exibir partidas, estatísticas, suporte e histórico de palpites.
+      </p>
+      <p class="mt-4 text-[var(--muted)]">
+        Endereços não aparecem como identidade principal na interface. Dados de suporte são usados apenas para responder solicitações.
+      </p>
+    </article>
+  </main>
+  <PageFooter />
+</BaseLayout>

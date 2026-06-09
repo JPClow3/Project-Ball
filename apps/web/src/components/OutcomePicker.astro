@@ -1,0 +1,71 @@
+---
+import type { Outcome } from "@jonakinho/shared";
+
+type Props = {
+  matchId: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeFlagCode: string;
+  awayFlagCode: string;
+  selected?: Outcome;
+  disabled?: boolean;
+};
+
+const { matchId, homeTeam, awayTeam, homeFlagCode, awayFlagCode, selected, disabled = false } = Astro.props;
+const outcomes: readonly Outcome[] = ["HOME", "DRAW", "AWAY"];
+const outcomeCopy: Record<Outcome, { label: string; helper: string; flagCode?: string; ariaLabel: string }> = {
+  HOME: {
+    label: homeTeam,
+    helper: "vence",
+    flagCode: homeFlagCode,
+    ariaLabel: `${homeTeam} vence`
+  },
+  DRAW: {
+    label: "Empate",
+    helper: "sem vencedor",
+    ariaLabel: "Empate"
+  },
+  AWAY: {
+    label: awayTeam,
+    helper: "vence",
+    flagCode: awayFlagCode,
+    ariaLabel: `${awayTeam} vence`
+  }
+};
+---
+
+<div class="team-pick-grid" role="radiogroup" aria-label="Escolha do palpite">
+  {
+    outcomes.map((outcome) => {
+      const isSelected = selected === outcome;
+      const copy = outcomeCopy[outcome];
+      return (
+        <button
+          class:list={["team-pick focus-ring", outcome === "DRAW" && "team-pick-draw"]}
+          type="button"
+          name={`${matchId}-outcome`}
+          value={outcome}
+          data-select-outcome
+          data-match-id={matchId}
+          data-outcome={outcome}
+          data-outcome-label={copy.label}
+          role="radio"
+          aria-label={copy.ariaLabel}
+          aria-checked={isSelected ? "true" : "false"}
+          data-state={isSelected ? "selected" : "idle"}
+          disabled={disabled}
+        >
+          {
+            copy.flagCode ? (
+              <img src={`https://flagcdn.com/w40/${copy.flagCode}.png`} alt="" loading="lazy" aria-hidden="true" />
+            ) : (
+              <span class="draw-mark" aria-hidden="true">=</span>
+            )
+          }
+          <span class="team-pick-name">{copy.label}</span>
+          <span class="team-pick-helper">{copy.helper}</span>
+        </button>
+      );
+    })
+  }
+</div>

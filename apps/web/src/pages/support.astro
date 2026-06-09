@@ -1,0 +1,113 @@
+---
+import { ArrowUpRight, FileText, Mail, ShieldCheck, Wallet } from "lucide-astro";
+import AppHeader from "../components/AppHeader.astro";
+import PageFooter from "../components/PageFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const supportLinks = [
+  {
+    href: "mailto:suporte@jonakinho.app",
+    icon: Mail,
+    title: "Email",
+    text: "suporte@jonakinho.app",
+    helper: "Para saque, reembolso e dúvidas de carteira."
+  },
+  {
+    href: "/terms",
+    icon: FileText,
+    title: "Termos",
+    text: "Regras do MVP",
+    helper: "Jogos anulados, elegibilidade e liquidação."
+  },
+  {
+    href: "/privacy",
+    icon: ShieldCheck,
+    title: "Privacidade",
+    text: "Dados e histórico",
+    helper: "Como usamos carteira, suporte e registros leves."
+  }
+] as const;
+
+const checklist = [
+  "Endereço da carteira usada no palpite.",
+  "Partida ou grupo relacionado ao pedido.",
+  "Print ou hash quando existir confirmação."
+] as const;
+---
+
+<BaseLayout title="Jonakinho | Suporte">
+  <AppHeader />
+  <main class="app-shell app-main page-stack" transition:name="page-content">
+    <section class="page-hero support-hero" transition:name="support-hero">
+      <div class="page-hero-row">
+        <div>
+          <p class="eyebrow">Ajuda</p>
+          <h1 class="page-title mt-4">Suporte</h1>
+          <p class="page-copy mt-3">
+            Para depósito, saque, reembolso e resultado de partida. No MVP, o saque passa pelo suporte para manter tudo rastreável.
+          </p>
+        </div>
+        <div class="support-ticket" aria-label="Resumo do atendimento">
+          <div class="support-ticket-head">
+            <span>Fila de suporte</span>
+            <strong>Aberta</strong>
+          </div>
+          <div class="support-ticket-row">
+            <span>Depósito</span>
+            <strong>MiniPay</strong>
+            <small>Abre a carteira para adicionar saldo.</small>
+          </div>
+          <div class="support-ticket-row">
+            <span>Saque</span>
+            <strong>Suporte MVP</strong>
+            <small>Pedido manual com carteira e partida.</small>
+          </div>
+          <div class="support-ticket-row">
+            <span>Rastro</span>
+            <strong>Carteira + jogo</strong>
+            <small>Envie hash ou print quando existir.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quiet-grid support-layout" aria-label="Canais de suporte">
+      {
+        supportLinks.map((item) => {
+          const Icon = item.icon;
+          return (
+            <a class="support-card focus-ring block transition hover:-translate-y-0.5" href={item.href}>
+              <span class="liquid-icon">
+                <Icon size={18} aria-hidden="true" />
+              </span>
+              <p class="font-display mt-5 text-lg font-extrabold text-[var(--text)]">{item.title}</p>
+              <p class="mt-2 text-sm font-semibold leading-relaxed text-[var(--muted)]">{item.text}</p>
+              <p class="mt-3 text-xs font-extrabold uppercase leading-relaxed text-[var(--muted-strong)]">{item.helper}</p>
+              <span class="mt-5 inline-flex items-center gap-2 text-sm font-black text-[var(--gold)]">
+                Abrir
+                <ArrowUpRight size={15} aria-hidden="true" />
+              </span>
+            </a>
+          );
+        })
+      }
+      <aside class="support-checklist">
+        <span class="liquid-icon"><Wallet size={18} aria-hidden="true" /></span>
+        <h2 class="text-xl">Antes de pedir ajuda</h2>
+        <div class="timeline-list">
+          {
+            checklist.map((item, index) => (
+              <article class="timeline-item">
+                <span class="step-badge">{index + 1}</span>
+                <div>
+                  <h3>{item}</h3>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </aside>
+    </section>
+  </main>
+  <PageFooter />
+</BaseLayout>

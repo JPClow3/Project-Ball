@@ -1,0 +1,32 @@
+---
+import { CircleHelp, Goal, Headset, Ticket } from "lucide-astro";
+
+const items = [
+  { href: "/", label: "Jogos", icon: Goal },
+  { href: "/meus-palpites", label: "Meus", icon: Ticket },
+  { href: "/about", label: "Sobre", icon: CircleHelp },
+  { href: "/support", label: "Ajuda", icon: Headset }
+] as const;
+const current = Astro.url.pathname;
+---
+
+<nav class="mobile-nav" aria-label="Navegacao movel" transition:name="bottom-nav" transition:persist>
+  <div class="mobile-nav-grid">
+    {
+      items.map((item) => {
+        const Icon = item.icon;
+        return (
+          <a
+            href={item.href}
+            class="mobile-nav-link focus-ring"
+            aria-current={current === item.href ? "page" : undefined}
+            data-nav-link
+          >
+            <Icon size={18} aria-hidden="true" />
+            {item.label}
+          </a>
+        );
+      })
+    }
+  </div>
+</nav>

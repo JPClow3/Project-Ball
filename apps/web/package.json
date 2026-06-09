@@ -1,0 +1,37 @@
+{
+  "name": "@jonakinho/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro check && astro build",
+    "check": "astro check",
+    "format": "astro check",
+    "lint": "astro check",
+    "test": "vitest run",
+    "test:security": "vitest run tests/unit/auth.test.ts tests/unit/render-security.test.ts tests/unit/release-preflight.test.ts && playwright test security.spec.ts",
+    "test:penetration": "playwright test security.spec.ts",
+    "test:e2e": "playwright test",
+    "test:lighthouse": "playwright test lighthouse-simulation.spec.ts",
+    "deploy": "node ./scripts/release-preflight.mjs && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "13.6.0",
+    "@jonakinho/shared": "workspace:*",
+    "astro": "6.4.2",
+    "htmx.org": "2.0.10",
+    "lucide-astro": "0.556.0",
+    "viem": "2.52.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "@playwright/test": "1.60.0",
+    "@tailwindcss/vite": "4.3.0",
+    "@types/node": "25.9.1",
+    "tailwindcss": "4.3.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8",
+    "wrangler": "4.95.0"
+  }
+}
