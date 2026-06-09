@@ -5,7 +5,7 @@ import { Script } from "forge-std/Script.sol";
 import { ProjectBallPools } from "../src/ProjectBallPools.sol";
 
 contract DeployCeloSepolia is Script {
-    address private constant CELO_SEPOLIA_USDC = 0x2f25deb3848c207fc8e0c34035b3ba7fc157602b;
+    address private constant CELO_SEPOLIA_USDC = 0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B;
 
     function run() external returns (ProjectBallPools pools) {
         uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");

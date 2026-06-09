@@ -81,12 +81,7 @@ contract ProjectBallPools {
     event MatchResolved(bytes32 indexed matchId, uint8 result);
     event PrizeClaimed(bytes32 indexed matchId, address indexed bettor, uint256 normalizedAmount);
     event PoolVoided(bytes32 indexed matchId);
-    event FeesCollected(
-        bytes32 indexed matchId,
-        address indexed token,
-        uint256 treasuryAmount,
-        uint256 burnAmount
-    );
+    event FeesCollected(bytes32 indexed matchId, address indexed token, uint256 treasuryAmount, uint256 burnAmount);
     event Refunded(bytes32 indexed matchId, address indexed bettor, address token, uint256 amount);
 
     error OnlyOwner();
@@ -128,7 +123,10 @@ contract ProjectBallPools {
         address[] memory initialTokens,
         uint8[] memory initialDecimals
     ) {
-        if (initialOwner == address(0) || initialTreasury == address(0) || initialBurnSink == address(0)) {
+        if (
+            initialOwner == address(0) || initialTreasury == address(0)
+                || initialBurnSink == address(0)
+        ) {
             revert ZeroAddress();
         }
         if (initialTokens.length != initialDecimals.length) revert UnsupportedToken();
@@ -194,7 +192,10 @@ contract ProjectBallPools {
         emit PoolCreated(matchId, lockTime);
     }
 
-    function placeBet(bytes32 matchId, uint8 rawOutcome, address token, uint256 amount) external nonReentrant {
+    function placeBet(bytes32 matchId, uint8 rawOutcome, address token, uint256 amount)
+        external
+        nonReentrant
+    {
         MatchPool storage pool = pools[matchId];
         Outcome outcome = _toOutcome(rawOutcome);
         TokenConfig memory config = tokenConfigs[token];
@@ -278,7 +279,8 @@ contract ProjectBallPools {
 
         for (uint256 i = 0; i < pool.tokens.length; i++) {
             address token = pool.tokens[i];
-            uint256 payout = (pool.tokenBalance[token] * stake.normalizedAmount) / pool.winnerNormalized;
+            uint256 payout =
+                (pool.tokenBalance[token] * stake.normalizedAmount) / pool.winnerNormalized;
             if (payout > 0) {
                 totalLockedBalance[token] -= payout;
                 _safeTransfer(token, msg.sender, payout);
@@ -325,7 +327,8 @@ contract ProjectBallPools {
         )
     {
         MatchPool storage pool = pools[matchId];
-        return (pool.lockTime, pool.status, pool.result, pool.totalNormalized, pool.winnerNormalized);
+        return
+            (pool.lockTime, pool.status, pool.result, pool.totalNormalized, pool.winnerNormalized);
     }
 
     function getOutcomeTotal(bytes32 matchId, uint8 outcome) external view returns (uint256) {
@@ -386,7 +389,8 @@ contract ProjectBallPools {
     }
 
     function _safeTransfer(address token, address to, uint256 amount) private {
-        (bool success, bytes memory data) = token.call(abi.encodeCall(IERC20.transfer, (to, amount)));
+        (bool success, bytes memory data) =
+            token.call(abi.encodeCall(IERC20.transfer, (to, amount)));
         if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
             revert TokenTransferFailed();
         }
