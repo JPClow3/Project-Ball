@@ -59,6 +59,7 @@ contract ProjectBallPools {
     address[] public tokenList;
     mapping(bytes32 matchId => MatchPool pool) private pools;
     mapping(bytes32 matchId => mapping(address user => Stake stake)) public stakes;
+    mapping(address token => uint256 balance) public totalLockedBalance;
 
     uint256 private _status = 1;
 
@@ -227,6 +228,7 @@ contract ProjectBallPools {
         }
 
         pool.tokenBalance[token] += actualAmount;
+        totalLockedBalance[token] += actualAmount;
         pool.totalNormalized += normalizedAmount;
         pool.outcomeTotals[rawOutcome] += normalizedAmount;
 
@@ -278,6 +280,7 @@ contract ProjectBallPools {
             address token = pool.tokens[i];
             uint256 payout = (pool.tokenBalance[token] * stake.normalizedAmount) / pool.winnerNormalized;
             if (payout > 0) {
+                totalLockedBalance[token] -= payout;
                 _safeTransfer(token, msg.sender, payout);
             }
         }
@@ -294,6 +297,7 @@ contract ProjectBallPools {
         if (stake.refunded) revert AlreadyRefunded();
 
         stake.refunded = true;
+        totalLockedBalance[stake.token] -= stake.amount;
         _safeTransfer(stake.token, msg.sender, stake.amount);
 
         emit Refunded(matchId, msg.sender, stake.token, stake.amount);
@@ -302,22 +306,10 @@ contract ProjectBallPools {
     function ownerSweep(address token) external onlyOwner {
         if (token == address(0)) revert ZeroAddress();
         uint256 balance = IERC20(token).balanceOf(address(this));
-        uint256 expectedBalance = 0;
-        
-        for (uint256 i = 0; i < tokenList.length; i++) {
-            if (tokenList[i] == token) {
-                // To accurately sweep dust, we need a way to know exactly how much is locked.
-                // But tokenBalance across all pools tracks this. We can't loop all pools here.
-                // Sweeping all balance is dangerous if pools are active.
-                // A safer dust sweep mechanism is just giving dust to treasury if balance > sum(pool.tokenBalance).
-                // Actually, let's just allow owner to sweep but with a warning.
-            }
-        }
-        // Since sweeping everything is dangerous, let's just send the whole balance to treasury.
-        // Wait, the project review recommended a dust sweep. I will implement a simple sweep.
-        // The owner is trusted in this contract.
-        if (balance > 0) {
-            _safeTransfer(token, treasury, balance);
+        uint256 locked = totalLockedBalance[token];
+        if (balance > locked) {
+            uint256 sweepAmount = balance - locked;
+            _safeTransfer(token, treasury, sweepAmount);
         }
     }
 
@@ -371,6 +363,7 @@ contract ProjectBallPools {
             uint256 burnAmount = (balance * burnFeeBps) / BPS;
 
             pool.tokenBalance[token] = balance - treasuryAmount - burnAmount;
+            totalLockedBalance[token] -= (treasuryAmount + burnAmount);
 
             if (treasuryAmount > 0) _safeTransfer(token, treasury, treasuryAmount);
             if (burnAmount > 0) _safeTransfer(token, burnSink, burnAmount);

@@ -1,19 +1,42 @@
-# Deploy Runbook
+# 🚢 Deploy Runbook - Project Ball
 
-## Local
+This guide details the deployment sequence for smart contracts and the frontend Astro application across local, testnet (Celo Sepolia), and mainnet environments.
 
-```bash
-pnpm install
-forge install foundry-rs/forge-std --root packages/contracts --no-commit
-pnpm --filter @project-ball/web dev
-```
+---
 
-Expose `localhost:4321` with ngrok or Cloudflare Tunnel for MiniPay Developer Mode testing.
+## 💻 Local Environment Setup
 
-## Testnet
+1. **Verify Prerequisites:** Ensure Node, pnpm, and Foundry are installed.
+2. **Install & Setup:**
+   ```bash
+   pnpm install
+   forge install foundry-rs/forge-std --root packages/contracts
+   ```
+3. **Environment Setup:** Copy `.env.example` to `.env` in the root workspace directory.
+4. **Boot Development Server:**
+   ```bash
+   pnpm dev
+   ```
+5. **MiniPay Device Tunneling:** Expose port `4321` using ngrok or a Cloudflare Tunnel:
+   ```bash
+   ngrok http 4321
+   ```
 
+---
+
+## 🧪 Testnet Deployment (Celo Sepolia)
+
+Follow these steps to deploy and verify the smart contracts on Celo Sepolia:
+
+### 1. Execute Contract Tests
+Ensure all local tests pass before proceeding:
 ```bash
 forge test --root packages/contracts
+```
+
+### 2. Run Deployment Script
+Deploy the contracts using the Sepolia script:
+```bash
 forge script packages/contracts/script/DeployCeloSepolia.s.sol:DeployCeloSepolia \
   --root packages/contracts \
   --rpc-url "$CELO_SEPOLIA_RPC_URL" \
@@ -21,15 +44,19 @@ forge script packages/contracts/script/DeployCeloSepolia.s.sol:DeployCeloSepolia
   --verify
 ```
 
-Set Cloudflare preview variables:
-
+### 3. Update Environment Variables
+Configure the frontend environment with the newly deployed contract address:
 - `PUBLIC_CHAIN_ID=11142220`
-- `PUBLIC_CELO_RPC_URL=https://forno.celo-sepolia.celo-testnet.org`
+- `PUBLIC_CELO_RPC_URL=https://forno-sepolia.celo-testnet.org`
 - `PUBLIC_CELO_EXPLORER_URL=https://celo-sepolia.blockscout.com`
-- `PUBLIC_PROJECT_BALL_POOLS_ADDRESS=<deployed contract>`
+- `PUBLIC_PROJECT_BALL_POOLS_ADDRESS=<deployed-contract-address>`
 
-## Production
+---
 
+## 🚀 Production Deployment (Celo Mainnet & Cloudflare)
+
+### 1. Smart Contract Deployment
+Execute the mainnet deployment script:
 ```bash
 forge script packages/contracts/script/DeployCeloMainnet.s.sol:DeployCeloMainnet \
   --root packages/contracts \
@@ -37,15 +64,30 @@ forge script packages/contracts/script/DeployCeloMainnet.s.sol:DeployCeloMainnet
   --broadcast \
   --verify \
   --etherscan-api-key "$ETHERSCAN_API_KEY"
+```
 
+> [!IMPORTANT]
+> Keep the private key used for deployment secure. Verify that the deployer address holds sufficient Celo to cover gas fees.
+
+### 2. Frontend Application Deployment
+Run checks and compile the Astro build bundle before deploying to Cloudflare:
+```bash
 pnpm --filter @project-ball/web build
 pnpm --filter @project-ball/web deploy
 ```
 
-After deploy, capture:
+---
 
-- Production HTTPS URL.
-- Verified Celoscan contract URL.
-- Sample transaction URLs for every user-facing contract method.
-- PageSpeed mobile score.
-- 360x640 screenshots.
+## ✅ Post-Deployment Verification Checklist
+
+After deploying the production build, compile the following reference logs:
+
+- [ ] **Production URL:** Expose the live HTTPS production URL of the dApp.
+- [ ] **Verified Contract Link:** Check that the contract is fully readable on [Celoscan](https://celoscan.io/).
+- [ ] **Audit Transactions:** Run and log sample transaction hashes for:
+  - `createMatch`
+  - `placeBet`
+  - `resolveMatch`
+  - `claim`
+- [ ] **Mobile Compliance:** Verify that a Google PageSpeed mobile score of $\ge 90$ is maintained.
+- [ ] **Visual Layouts:** Capture `360x640` viewport screenshots for submission.

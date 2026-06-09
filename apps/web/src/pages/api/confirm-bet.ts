@@ -53,11 +53,15 @@ export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get("content-type") ?? "";
   let payload: unknown;
 
-  if (contentType.includes("application/json")) {
-    payload = await request.json();
-  } else {
-    const form = await request.formData();
-    payload = Object.fromEntries(form.entries());
+  try {
+    if (contentType.includes("application/json")) {
+      payload = await request.json();
+    } else {
+      const form = await request.formData();
+      payload = Object.fromEntries(form.entries());
+    }
+  } catch {
+    return new Response("Requisição malformada", { status: 400 });
   }
 
   const parsed = parseConfirmBetPayload(payload);

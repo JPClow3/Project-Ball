@@ -1,28 +1,39 @@
-# MVP Scope
+# 🎯 MVP Scope - Project Ball
 
-## In Scope
+This document lists the feature set, structural limitations, and criteria for the first public MVP release of Project Ball.
 
-- Daily match pools for win/draw/win outcomes.
-- Stablecoin staking with USDm, USDC, and USDT.
-- One pick per wallet per match.
-- Match lock before kickoff.
-- Admin result resolution.
-- Proportional claims for winners.
-- Refunds for voided matches or no-winner matches.
-- htmx-powered card refresh after on-chain confirmation.
-- Public stats page and MiniPay submission checklist.
+---
 
-## Out of Scope
+## ✅ In Scope
 
-- Oracle-based official result ingestion.
-- Long-term player markets.
-- Injury insurance and super-pick burn flows.
-- User custody, private key storage, or message-sign authentication.
-- Legal geofencing enforcement before counsel review.
+* **Match Outcomes:** Daily match pools supporting win-draw-win prediction mechanics.
+* **Stablecoin Support:** Allowing bet stakes using multiple stablecoin tokens: **USDm**, **USDC**, and **USDT**.
+* **Fair Play Restrictions:** Exactly one match prediction is permitted per wallet per match.
+* **Kickoff Lock:** Automatic locking of predictions based on match kickoff times.
+* **Admin Resolution:** Contract owner/admin sets the final official match outcome.
+* **Proportional Claims:** Payouts to winners are calculated proportionally and distributed as a basket of the remaining pool assets.
+* **Void & Refund Support:** Automated refund processing for voided games or pools where no correct outcome was selected.
+* **Dynamic Card State Swaps:** Fast `htmx` interface updates post-transaction confirmation.
+* **Analytics & Compliance:** Public stats, support info, privacy policy, and terms of service.
 
-## MVP Success Criteria
+---
 
-- A user can open the app on a 360x640 viewport and place a match pick in under 30 seconds.
-- The card updates to a registered state after `/api/confirm-bet` validates a transaction.
-- Contract source can be verified on Celoscan.
-- The app exposes support, terms, privacy, and `/stats`.
+## 🚫 Out of Scope
+
+* **Automated Oracles:** Integration of Chainlink or custom result feeding systems (managed via admin keys for MVP).
+* **Player-Specific Markets:** Predictions based on player stats, goalscorers, or injury reports.
+* **Speculative Features:** Burn features, odds multipliers, or insurance structures.
+* **Self-Custody Management:** Private key creation, credential backup, or off-chain message signature verification.
+* **IP/Geofencing Controls:** Complex regional routing and IP blocks prior to formal legal review.
+
+---
+
+## 🏆 MVP Success Criteria
+
+> [!IMPORTANT]
+> The app must satisfy the following user-centric performance metrics:
+> 
+> 1. **Time-to-Bet:** A new user can open the application on a standard `360x640` viewport and complete their first match pick in under **30 seconds**.
+> 2. **Responsive UX:** The match card state refreshes to show the registered pick within **3 seconds** of contract transaction execution.
+> 3. **Verification:** The contract codebase must compile, test, deploy, and achieve 100% verification on the Celoscan explorer.
+> 4. **Compliance:** The system exposes public routes for `/stats`, support, user terms, and privacy guidelines.

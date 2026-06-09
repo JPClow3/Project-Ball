@@ -17,7 +17,7 @@ export default defineConfig({
       strictPort: true
     },
     optimizeDeps: {
-      exclude: ["viem", "astro:transitions", "astro/virtual-modules/transitions.js"]
+      exclude: ["viem", "astro:transitions", "astro/virtual-modules/transitions.js", "@project-ball/shared"]
     },
     resolve: {
       alias: {
