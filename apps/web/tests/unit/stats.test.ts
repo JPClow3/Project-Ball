@@ -1,4 +1,4 @@
-import { STABLECOINS } from "@jonakinho/shared";
+import { STABLECOINS } from "@project-ball/shared";
 import { describe, expect, it } from "vitest";
 import { getStats, getTokenVolumes } from "../../src/lib/stats";
 
@@ -18,7 +18,7 @@ function makeEnv(rows: readonly BetRow[]): RuntimeEnv {
   };
 
   return ({
-    JONAKINHO_DB: {
+    PROJECT_BALL_DB: {
       prepare: () => statement
     }
   } as unknown) as RuntimeEnv;

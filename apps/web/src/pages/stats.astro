@@ -3,31 +3,38 @@ import { env } from "cloudflare:workers";
 import AppHeader from "../components/AppHeader.astro";
 import PageFooter from "../components/PageFooter.astro";
 import { formatUsd } from "../lib/format";
-import { getStats, getTokenVolumes } from "../lib/stats";
+import { getStats, getTokenVolumes, getBetRows } from "../lib/stats";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { ArrowRightLeft, Calendar, ChartColumn, Coins, Database, Sun, TriangleAlert, Users } from "lucide-astro";
 
-const statsSnapshot = await getStats(env);
-const tokenVolumes = await getTokenVolumes(env);
+const db = env?.PROJECT_BALL_DB;
+let rows = undefined;
+if (db) {
+  try {
+    rows = await getBetRows(db);
+  } catch {}
+}
+
+const statsSnapshot = await getStats(env, rows);
+const tokenVolumes = await getTokenVolumes(env, rows);
 const stats = [
-  { label: "DAU", value: statsSnapshot.dailyActiveUsers.toLocaleString("pt-BR"), icon: Sun, tone: "text-[var(--green)]" },
-  { label: "MAU", value: statsSnapshot.monthlyActiveUsers.toLocaleString("pt-BR"), icon: Calendar, tone: "text-[var(--gold)]" },
-  { label: "Transações", value: statsSnapshot.transactionCount.toLocaleString("pt-BR"), icon: ArrowRightLeft, tone: "text-[var(--cyan)]" },
-  { label: "Usuários on-chain", value: statsSnapshot.uniqueOnchainUsers.toLocaleString("pt-BR"), icon: Users, tone: "text-[var(--violet)]" },
-  { label: "Volume", value: formatUsd(statsSnapshot.volumeUsd), icon: Coins, tone: "text-[var(--green)]" },
-  { label: "Falhas", value: statsSnapshot.failedTransactionRate, icon: TriangleAlert, tone: "text-[var(--coral)]" }
+  { label: "DAU", value: statsSnapshot.dailyActiveUsers.toLocaleString("pt-BR"), icon: "fa-solid fa-sun", tone: "text-[var(--green)]" },
+  { label: "MAU", value: statsSnapshot.monthlyActiveUsers.toLocaleString("pt-BR"), icon: "fa-solid fa-calendar", tone: "text-[var(--gold)]" },
+  { label: "Transações", value: statsSnapshot.transactionCount.toLocaleString("pt-BR"), icon: "fa-solid fa-right-left", tone: "text-[var(--cyan)]" },
+  { label: "Usuários on-chain", value: statsSnapshot.uniqueOnchainUsers.toLocaleString("pt-BR"), icon: "fa-solid fa-users", tone: "text-[var(--violet)]" },
+  { label: "Volume", value: formatUsd(statsSnapshot.volumeUsd), icon: "fa-solid fa-coins", tone: "text-[var(--green)]" },
+  { label: "Falhas", value: statsSnapshot.failedTransactionRate, icon: "fa-solid fa-triangle-exclamation", tone: "text-[var(--coral)]" }
 ] as const;
 ---
 
-<BaseLayout title="Jonakinho | Números">
+<BaseLayout title="Project Ball | Números">
   <AppHeader />
   <main class="app-shell app-main page-stack" transition:name="page-content">
     <section class="surface-panel p-5 md:p-6" transition:name="stats-hero">
       <p class="eyebrow">
-        <ChartColumn size={14} aria-hidden="true" />
+        <i class="fa-solid fa-chart-column ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
         Público
       </p>
-      <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)] md:text-4xl">Números do Jonakinho</h1>
+      <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)] md:text-4xl">Números do Project Ball</h1>
       <p class="lede mt-3">
         Atividade, volume, usuários únicos, saúde das transações e distribuição por dólar digital.
       </p>
@@ -36,11 +43,10 @@ const stats = [
     <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Indicadores">
       {
         stats.map((item, index) => {
-          const Icon = item.icon;
           return (
             <div class="stat-tile" style={`animation-delay: ${index * 45}ms`}>
               <p class="flex items-center gap-2 text-sm font-extrabold text-[var(--muted)]">
-                <Icon size={16} class={item.tone} aria-hidden="true" />
+                <i class={`${item.icon} ${item.tone} ui-icon`} style="font-size: 16px;" aria-hidden="true"></i>
                 {item.label}
               </p>
               <p class:list={["stat-value", item.tone]}>{item.value}</p>
@@ -57,7 +63,7 @@ const stats = [
           <h2 class="font-display mt-1 text-xl font-extrabold text-[var(--text)]">Volume por dólar digital</h2>
         </div>
         <span class="status-pill status-pill--open">
-          <Database size={14} aria-hidden="true" />
+          <i class="fa-solid fa-database ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
           D1 cache
         </span>
       </div>

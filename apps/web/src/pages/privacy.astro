@@ -2,15 +2,14 @@
 import AppHeader from "../components/AppHeader.astro";
 import PageFooter from "../components/PageFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { ShieldCheck } from "lucide-astro";
 ---
 
-<BaseLayout title="Jonakinho | Privacidade">
+<BaseLayout title="Project Ball | Privacidade">
   <AppHeader />
   <main class="app-shell app-main" transition:name="page-content">
     <article class="surface-panel max-w-3xl p-5 leading-relaxed md:p-6" transition:name="legal-content">
       <p class="eyebrow">
-        <ShieldCheck size={14} aria-hidden="true" />
+        <i class="fa-solid fa-shield-halved ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
         Legal
       </p>
       <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)]">Privacidade</h1>

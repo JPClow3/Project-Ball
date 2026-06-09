@@ -1,6 +1,6 @@
 {
-  "name": "Jonakinho",
-  "short_name": "Jonakinho",
+  "name": "Project Ball",
+  "short_name": "Project Ball",
   "description": "Palpites de futebol com dolar digital na MiniPay.",
   "start_url": "/",
   "display": "standalone",

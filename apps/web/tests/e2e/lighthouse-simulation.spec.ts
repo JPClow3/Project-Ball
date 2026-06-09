@@ -16,12 +16,12 @@ test("lighthouse-style local quality simulation", async ({ page, request }) => {
 
   const response = await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
   expect(response?.ok()).toBe(true);
-  await page.waitForFunction(() => Boolean((window as Window & { jonakinhoReady?: boolean }).jonakinhoReady));
+  await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
 
   const manifestResponse = await request.get("/manifest.webmanifest");
   expect(manifestResponse.ok()).toBe(true);
   await expect(manifestResponse.json()).resolves.toMatchObject({
-    name: "Jonakinho",
+    name: "Project Ball",
     start_url: "/",
     display: "standalone"
   });

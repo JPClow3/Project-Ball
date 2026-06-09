@@ -17,8 +17,8 @@ describe("release preflight", () => {
 
       expect(failure.code).toBe(1);
       expect(failure.stderr).toContain("PUBLIC_APP_URL still points at localhost");
-      expect(failure.stderr).toContain("PUBLIC_JONAKINHO_POOLS_ADDRESS is still the zero-address placeholder");
-      expect(failure.stderr).toContain("JONAKINHO_DB database_id is still the placeholder value");
+      expect(failure.stderr).toContain("PUBLIC_PROJECT_BALL_POOLS_ADDRESS is still the zero-address placeholder");
+      expect(failure.stderr).toContain("PROJECT_BALL_DB database_id is still the placeholder value");
     }
   });
 });

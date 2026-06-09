@@ -17,15 +17,17 @@ const countdownLabel = hoursUntilNext >= 48
   : hoursUntilNext > 0
     ? `${hoursUntilNext} horas`
     : "Ao vivo";
-const nextHomeFlag = nextMatch ? `https://flagcdn.com/w80/${nextMatch.homeFlagCode}.png` : "";
-const nextAwayFlag = nextMatch ? `https://flagcdn.com/w80/${nextMatch.awayFlagCode}.png` : "";
+const nextHomeFlag = nextMatch?.homeFlagCode ? `https://flagcdn.com/w80/${nextMatch.homeFlagCode}.png` : "";
+const nextAwayFlag = nextMatch?.awayFlagCode ? `https://flagcdn.com/w80/${nextMatch.awayFlagCode}.png` : "";
 const heroFlags = [
   ...new Map(
     matches
-      .flatMap((match) => [
-        [match.homeFlagCode, match.homeCountry] as const,
-        [match.awayFlagCode, match.awayCountry] as const
-      ])
+      .flatMap((match) => {
+        const list = [];
+        if (match.homeFlagCode) list.push([match.homeFlagCode, match.homeCountry] as const);
+        if (match.awayFlagCode) list.push([match.awayFlagCode, match.awayCountry] as const);
+        return list;
+      })
       .map(([code, country]) => [code, { code, country }])
   ).values()
 ].slice(0, 10);
@@ -37,14 +39,14 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
 }).format(new Date(`${tournamentConfig.scheduleVerifiedAt}T12:00:00Z`));
 ---
 
-<BaseLayout title="Jonakinho | Palpites">
+<BaseLayout title="Project Ball | Palpites">
   <AppHeader />
   <main transition:name="page-content">
     <section class="board-masthead matchday-hero" transition:name="page-hero">
       <div class="app-shell board-masthead-inner matchday-hero-grid">
         <div class="board-title-block matchday-copy">
           <p class="matchday-stamp">
-            <span>Jonakinho</span>
+            <span>Project Ball</span>
             <strong>{tournamentConfig.name}</strong>
           </p>
           <h1 class="board-title">72 jogos. Palpites sem rodeio.</h1>
@@ -72,13 +74,13 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
             nextMatch && (
               <div class="ticket-fixture">
                 <div class="ticket-team">
-                  <img src={nextHomeFlag} alt={`Bandeira: ${nextMatch.homeCountry}`} loading="lazy" />
+                  {nextHomeFlag && <img src={nextHomeFlag} alt={`Bandeira: ${nextMatch.homeCountry}`} loading="lazy" />}
                   <strong>{nextMatch.homeTeam}</strong>
                   <span>{nextMatch.homeCountry}</span>
                 </div>
                 <span class="ticket-versus">vs</span>
                 <div class="ticket-team">
-                  <img src={nextAwayFlag} alt={`Bandeira: ${nextMatch.awayCountry}`} loading="lazy" />
+                  {nextAwayFlag && <img src={nextAwayFlag} alt={`Bandeira: ${nextMatch.awayCountry}`} loading="lazy" />}
                   <strong>{nextMatch.awayTeam}</strong>
                   <span>{nextMatch.awayCountry}</span>
                 </div>

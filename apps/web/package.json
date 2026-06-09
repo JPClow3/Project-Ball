@@ -1,5 +1,5 @@
 {
-  "name": "@jonakinho/web",
+  "name": "@project-ball/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -18,10 +18,9 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.6.0",
-    "@jonakinho/shared": "workspace:*",
+    "@project-ball/shared": "workspace:*",
     "astro": "6.4.2",
     "htmx.org": "2.0.10",
-    "lucide-astro": "0.556.0",
     "viem": "2.52.0"
   },
   "devDependencies": {

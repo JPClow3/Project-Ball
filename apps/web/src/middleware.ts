@@ -29,6 +29,13 @@ const securityHeaders = {
 } as const;
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  if (context.request.method !== "GET" && context.request.method !== "HEAD") {
+    const origin = context.request.headers.get("Origin");
+    if (origin && origin !== context.url.origin) {
+      return new Response("Forbidden (CSRF)", { status: 403 });
+    }
+  }
+
   const response = await next();
   const headers = new Headers(response.headers);
   const isHttps = context.url.protocol === "https:";

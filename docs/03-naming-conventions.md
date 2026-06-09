@@ -2,7 +2,7 @@
 
 ## Product Language
 
-- Product name: Jonakinho.
+- Product name: Project Ball.
 - UI language: PT-BR.
 - Use: palpite, dolar digital, taxa de rede, depositar, sacar.
 - Avoid in user-facing copy: gas, onramp, offramp, crypto, hash as primary feedback, wallet address as identity.
@@ -19,6 +19,6 @@
 
 ## Package Names
 
-- `@jonakinho/web`
-- `@jonakinho/contracts`
-- `@jonakinho/shared`
+- `@project-ball/web`
+- `@project-ball/contracts`
+- `@project-ball/shared`

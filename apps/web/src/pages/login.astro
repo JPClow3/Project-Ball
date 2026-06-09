@@ -2,7 +2,6 @@
 import AppHeader from "@/components/AppHeader.astro";
 import PageFooter from "@/components/PageFooter.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { BadgeDollarSign, Info, KeyRound, LogIn, ShieldCheck, UserPlus, Wallet } from "lucide-astro";
 
 const requestedNext = Astro.url.searchParams.get("next");
 const nextPath = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/meus-palpites";
@@ -19,22 +18,22 @@ const loginContextCopy = nextPath.startsWith("/premios")
     : "A próxima tela precisa confirmar sua carteira antes de abrir.";
 ---
 
-<BaseLayout title="Entrar | Jonakinho">
+<BaseLayout title="Entrar | Project Ball">
   <AppHeader />
   <main class="app-shell app-main" transition:name="page-content">
     <section class="auth-shell">
       <div class="surface-panel auth-panel">
         <p class="eyebrow">
-          <Wallet size={14} aria-hidden="true" />
+          <i class="fa-solid fa-wallet ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
           MetaMask
         </p>
-        <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Entrar no Jonakinho</h1>
+        <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Entrar no Project Ball</h1>
         <p class="lede mt-3">
           Assine uma mensagem da sua carteira para abrir sua conta. Não há transação nem taxa.
         </p>
         <div class="mt-5 rounded-[8px] border border-[rgba(97,229,149,0.28)] bg-[rgba(97,229,149,0.09)] p-3" data-auth-context>
           <p class="flex items-center gap-2 text-sm font-black text-[var(--text)]">
-            <Info size={16} class="text-[var(--green)]" aria-hidden="true" />
+            <i class="fa-solid fa-circle-info text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
             {loginContext}
           </p>
           <p class="mt-1 text-sm font-semibold text-[var(--muted)]">{loginContextCopy}</p>
@@ -50,14 +49,14 @@ const loginContextCopy = nextPath.startsWith("/premios")
             data-auth-intent="login"
             data-auth-redirect={nextPath}
           >
-            <LogIn size={16} aria-hidden="true" />
+            <i class="fa-solid fa-right-to-bracket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
             Entrar com MetaMask
           </button>
           <a
             class="btn-secondary focus-ring mt-3 w-full"
             href={registerHref}
           >
-            <UserPlus size={16} class="text-[var(--green)]" aria-hidden="true" />
+            <i class="fa-solid fa-user-plus text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
             Criar conta nova
           </a>
         </div>
@@ -69,9 +68,9 @@ const loginContextCopy = nextPath.startsWith("/premios")
           <h2 class="font-display mt-2 text-2xl font-extrabold text-[var(--text)]">Carteira como identidade</h2>
         </div>
         <div class="editorial-list">
-          <p><ShieldCheck size={16} class="text-[var(--green)]" aria-hidden="true" />Assinatura fora da blockchain para iniciar sessão.</p>
-          <p><BadgeDollarSign size={16} class="text-[var(--cyan)]" aria-hidden="true" />Saldo e tokens seguem na sua carteira.</p>
-          <p><KeyRound size={16} class="text-[var(--gold)]" aria-hidden="true" />Sem senha para memorizar ou recuperar.</p>
+          <p><i class="fa-solid fa-shield-halved text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Assinatura fora da blockchain para iniciar sessão.</p>
+          <p><i class="fa-solid fa-circle-dollar-to-slot text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Saldo e tokens seguem na sua carteira.</p>
+          <p><i class="fa-solid fa-key text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Sem senha para memorizar ou recuperar.</p>
         </div>
       </aside>
     </section>

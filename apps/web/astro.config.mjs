@@ -22,7 +22,7 @@ export default defineConfig({
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
-        "@jonakinho/shared": fileURLToPath(new URL("../../packages/shared/src/index.ts", import.meta.url))
+        "@project-ball/shared": fileURLToPath(new URL("../../packages/shared/src/index.ts", import.meta.url))
       }
     },
     ssr: {

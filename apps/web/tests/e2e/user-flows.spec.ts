@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function waitForJonakinho(page: Page) {
-  await page.waitForFunction(() => Boolean((window as Window & { jonakinhoReady?: boolean }).jonakinhoReady));
+async function waitForProjectBall(page: Page) {
+  await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
 }
 
 test.describe("user journeys and edge cases", () => {
@@ -19,7 +19,7 @@ test.describe("user journeys and edge cases", () => {
 
   test("custom stake edge cases disable and re-enable confirmation", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await waitForJonakinho(page);
+    await waitForProjectBall(page);
 
     const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
     const confirmButton = firstCard.getByRole("button", { name: "Confirmar palpite" });
@@ -41,7 +41,7 @@ test.describe("user journeys and edge cases", () => {
 
   test("filters keep the board navigable and do not introduce overflow", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await waitForJonakinho(page);
+    await waitForProjectBall(page);
 
     await page.getByRole("button", { name: "Brasil" }).click();
     const visibleCards = page.locator("[data-match-card]:visible");
@@ -59,7 +59,7 @@ test.describe("user journeys and edge cases", () => {
 
   test("theme toggle persists across reloads", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await waitForJonakinho(page);
+    await waitForProjectBall(page);
 
     const before = await page.evaluate(() => document.documentElement.dataset.theme);
     const expected = before === "light" ? "dark" : "light";
@@ -67,7 +67,7 @@ test.describe("user journeys and edge cases", () => {
 
     await page.getByRole("button", { name: toggleLabel }).click();
     await page.waitForLoadState("domcontentloaded").catch(() => undefined);
-    await waitForJonakinho(page).catch(() => undefined);
+    await waitForProjectBall(page).catch(() => undefined);
     await expect
       .poll(() => page.evaluate(() => document.documentElement.dataset.theme))
       .toBe(expected);

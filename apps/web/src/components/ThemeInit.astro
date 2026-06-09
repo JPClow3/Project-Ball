@@ -1,0 +1,22 @@
+---
+// Theme initialization script to prevent FOUC
+---
+<script is:inline>
+  (() => {
+    const storageKey = "project-ball-theme";
+    let saved = null;
+    let prefersLight = false;
+
+    try {
+      saved = localStorage.getItem(storageKey);
+      prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+    } catch {
+      prefersLight = false;
+    }
+
+    const theme = saved === "light" || saved === "dark" ? saved : prefersLight ? "light" : "dark";
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#f5f7fb" : "#090b0f");
+  })();
+</script>

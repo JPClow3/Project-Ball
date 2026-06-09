@@ -23,14 +23,14 @@ describe("auth parsing", () => {
   });
 
   it("treats malformed session cookies as anonymous", () => {
-    const malformed = new Request("https://jonakinho.example/meus-palpites", {
+    const malformed = new Request("https://projectball.example/meus-palpites", {
       headers: {
-        cookie: "jonakinho_session=%E0%A4%A"
+        cookie: "project_ball_session=%E0%A4%A"
       }
     });
-    const valid = new Request("https://jonakinho.example/meus-palpites", {
+    const valid = new Request("https://projectball.example/meus-palpites", {
       headers: {
-        cookie: "theme=dark; jonakinho_session=session_abc%20123"
+        cookie: "theme=dark; project_ball_session=session_abc%20123"
       }
     });
 
@@ -39,7 +39,7 @@ describe("auth parsing", () => {
   });
 
   it("rejects nonce replay, wrong intent, and wrong-wallet challenge use", async () => {
-    const origin = "https://jonakinho.example";
+    const origin = "https://projectball.example";
     const alice = privateKeyToAccount(`0x${"1".repeat(64)}`);
     const bob = privateKeyToAccount(`0x${"2".repeat(64)}`);
     const registerChallenge = await createAuthChallenge(undefined, alice.address, "register", origin);

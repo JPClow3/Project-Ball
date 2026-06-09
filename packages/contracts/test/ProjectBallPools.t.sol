@@ -2,10 +2,10 @@
 pragma solidity ^0.8.26;
 
 import { Test } from "forge-std/Test.sol";
-import { JonakinhoPools } from "../src/JonakinhoPools.sol";
+import { ProjectBallPools } from "../src/ProjectBallPools.sol";
 import { MockERC20 } from "./mocks/MockERC20.sol";
 
-contract JonakinhoPoolsTest is Test {
+contract ProjectBallPoolsTest is Test {
     bytes32 private constant MATCH_ID = bytes32("rio-sp-2026-06-08");
 
     address private alice = address(0xA11CE);
@@ -15,7 +15,7 @@ contract JonakinhoPoolsTest is Test {
 
     MockERC20 private usdm;
     MockERC20 private usdc;
-    JonakinhoPools private pools;
+    ProjectBallPools private pools;
 
     function setUp() public {
         usdm = new MockERC20("USDm", "USDm", 18);
@@ -28,7 +28,7 @@ contract JonakinhoPoolsTest is Test {
         decimals[0] = 18;
         decimals[1] = 6;
 
-        pools = new JonakinhoPools(address(this), treasury, burnSink, tokens, decimals);
+        pools = new ProjectBallPools(address(this), treasury, burnSink, tokens, decimals);
         pools.createMatch(MATCH_ID, uint64(block.timestamp + 1 hours));
 
         usdm.mint(alice, 100 ether);
@@ -43,20 +43,20 @@ contract JonakinhoPoolsTest is Test {
 
     function testPlaceBetNormalizesMultiStablecoin() public {
         vm.prank(alice);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Home), address(usdm), 1 ether);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Home), address(usdm), 1 ether);
 
         vm.prank(bob);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Draw), address(usdc), 1_000000);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Draw), address(usdc), 1_000000);
 
-        assertEq(pools.getOutcomeTotal(MATCH_ID, uint8(JonakinhoPools.Outcome.Home)), 1 ether);
-        assertEq(pools.getOutcomeTotal(MATCH_ID, uint8(JonakinhoPools.Outcome.Draw)), 1 ether);
+        assertEq(pools.getOutcomeTotal(MATCH_ID, uint8(ProjectBallPools.Outcome.Home)), 1 ether);
+        assertEq(pools.getOutcomeTotal(MATCH_ID, uint8(ProjectBallPools.Outcome.Draw)), 1 ether);
     }
 
     function testRejectsSecondBetFromSameWallet() public {
         vm.startPrank(alice);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Home), address(usdm), 1 ether);
-        vm.expectRevert(JonakinhoPools.AlreadyPlaced.selector);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Away), address(usdm), 1 ether);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Home), address(usdm), 1 ether);
+        vm.expectRevert(ProjectBallPools.AlreadyPlaced.selector);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Away), address(usdm), 1 ether);
         vm.stopPrank();
     }
 
@@ -64,19 +64,19 @@ contract JonakinhoPoolsTest is Test {
         vm.warp(block.timestamp + 1 hours);
 
         vm.prank(alice);
-        vm.expectRevert(JonakinhoPools.MatchNotOpen.selector);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Home), address(usdm), 1 ether);
+        vm.expectRevert(ProjectBallPools.MatchNotOpen.selector);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Home), address(usdm), 1 ether);
     }
 
     function testResolveCollectsFeesAndWinnerClaimsBasket() public {
         vm.prank(alice);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Home), address(usdm), 2 ether);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Home), address(usdm), 2 ether);
 
         vm.prank(bob);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Home), address(usdc), 2_000000);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Home), address(usdc), 2_000000);
 
         vm.warp(block.timestamp + 1 hours);
-        pools.resolveMatch(MATCH_ID, uint8(JonakinhoPools.Outcome.Home));
+        pools.resolveMatch(MATCH_ID, uint8(ProjectBallPools.Outcome.Home));
 
         assertEq(usdm.balanceOf(treasury), 60_000_000_000_000_000);
         assertEq(usdm.balanceOf(burnSink), 40_000_000_000_000_000);
@@ -92,10 +92,10 @@ contract JonakinhoPoolsTest is Test {
 
     function testNoWinnerVoidsAndRefunds() public {
         vm.prank(alice);
-        pools.placeBet(MATCH_ID, uint8(JonakinhoPools.Outcome.Home), address(usdm), 1 ether);
+        pools.placeBet(MATCH_ID, uint8(ProjectBallPools.Outcome.Home), address(usdm), 1 ether);
 
         vm.warp(block.timestamp + 1 hours);
-        pools.resolveMatch(MATCH_ID, uint8(JonakinhoPools.Outcome.Away));
+        pools.resolveMatch(MATCH_ID, uint8(ProjectBallPools.Outcome.Away));
 
         vm.prank(alice);
         pools.refund(MATCH_ID);

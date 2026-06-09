@@ -3,10 +3,10 @@ import {
   CELO_SEPOLIA,
   getFeeCurrencyAddress,
   getTokenAddress,
-  jonakinhoPoolsAbi,
+  projectBallPoolsAbi,
   type Outcome,
   type StablecoinSymbol
-} from "@jonakinho/shared";
+} from "@project-ball/shared";
 import { defaultStakeUsd, minimumStakeUsd, outcomeOnchainCodes } from "../data/betting";
 import { getAvailableStablecoins, getDefaultStablecoin } from "../lib/tokens";
 
@@ -44,18 +44,18 @@ declare global {
     htmx?: {
       swap(target: Element, content: string, options: { swapStyle: string }): void;
     };
-    jonakinhoReady?: boolean;
-    jonakinhoEventsBound?: boolean;
-    jonakinhoLastThemeToggleAt?: number;
+    projectBallReady?: boolean;
+    projectBallEventsBound?: boolean;
+    projectBallLastThemeToggleAt?: number;
   }
 }
 
 const chainId = Number(import.meta.env.PUBLIC_CHAIN_ID ?? CELO_SEPOLIA.id);
 const targetChainHex = `0x${chainId.toString(16)}` as `0x${string}`;
 const emptyContractAddress = "0x0000000000000000000000000000000000000000";
-const poolsAddress = (import.meta.env.PUBLIC_JONAKINHO_POOLS_ADDRESS ??
+const poolsAddress = (import.meta.env.PUBLIC_PROJECT_BALL_POOLS_ADDRESS ??
   emptyContractAddress) as `0x${string}`;
-const themeStorageKey = "jonakinho-theme";
+const themeStorageKey = "project-ball-theme";
 const txHashByteLength = 32;
 const hexRadix = 16;
 const hexByteWidth = 2;
@@ -147,9 +147,18 @@ function formatWalletAddress(address: string): string {
 }
 
 function authRedirect(value: string | undefined): string {
-  if (value?.startsWith("/") && !value.startsWith("//")) {
-    return value;
+  if (!value) {
+    return "/meus-palpites";
   }
+
+  try {
+    const decoded = decodeURIComponent(value).trim();
+    if (decoded.startsWith("/") && !decoded.startsWith("//") && !decoded.startsWith("/\\")) {
+      if (!/^(?:[a-z\d+\-.]+ :| \/\/)/i.test(decoded)) {
+        return value;
+      }
+    }
+  } catch {}
 
   return "/meus-palpites";
 }
@@ -185,10 +194,10 @@ function initTheme(): void {
 
 function toggleTheme(): void {
   const now = Date.now();
-  if (now - (window.jonakinhoLastThemeToggleAt ?? 0) < 250) {
+  if (now - (window.projectBallLastThemeToggleAt ?? 0) < 250) {
     return;
   }
-  window.jonakinhoLastThemeToggleAt = now;
+  window.projectBallLastThemeToggleAt = now;
 
   const next: Theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
   try {
@@ -214,18 +223,17 @@ function setAuthStatus(source: HTMLElement, message: string, isError = false): v
 
 function iconSvg(name: string): string {
   const icons: Record<string, string> = {
-    "badge-check": '<circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path>',
-    "loader-circle": '<path d="M21 12a9 9 0 1 1-6.2-8.6"></path>',
-    "log-in": '<path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>',
-    "pen-line": '<path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>',
-    "rotate-ccw": '<path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"></path><path d="M3 3v5h5"></path>',
-    "send": '<path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path>',
-    "lock-keyhole": '<rect x="3" y="10" width="18" height="12" rx="2"></rect><path d="M7 10V7a5 5 0 0 1 10 0v3"></path><circle cx="12" cy="16" r="1"></circle>'
+    "badge-check": "fa-circle-check text-[var(--green)]",
+    "loader-circle": "fa-circle-notch fa-spin",
+    "log-in": "fa-right-to-bracket",
+    "pen-line": "fa-pen-to-square",
+    "rotate-ccw": "fa-rotate-left",
+    "send": "fa-paper-plane",
+    "lock-keyhole": "fa-lock"
   };
-  const spinClass = name === "loader-circle" ? " ui-icon--spin" : "";
-  const body = icons[name] ?? '<circle cx="12" cy="12" r="10"></circle>';
+  const classes = icons[name] ?? "fa-circle-question";
 
-  return `<svg class="ui-icon${spinClass}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+  return `<i class="fa-solid ${classes} ui-icon" aria-hidden="true"></i>`;
 }
 
 function setButtonHtml(button: HTMLElement, icon: string, label: string): void {
@@ -661,7 +669,7 @@ async function placeBet(options: {
     args: [poolsAddress, amount]
   });
   const data = encodeFunctionData({
-    abi: jonakinhoPoolsAbi,
+    abi: projectBallPoolsAbi,
     functionName: "placeBet",
     args: [resolveOnchainMatchId(matchId, stringToHex, onchainMatchId), normalizeOutcome(outcome), tokenAddress, amount]
   });
@@ -673,24 +681,43 @@ async function placeBet(options: {
     feeCurrency: feeCurrency ?? undefined
   });
 
-  const txHash = await wallet.sendTransaction({
-    account,
-    to: poolsAddress,
-    data,
-    feeCurrency: feeCurrency ?? undefined
-  });
+  try {
+    const txHash = await wallet.sendTransaction({
+      account,
+      to: poolsAddress,
+      data,
+      feeCurrency: feeCurrency ?? undefined
+    });
 
-  const response = await fetch("/api/confirm-bet", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ txHash, matchId, outcome })
-  });
+    const response = await fetch("/api/confirm-bet", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ txHash, matchId, outcome })
+    });
 
-  if (!response.ok) {
-    throw new Error(await response.text());
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    return response.text();
+  } catch (error) {
+    try {
+      const resetApproveData = encodeFunctionData({
+        abi: erc20ApproveAbi,
+        functionName: "approve",
+        args: [poolsAddress, 0n]
+      });
+      await wallet.sendTransaction({
+        account,
+        to: tokenAddress,
+        data: resetApproveData,
+        feeCurrency: feeCurrency ?? undefined
+      });
+    } catch (resetError) {
+      console.error("Failed to reset allowance:", resetError);
+    }
+    throw error;
   }
-
-  return response.text();
 }
 
 function swapCard(button: HTMLElement, html: string): void {
@@ -705,7 +732,8 @@ function swapCard(button: HTMLElement, html: string): void {
     return;
   }
 
-  card.outerHTML = html;
+  card.insertAdjacentHTML("afterend", html);
+  card.remove();
 }
 
 function updateNavigationState(): void {
@@ -1080,7 +1108,7 @@ function handleDocumentInput(event: Event): void {
 }
 
 function bindGlobalListeners(): void {
-  if (window.jonakinhoEventsBound) {
+  if (window.projectBallEventsBound) {
     return;
   }
 
@@ -1091,7 +1119,7 @@ function bindGlobalListeners(): void {
   document.addEventListener("keydown", handleSegmentKeydown);
   document.addEventListener("input", handleDocumentInput);
   document.addEventListener("astro:page-load", initPage);
-  window.jonakinhoEventsBound = true;
+  window.projectBallEventsBound = true;
 }
 
 function initPage(): void {
@@ -1101,7 +1129,7 @@ function initPage(): void {
   initBetForms();
   initMatchFilters();
   void refreshAuthSession().catch(() => undefined);
-  window.jonakinhoReady = true;
+  window.projectBallReady = true;
 }
 
 bindGlobalListeners();

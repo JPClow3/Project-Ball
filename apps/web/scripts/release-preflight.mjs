@@ -47,16 +47,16 @@ if (isLocalhostUrl(vars.PUBLIC_APP_URL)) {
   failures.push("PUBLIC_APP_URL still points at localhost");
 }
 
-const poolsAddress = vars.PUBLIC_JONAKINHO_POOLS_ADDRESS;
+const poolsAddress = vars.PUBLIC_PROJECT_BALL_POOLS_ADDRESS;
 if (typeof poolsAddress !== "string" || !/^0x[a-fA-F0-9]{40}$/.test(poolsAddress)) {
-  failures.push("PUBLIC_JONAKINHO_POOLS_ADDRESS must be a valid EVM address");
+  failures.push("PUBLIC_PROJECT_BALL_POOLS_ADDRESS must be a valid EVM address");
 } else if (zeroAddress.test(poolsAddress)) {
-  failures.push("PUBLIC_JONAKINHO_POOLS_ADDRESS is still the zero-address placeholder");
+  failures.push("PUBLIC_PROJECT_BALL_POOLS_ADDRESS is still the zero-address placeholder");
 }
 
-const d1Database = (config.d1_databases ?? []).find((database) => database.binding === "JONAKINHO_DB");
+const d1Database = (config.d1_databases ?? []).find((database) => database.binding === "PROJECT_BALL_DB");
 if (!d1Database?.database_id || zeroD1Id.test(d1Database.database_id)) {
-  failures.push("JONAKINHO_DB database_id is still the placeholder value");
+  failures.push("PROJECT_BALL_DB database_id is still the placeholder value");
 }
 
 if (failures.length > 0) {

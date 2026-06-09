@@ -5,7 +5,6 @@ import { defaultStakeUsd, getOutcomePoolShares } from "../data/betting";
 import { getDefaultStablecoin } from "../lib/tokens";
 import OutcomePicker from "./OutcomePicker.astro";
 import StakeStepper from "./StakeStepper.astro";
-import { BadgeDollarSign, CircleCheck, CircleDot, Clock3, Coins, LockKeyhole, MapPin } from "lucide-astro";
 
 type Props = {
   match: MatchViewModel;
@@ -39,7 +38,11 @@ const statusLabel = isConfirmed
     : match.status === "locked"
       ? "Travado"
       : match.status;
-const StatusIcon = isConfirmed ? CircleCheck : match.status === "open" ? CircleDot : LockKeyhole;
+const statusIconClass = isConfirmed
+  ? "fa-solid fa-circle-check"
+  : match.status === "open"
+    ? "fa-solid fa-circle-dot"
+    : "fa-solid fa-lock";
 const statusClass = match.status === "open" && !isConfirmed ? "status-pill--open" : "status-pill--locked";
 const homeFlagUrl = `https://flagcdn.com/w80/${match.homeFlagCode}.png`;
 const awayFlagUrl = `https://flagcdn.com/w80/${match.awayFlagCode}.png`;
@@ -70,30 +73,30 @@ const defaultToken = getDefaultStablecoin();
         <p class="mt-1 truncate text-xs font-semibold uppercase text-[var(--muted)]">{defaultToken.label} padrão - {match.competition}</p>
       </div>
       <span class:list={["status-pill", statusClass]}>
-        <StatusIcon size={14} aria-hidden="true" />
+        <i class={`${statusIconClass} ui-icon`} style="font-size: 14px;" aria-hidden="true"></i>
         {statusLabel}
       </span>
     </div>
 
     <div class="teams-line" aria-label={cardTitle}>
       <div class="team-block">
-        <img class="flag-img" src={homeFlagUrl} alt={`Bandeira: ${match.homeCountry}`} loading="lazy" />
+        <img class="flag-img" src={homeFlagUrl} alt={`Bandeira: ${match.homeCountry}`} width="80" height="60" loading="lazy" />
         <p class="team-name">{match.homeTeam}</p>
       </div>
       <span class="versus-pill" aria-hidden="true">x</span>
       <div class="team-block team-block--away">
-        <img class="flag-img ml-auto" src={awayFlagUrl} alt={`Bandeira: ${match.awayCountry}`} loading="lazy" />
+        <img class="flag-img ml-auto" src={awayFlagUrl} alt={`Bandeira: ${match.awayCountry}`} width="80" height="60" loading="lazy" />
         <p class="team-name">{match.awayTeam}</p>
       </div>
     </div>
 
     <p class="match-meta-row">
       <span>
-        <Clock3 size={16} class="text-[var(--cyan)]" aria-hidden="true" />
+        <i class="fa-solid fa-clock text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
         {formatKickoff(match.kickoffIso)}
       </span>
       <span class="min-w-0">
-        <MapPin size={16} class="text-[var(--gold)]" aria-hidden="true" />
+        <i class="fa-solid fa-map-pin text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
         <span class="truncate">{match.venue}</span>
       </span>
     </p>
@@ -101,14 +104,14 @@ const defaultToken = getDefaultStablecoin();
     <div class="match-finance-row" aria-label="Resumo do pote">
       <div class="finance-stat">
         <p class="finance-label">
-          <Coins size={14} class="text-[var(--gold)]" aria-hidden="true" />
+          <i class="fa-solid fa-coins text-[var(--gold)] ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
           Pote agora
         </p>
         <p class="finance-value text-[var(--green)]">{formatUsd(match.poolUsd)}</p>
       </div>
       <div class="finance-stat">
         <p class="finance-label justify-end">
-          <BadgeDollarSign size={14} class="text-[var(--cyan)]" aria-hidden="true" />
+          <i class="fa-solid fa-circle-dollar-to-slot text-[var(--cyan)] ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
           Valor padrão
         </p>
         <p class="finance-value">{formatUsd(defaultStakeUsd)}</p>
@@ -117,7 +120,7 @@ const defaultToken = getDefaultStablecoin();
 
     <div class="pool-stack">
       <div class="pool-label-row">
-        <span>{match.supporterCount} palpites</span>
+        <span>{match.supporterCount.toLocaleString("pt-BR")} palpites</span>
         <span>Divisão do pote</span>
       </div>
       <div class="pool-track" aria-hidden="true">
@@ -136,9 +139,6 @@ const defaultToken = getDefaultStablecoin();
 
     <form
       class="grid gap-3"
-      hx-post="/api/confirm-bet"
-      hx-target={`#match-card-${match.id}`}
-      hx-swap="outerHTML"
       data-bet-form
     >
       <input type="hidden" name="matchId" value={match.id} />
@@ -175,14 +175,14 @@ const defaultToken = getDefaultStablecoin();
               data-match-onchain-id={match.onchainId}
               data-outcome=""
             >
-              <LockKeyhole size={16} aria-hidden="true" />
+              <i class="fa-solid fa-lock ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
               Confirmar palpite
             </button>
           </>
         ) : (
           <div class="rounded-[8px] border border-[rgba(97,229,149,0.28)] bg-[rgba(97,229,149,0.09)] p-3">
             <p class="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]">
-              <CircleCheck size={16} class="text-[var(--green)]" aria-hidden="true" />
+              <i class="fa-solid fa-circle-check text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
               Palpite registrado
             </p>
             <p class="mt-1 text-sm font-semibold text-[var(--muted)]">A partida libera saque, reembolso ou liquidação quando o resultado for confirmado.</p>

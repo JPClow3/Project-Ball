@@ -5,7 +5,7 @@
 ```bash
 pnpm install
 forge install foundry-rs/forge-std --root packages/contracts --no-commit
-pnpm --filter @jonakinho/web dev
+pnpm --filter @project-ball/web dev
 ```
 
 Expose `localhost:4321` with ngrok or Cloudflare Tunnel for MiniPay Developer Mode testing.
@@ -26,7 +26,7 @@ Set Cloudflare preview variables:
 - `PUBLIC_CHAIN_ID=11142220`
 - `PUBLIC_CELO_RPC_URL=https://forno.celo-sepolia.celo-testnet.org`
 - `PUBLIC_CELO_EXPLORER_URL=https://celo-sepolia.blockscout.com`
-- `PUBLIC_JONAKINHO_POOLS_ADDRESS=<deployed contract>`
+- `PUBLIC_PROJECT_BALL_POOLS_ADDRESS=<deployed contract>`
 
 ## Production
 
@@ -38,8 +38,8 @@ forge script packages/contracts/script/DeployCeloMainnet.s.sol:DeployCeloMainnet
   --verify \
   --etherscan-api-key "$ETHERSCAN_API_KEY"
 
-pnpm --filter @jonakinho/web build
-pnpm --filter @jonakinho/web deploy
+pnpm --filter @project-ball/web build
+pnpm --filter @project-ball/web deploy
 ```
 
 After deploy, capture:

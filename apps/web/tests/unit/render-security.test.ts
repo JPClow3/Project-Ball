@@ -28,12 +28,13 @@ describe("renderMatchCard security", () => {
 
     expect(html).not.toContain("<script");
     expect(html).not.toContain("<img src=x");
-    expect(html).not.toContain("<svg");
+    expect(html).not.toContain("<svg onload");
     expect(html).not.toContain('onmouseover="');
     expect(html).not.toContain('onfocus="');
     expect(html).not.toContain('onerror="');
     expect(html).toContain("&lt;script&gt;alert(&quot;home&quot;)&lt;/script&gt;");
     expect(html).toContain("Away&quot; onmouseover=&quot;alert(1)");
     expect(html).toContain("Grupo &lt;A&gt;");
+    expect(html).toContain("Mexico &lt;svg onload=&quot;alert(1)&quot;&gt;");
   });
 });

@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import type { Outcome } from "@jonakinho/shared";
+import type { Outcome } from "@project-ball/shared";
 import { env } from "cloudflare:workers";
 import { getSession } from "../../lib/auth";
 import { recordBetConfirmation } from "../../lib/bets";
@@ -38,10 +38,14 @@ function parseConfirmBetPayload(payload: unknown): ConfirmBetPayload | null {
     return null;
   }
 
+  if (!isOutcome(record.outcome)) {
+    return null;
+  }
+
   return {
     txHash: record.txHash,
     matchId,
-    outcome: isOutcome(record.outcome) ? record.outcome : "HOME"
+    outcome: record.outcome
   };
 }
 
@@ -86,7 +90,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const [{ confirmBetTransaction }, session] = await Promise.all([
     import("../../lib/chain"),
-    getSession(env.JONAKINHO_DB, request)
+    getSession(env.PROJECT_BALL_DB, request)
   ]);
   const confirmation = await confirmBetTransaction(parsed.txHash);
 
@@ -106,16 +110,14 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response("Partida não encontrada", { status: 404 });
   }
 
-  if (confirmation) {
-    await recordBetConfirmation(env.JONAKINHO_DB, {
-      txHash: parsed.txHash,
-      matchId,
-      bettor: confirmation.bettor ?? null,
-      outcome,
-      token: confirmation.token ?? null,
-      amount: confirmation.normalizedAmount ?? confirmation.amount ?? null
-    });
-  }
+  await recordBetConfirmation(env.PROJECT_BALL_DB, {
+    txHash: parsed.txHash,
+    matchId,
+    bettor: confirmation.bettor,
+    outcome,
+    token: confirmation.token ?? null,
+    amount: confirmation.normalizedAmount ?? confirmation.amount ?? null
+  });
 
   const html = renderMatchCard(withUserPick(match, outcome));
 

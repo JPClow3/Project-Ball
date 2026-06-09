@@ -3,7 +3,6 @@ import { matches } from "../data/matches";
 import { tournamentConfig } from "../data/tournament";
 import { formatKickoff, formatUsd } from "../lib/format";
 import MatchCard from "./MatchCard.astro";
-import { CalendarDays, Grid2X2, Star, Ticket, Zap } from "lucide-astro";
 
 function groupId(label: string): string {
   return label.toLowerCase().replace(/\s+/g, "-");
@@ -44,23 +43,23 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
 
   <div class="quick-filters hide-scrollbar" aria-label="Filtros rápidos">
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="all" aria-pressed="true">
-      <Grid2X2 size={14} aria-hidden="true" />
+      <i class="fa-solid fa-table-cells-large ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
       Todos
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="today" aria-pressed="false">
-      <CalendarDays size={14} aria-hidden="true" />
+      <i class="fa-solid fa-calendar-days ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
       Hoje
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="brazil" aria-pressed="false">
-      <Star size={14} aria-hidden="true" />
+      <i class="fa-solid fa-star ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
       Brasil
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="soon" aria-pressed="false">
-      <Zap size={14} aria-hidden="true" />
+      <i class="fa-solid fa-bolt ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
       Em breve
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="mine" aria-pressed="false" data-auth-user hidden>
-      <Ticket size={14} aria-hidden="true" />
+      <i class="fa-solid fa-ticket ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
       Meus palpites
     </button>
   </div>

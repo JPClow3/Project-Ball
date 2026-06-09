@@ -3,7 +3,7 @@ import { env } from "cloudflare:workers";
 import { makeClearSessionCookie, revokeSession } from "../../../lib/auth";
 
 export const POST: APIRoute = async ({ request }) => {
-  await revokeSession(env.JONAKINHO_DB, request);
+  await revokeSession(env.PROJECT_BALL_DB, request);
 
   return new Response(JSON.stringify({ authenticated: false }), {
     headers: {

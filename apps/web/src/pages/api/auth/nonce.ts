@@ -24,7 +24,7 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "Carteira ou ação inválida" }, 400);
   }
 
-  const challenge = await createAuthChallenge(env.JONAKINHO_DB, walletAddress, intent, new URL(request.url).origin);
+  const challenge = await createAuthChallenge(env.PROJECT_BALL_DB, walletAddress, intent, new URL(request.url).origin);
 
   return json({
     nonce: challenge.nonce,

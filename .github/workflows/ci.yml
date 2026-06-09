@@ -25,22 +25,22 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Typecheck shared
-        run: pnpm --filter @jonakinho/shared check
+        run: pnpm --filter @project-ball/shared check
 
       - name: Typecheck web
-        run: pnpm --filter @jonakinho/web check
+        run: pnpm --filter @project-ball/web check
 
       - name: Unit tests
-        run: pnpm --filter @jonakinho/web test
+        run: pnpm --filter @project-ball/web test
 
       - name: Build web
-        run: pnpm --filter @jonakinho/web build
+        run: pnpm --filter @project-ball/web build
 
       - name: Install Playwright Chromium
-        run: pnpm --filter @jonakinho/web exec playwright install --with-deps chromium
+        run: pnpm --filter @project-ball/web exec playwright install --with-deps chromium
 
       - name: Mobile E2E
-        run: pnpm --filter @jonakinho/web test:e2e
+        run: pnpm --filter @project-ball/web test:e2e
 
   contracts:
     name: Contracts

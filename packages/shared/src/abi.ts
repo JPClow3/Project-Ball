@@ -1,4 +1,4 @@
-export const jonakinhoPoolsAbi = [
+export const projectBallPoolsAbi = [
   {
     type: "function",
     name: "createMatch",

@@ -1,6 +1,5 @@
 ---
 import { getAvailableStablecoins, getDefaultStablecoin } from "../lib/tokens";
-import { BadgeDollarSign } from "lucide-astro";
 
 const tokens = getAvailableStablecoins();
 const selected = getDefaultStablecoin().symbol;
@@ -22,7 +21,7 @@ const selected = getDefaultStablecoin().symbol;
           data-token-label={token.label}
         >
           <span class="inline-flex items-center justify-center gap-1.5">
-            <BadgeDollarSign size={14} class="text-[var(--gold)]" aria-hidden="true" />
+            <i class="fa-solid fa-circle-dollar-to-slot text-[var(--gold)] ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
             {token.label}
           </span>
         </button>

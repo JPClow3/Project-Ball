@@ -17,13 +17,15 @@ dist/
 cache/
 out/
 broadcast/
-lib/
+packages/contracts/lib/
+.codex-logs/
 
 coverage/
 test-results/
 playwright-report/
 
 *.log
+
 
 # IDE and editor settings
 .vscode/

@@ -1,4 +1,4 @@
-import type { Outcome } from "@jonakinho/shared";
+import type { Outcome } from "@project-ball/shared";
 
 export const outcomeLabels: Record<Outcome, string> = {
   HOME: "Time 1",

@@ -31,7 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const session = await registerWithWallet({
-    db: env.JONAKINHO_DB,
+    db: env.PROJECT_BALL_DB,
     walletAddress,
     nonce,
     signature,

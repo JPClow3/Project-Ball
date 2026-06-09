@@ -2,12 +2,12 @@
 pragma solidity ^0.8.26;
 
 import { Script } from "forge-std/Script.sol";
-import { JonakinhoPools } from "../src/JonakinhoPools.sol";
+import { ProjectBallPools } from "../src/ProjectBallPools.sol";
 
 contract DeployCeloSepolia is Script {
     address private constant CELO_SEPOLIA_USDC = 0x2f25deb3848c207fc8e0c34035b3ba7fc157602b;
 
-    function run() external returns (JonakinhoPools pools) {
+    function run() external returns (ProjectBallPools pools) {
         uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         address owner = vm.envAddress("OWNER_ADDRESS");
         address treasury = vm.envAddress("TREASURY_ADDRESS");
@@ -19,7 +19,7 @@ contract DeployCeloSepolia is Script {
         decimals[0] = 6;
 
         vm.startBroadcast(deployerPrivateKey);
-        pools = new JonakinhoPools(owner, treasury, burnSink, tokens, decimals);
+        pools = new ProjectBallPools(owner, treasury, burnSink, tokens, decimals);
         vm.stopBroadcast();
     }
 }

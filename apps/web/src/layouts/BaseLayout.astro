@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from "astro:transitions";
+import ThemeInit from "../components/ThemeInit.astro";
 import BottomNav from "../components/BottomNav.astro";
 import "../styles/global.css";
 
@@ -9,7 +10,7 @@ type Props = {
 };
 
 const {
-  title = "Jonakinho",
+  title = "Project Ball",
   description = "Palpites de futebol com dólar digital na MiniPay."
 } = Astro.props;
 ---
@@ -23,27 +24,10 @@ const {
     <meta name="theme-color" content="#090b0f" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=" />
-    <script is:inline>
-      (() => {
-        const storageKey = "jonakinho-theme";
-        let saved = null;
-        let prefersLight = false;
-
-        try {
-          saved = localStorage.getItem(storageKey);
-          prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-        } catch {
-          prefersLight = false;
-        }
-
-        const theme = saved === "light" || saved === "dark" ? saved : prefersLight ? "light" : "dark";
-        document.documentElement.dataset.theme = theme;
-        document.documentElement.style.colorScheme = theme;
-        document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#f5f7fb" : "#090b0f");
-      })();
-    </script>
+    <ThemeInit />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>{title}</title>
     <ClientRouter />
     <script>

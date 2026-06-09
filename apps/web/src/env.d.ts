@@ -19,8 +19,8 @@ interface RuntimeEnv {
   PUBLIC_CHAIN_ID: string;
   PUBLIC_CELO_RPC_URL: string;
   PUBLIC_CELO_EXPLORER_URL: string;
-  PUBLIC_JONAKINHO_POOLS_ADDRESS: string;
-  JONAKINHO_DB?: D1Database;
+  PUBLIC_PROJECT_BALL_POOLS_ADDRESS: string;
+  PROJECT_BALL_DB?: D1Database;
 }
 
 interface ImportMetaEnv extends RuntimeEnv {}

@@ -1,27 +1,26 @@
 ---
-import { ArrowUpRight, FileText, Mail, ShieldCheck, Wallet } from "lucide-astro";
 import AppHeader from "../components/AppHeader.astro";
 import PageFooter from "../components/PageFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const supportLinks = [
   {
-    href: "mailto:suporte@jonakinho.app",
-    icon: Mail,
+    href: "mailto:support@projectball.app",
+    icon: "fa-solid fa-envelope",
     title: "Email",
-    text: "suporte@jonakinho.app",
+    text: "support@projectball.app",
     helper: "Para saque, reembolso e dúvidas de carteira."
   },
   {
     href: "/terms",
-    icon: FileText,
+    icon: "fa-solid fa-file-lines",
     title: "Termos",
     text: "Regras do MVP",
     helper: "Jogos anulados, elegibilidade e liquidação."
   },
   {
     href: "/privacy",
-    icon: ShieldCheck,
+    icon: "fa-solid fa-shield-halved",
     title: "Privacidade",
     text: "Dados e histórico",
     helper: "Como usamos carteira, suporte e registros leves."
@@ -35,7 +34,7 @@ const checklist = [
 ] as const;
 ---
 
-<BaseLayout title="Jonakinho | Suporte">
+<BaseLayout title="Project Ball | Suporte">
   <AppHeader />
   <main class="app-shell app-main page-stack" transition:name="page-content">
     <section class="page-hero support-hero" transition:name="support-hero">
@@ -74,25 +73,24 @@ const checklist = [
     <section class="quiet-grid support-layout" aria-label="Canais de suporte">
       {
         supportLinks.map((item) => {
-          const Icon = item.icon;
           return (
             <a class="support-card focus-ring block transition hover:-translate-y-0.5" href={item.href}>
               <span class="liquid-icon">
-                <Icon size={18} aria-hidden="true" />
+                <i class={`${item.icon} ui-icon`} style="font-size: 18px;" aria-hidden="true"></i>
               </span>
               <p class="font-display mt-5 text-lg font-extrabold text-[var(--text)]">{item.title}</p>
               <p class="mt-2 text-sm font-semibold leading-relaxed text-[var(--muted)]">{item.text}</p>
               <p class="mt-3 text-xs font-extrabold uppercase leading-relaxed text-[var(--muted-strong)]">{item.helper}</p>
               <span class="mt-5 inline-flex items-center gap-2 text-sm font-black text-[var(--gold)]">
                 Abrir
-                <ArrowUpRight size={15} aria-hidden="true" />
+                <i class="fa-solid fa-arrow-up-right-from-square ui-icon" style="font-size: 15px;" aria-hidden="true"></i>
               </span>
             </a>
           );
         })
       }
       <aside class="support-checklist">
-        <span class="liquid-icon"><Wallet size={18} aria-hidden="true" /></span>
+        <span class="liquid-icon"><i class="fa-solid fa-wallet ui-icon" style="font-size: 18px;" aria-hidden="true"></i></span>
         <h2 class="text-xl">Antes de pedir ajuda</h2>
         <div class="timeline-list">
           {

@@ -2,20 +2,19 @@
 import AppHeader from "@/components/AppHeader.astro";
 import PageFooter from "@/components/PageFooter.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { LogIn, ReceiptText, Route, Trophy, UserPlus, Wallet } from "lucide-astro";
 
 const requestedNext = Astro.url.searchParams.get("next");
 const nextPath = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/meus-palpites";
 const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
 ---
 
-<BaseLayout title="Criar conta | Jonakinho">
+<BaseLayout title="Criar conta | Project Ball">
   <AppHeader />
   <main class="app-shell app-main" transition:name="page-content">
     <section class="auth-shell">
       <form class="surface-panel auth-panel" data-auth-form>
         <p class="eyebrow">
-          <UserPlus size={14} aria-hidden="true" />
+          <i class="fa-solid fa-user-plus ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
           Cadastro
         </p>
         <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Criar conta com MetaMask</h1>
@@ -23,7 +22,7 @@ const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
           Seu perfil fica ligado ao endereço da carteira que assinar a mensagem de cadastro.
         </p>
         <p class="mt-3 inline-flex items-center gap-2 rounded-[999px] border border-[var(--line)] bg-white/[0.045] px-3 py-2 text-xs font-black uppercase text-[var(--muted)]">
-          <Route size={14} class="text-[var(--green)]" aria-hidden="true" />
+          <i class="fa-solid fa-route text-[var(--green)] ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
           Depois do cadastro, você segue para {nextPath}
         </p>
 
@@ -36,7 +35,7 @@ const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
             name="displayName"
             autocomplete="nickname"
             maxlength="48"
-            placeholder="Jonakinho"
+            placeholder="Project Ball"
             data-auth-display-name
           />
         </label>
@@ -51,14 +50,14 @@ const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
             data-auth-intent="register"
             data-auth-redirect={nextPath}
           >
-            <Wallet size={16} aria-hidden="true" />
+            <i class="fa-solid fa-wallet ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
             Cadastrar com MetaMask
           </button>
           <a
             class="btn-secondary focus-ring mt-3 w-full"
             href={loginHref}
           >
-            <LogIn size={16} class="text-[var(--green)]" aria-hidden="true" />
+            <i class="fa-solid fa-right-to-bracket text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
             Já tenho conta
           </a>
         </div>
@@ -70,9 +69,9 @@ const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
           <h2 class="font-display mt-2 text-2xl font-extrabold text-[var(--text)]">Um perfil por carteira</h2>
         </div>
         <div class="editorial-list">
-          <p><Wallet size={16} class="text-[var(--green)]" aria-hidden="true" />Uma carteira conectada ao histórico de palpites.</p>
-          <p><ReceiptText size={16} class="text-[var(--cyan)]" aria-hidden="true" />Palpites confirmados aparecem em Meus Palpites.</p>
-          <p><Trophy size={16} class="text-[var(--gold)]" aria-hidden="true" />Prêmios usam a mesma sessão de carteira.</p>
+          <p><i class="fa-solid fa-wallet text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Uma carteira conectada ao histórico de palpites.</p>
+          <p><i class="fa-solid fa-receipt text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Palpites confirmados aparecem em Meus Palpites.</p>
+          <p><i class="fa-solid fa-trophy text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Prêmios usam a mesma sessão de carteira.</p>
         </div>
       </aside>
     </section>

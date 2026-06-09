@@ -1,5 +1,4 @@
 ---
-import { Clock, RotateCcw, ShieldCheck, Wallet } from "lucide-astro";
 import AppHeader from "../components/AppHeader.astro";
 import PageFooter from "../components/PageFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
@@ -21,34 +20,34 @@ const steps = [
 
 const rules = [
   {
-    icon: Clock,
+    icon: "fa-solid fa-clock",
     title: "Bloqueio antes do início",
     text: "Cada card mostra o horário em BRT. Depois do bloqueio, a partida não aceita novos palpites."
   },
   {
-    icon: RotateCcw,
+    icon: "fa-solid fa-arrow-rotate-left",
     title: "Reembolso em jogo anulado",
     text: "Se uma partida for anulada, o valor fica disponível para reembolso conforme as regras do MVP."
   },
   {
-    icon: Wallet,
+    icon: "fa-solid fa-wallet",
     title: "Sem senha",
     text: "Login e cadastro usam assinatura da carteira. Não há senha para memorizar nem recuperar."
   },
   {
-    icon: ShieldCheck,
+    icon: "fa-solid fa-shield-halved",
     title: "Confirmação explícita",
     text: "A seleção precisa estar ativa e o valor precisa ser válido antes do botão liberar."
   }
 ] as const;
 ---
 
-<BaseLayout title="Jonakinho | Sobre">
+<BaseLayout title="Project Ball | Sobre">
   <AppHeader />
   <main class="app-shell app-main page-stack" transition:name="page-content">
     <section class="page-hero" transition:name="about-hero">
       <div>
-        <p class="hero-kicker">Sobre o Jonakinho</p>
+        <p class="hero-kicker">Sobre o Project Ball</p>
         <h1 class="page-title mt-4">Um jeito simples de palpitar na Copa.</h1>
         <p class="page-copy mt-3">
           A tela inicial fica focada nas partidas. Aqui estão as regras: como confirmar, quando o jogo trava e quando o suporte entra.
@@ -84,10 +83,9 @@ const rules = [
       <div class="quiet-grid about-rule-grid">
         {
           rules.map((rule) => {
-            const Icon = rule.icon;
             return (
               <article class="quiet-card about-card-row">
-                <span class="liquid-icon"><Icon size={18} aria-hidden="true" /></span>
+                <span class="liquid-icon"><i class={`${rule.icon} ui-icon`} style="font-size: 18px;" aria-hidden="true"></i></span>
                 <div>
                   <h3>{rule.title}</h3>
                   <p>{rule.text}</p>

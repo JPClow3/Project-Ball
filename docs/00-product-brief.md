@@ -1,6 +1,6 @@
 # Product Brief
 
-Jonakinho is a mobile-first football prediction dApp built for Celo Proof of Ship and MiniPay. The product should feel like a fast casual football game: dark glossy visuals, big match cards, simple choices, and immediate feedback after a transaction.
+Project Ball is a mobile-first football prediction dApp built for Celo Proof of Ship and MiniPay. The product should feel like a fast casual football game: dark glossy visuals, big match cards, simple choices, and immediate feedback after a transaction.
 
 ## Product DNA
 

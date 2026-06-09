@@ -1,5 +1,5 @@
-import type { StatsSnapshot } from "@jonakinho/shared";
-import { STABLECOINS } from "@jonakinho/shared";
+import type { StatsSnapshot } from "@project-ball/shared";
+import { STABLECOINS } from "@project-ball/shared";
 
 const emptyCount = 0;
 const emptyUsdAmount = "0.00";

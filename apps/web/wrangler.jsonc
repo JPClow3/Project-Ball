@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "jonakinho-web",
+  "name": "project-ball-web",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -9,19 +9,19 @@
   },
   "d1_databases": [
     {
-      "binding": "JONAKINHO_DB",
-      "database_name": "jonakinho-preview",
+      "binding": "PROJECT_BALL_DB",
+      "database_name": "project-ball-preview",
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "./migrations"
     }
   ],
   "vars": {
-    "PUBLIC_APP_NAME": "Jonakinho",
+    "PUBLIC_APP_NAME": "Project Ball",
     "PUBLIC_APP_URL": "http://localhost:4321",
     "PUBLIC_CHAIN_ID": "11142220",
     "PUBLIC_CELO_RPC_URL": "https://forno.celo-sepolia.celo-testnet.org",
     "PUBLIC_CELO_EXPLORER_URL": "https://celo-sepolia.blockscout.com",
-    "PUBLIC_JONAKINHO_POOLS_ADDRESS": "0x0000000000000000000000000000000000000000",
-    "PUBLIC_SUPPORT_URL": "https://t.me/jonakinho_support"
+    "PUBLIC_PROJECT_BALL_POOLS_ADDRESS": "0x0000000000000000000000000000000000000000",
+    "PUBLIC_SUPPORT_URL": "https://t.me/projectball_support"
   }
 }

@@ -4,7 +4,7 @@ test("mobile home renders match cards and local confirmation flow", async ({ pag
   test.setTimeout(90_000);
   await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
   await expect(page.getByRole("heading", { name: "72 jogos. Palpites sem rodeio." })).toBeVisible();
-  await page.waitForFunction(() => Boolean((window as Window & { jonakinhoReady?: boolean }).jonakinhoReady));
+  await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
 
   const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
   await expect(firstCard).toContainText("México x África do Sul");

@@ -1,12 +1,12 @@
 {
-  "name": "Jonakinho",
+  "name": "Project Ball",
   "description": "Palpites rapidos de futebol na Celo, pronto para MiniPay.",
-  "url": "https://jonakinho.example",
-  "icon": "https://jonakinho.example/icon.svg",
+  "url": "https://projectball.example",
+  "icon": "https://projectball.example/icon.svg",
   "contracts": {
     "celo": {
-      "JonakinhoPools": "0x0000000000000000000000000000000000000000"
+      "ProjectBallPools": "0x0000000000000000000000000000000000000000"
     }
   },
-  "support": "https://t.me/jonakinho_support"
+  "support": "https://t.me/projectball_support"
 }

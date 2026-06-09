@@ -1,4 +1,4 @@
-import type { Match } from "@jonakinho/shared";
+import type { Match } from "@project-ball/shared";
 import type { OutcomeTotalsUsd } from "./betting";
 import { getMatchPoolSnapshot, outcomeLabels } from "./betting";
 import { tournamentConfig } from "./tournament";

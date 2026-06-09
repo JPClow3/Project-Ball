@@ -1,11 +1,9 @@
 ---
-import { CircleHelp, Goal, Headset, Ticket } from "lucide-astro";
-
 const items = [
-  { href: "/", label: "Jogos", icon: Goal },
-  { href: "/meus-palpites", label: "Meus", icon: Ticket },
-  { href: "/about", label: "Sobre", icon: CircleHelp },
-  { href: "/support", label: "Ajuda", icon: Headset }
+  { href: "/", label: "Jogos", icon: "fa-solid fa-futbol" },
+  { href: "/meus-palpites", label: "Meus", icon: "fa-solid fa-ticket" },
+  { href: "/about", label: "Sobre", icon: "fa-solid fa-circle-question" },
+  { href: "/support", label: "Ajuda", icon: "fa-solid fa-headset" }
 ] as const;
 const current = Astro.url.pathname;
 ---
@@ -14,7 +12,6 @@ const current = Astro.url.pathname;
   <div class="mobile-nav-grid">
     {
       items.map((item) => {
-        const Icon = item.icon;
         return (
           <a
             href={item.href}
@@ -22,7 +19,7 @@ const current = Astro.url.pathname;
             aria-current={current === item.href ? "page" : undefined}
             data-nav-link
           >
-            <Icon size={18} aria-hidden="true" />
+            <i class={`${item.icon} ui-icon`} style="font-size: 18px;" aria-hidden="true"></i>
             {item.label}
           </a>
         );
