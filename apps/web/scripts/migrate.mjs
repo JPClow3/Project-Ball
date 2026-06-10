@@ -7,8 +7,8 @@ const migrationsDir = fileURLToPath(new URL("../migrations", import.meta.url));
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  console.error("DATABASE_URL is required to run migrations");
-  process.exit(1);
+  console.warn("DATABASE_URL is not set. Skipping database migrations. The application will run using the in-memory fallback store.");
+  process.exit(0);
 }
 
 const client = new Client({ connectionString: databaseUrl });
