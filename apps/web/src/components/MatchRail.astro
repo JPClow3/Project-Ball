@@ -1,8 +1,11 @@
 ---
 import { matches as defaultMatches, type MatchViewModel } from "../data/matches";
-import { tournamentConfig } from "../data/tournament";
 import { formatKickoff, formatUsd } from "../lib/format";
+
 import MatchCard from "./MatchCard.astro";
+import { useTranslations } from "../i18n";
+
+const t = useTranslations(Astro.locals.lang);
 
 type Props = {
   matches?: readonly MatchViewModel[];
@@ -39,10 +42,10 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
 <section id="match-board" class="app-shell page-stack py-6" aria-labelledby="partidas" transition:name="match-board">
   <div class="match-board-header">
     <div>
-      <p class="eyebrow">{tournamentConfig.stageLabel}</p>
-      <h2 id="partidas" class="font-display mt-4 text-2xl font-bold text-[var(--text)] md:text-3xl">Partidas</h2>
+      <p class="eyebrow">{t("rail.stage")}</p>
+      <h2 id="partidas" class="font-display mt-4 text-2xl font-bold text-[var(--text)] md:text-3xl">{t("rail.title")}</h2>
       <p class="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-[var(--muted)] md:text-base">
-        Escolha um grupo, abra a partida e confirme seu palpite. Sem etapa escondida.
+        {t("rail.desc")}
       </p>
     </div>
   </div>
@@ -50,23 +53,23 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
   <div class="quick-filters hide-scrollbar" role="group" aria-label="Filtros rápidos">
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="all" aria-pressed="true">
       <i class="fa-solid fa-table-cells-large ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-      Todos
+      {t("filter.all")}
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="today" aria-pressed="false">
       <i class="fa-solid fa-calendar-days ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-      Hoje
+      {t("filter.today")}
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="brazil" aria-pressed="false">
       <i class="fa-solid fa-star ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-      Brasil
+      {t("filter.brazil")}
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="soon" aria-pressed="false">
       <i class="fa-solid fa-bolt ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-      Em breve
+      {t("filter.soon")}
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="mine" aria-pressed="false" data-auth-user hidden>
       <i class="fa-solid fa-ticket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-      Meus palpites
+      {t("filter.mine")}
     </button>
   </div>
 

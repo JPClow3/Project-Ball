@@ -37,3 +37,7 @@ playwright-report/
 .tsbuildinfo
 .cache/
 .parcel-cache/
+
+# Local Wrangler development state/caches
+.wrangler/
+apps/web/.wrangler/
