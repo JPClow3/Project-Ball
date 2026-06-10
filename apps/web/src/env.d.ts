@@ -28,3 +28,9 @@ interface ImportMetaEnv extends RuntimeEnv {}
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare namespace App {
+  interface Locals {
+    lang: import('./i18n').Language;
+  }
+}

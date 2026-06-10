@@ -163,8 +163,8 @@ async function ensureCeloNetwork(provider: EthereumProvider): Promise<void> {
           symbol: "CELO",
           decimals: 18
         },
-        rpcUrls: [import.meta.env.PUBLIC_CELO_RPC_URL ?? network.rpcUrl],
-        blockExplorerUrls: [import.meta.env.PUBLIC_CELO_EXPLORER_URL ?? network.explorerUrl]
+        rpcUrls: [import.meta.env.PUBLIC_CELO_RPC_URL || network.rpcUrl],
+        blockExplorerUrls: [import.meta.env.PUBLIC_CELO_EXPLORER_URL || network.explorerUrl]
       }
     ]
   });
@@ -699,6 +699,10 @@ function errorMessage(error: unknown, fallback: string): string {
     return error.message;
   }
 
+  if (error && typeof error === "object" && "message" in error && typeof (error as Record<string, unknown>).message === "string") {
+    return (error as Record<string, unknown>).message as string;
+  }
+
   return fallback;
 }
 
@@ -804,7 +808,14 @@ async function authenticateWithWallet(button: HTMLElement): Promise<void> {
       setButtonHtml(button, "badge-check", "Conectado");
       window.location.assign(authRedirect(button.dataset.authRedirect));
     } catch (error) {
-      const message = errorMessage(error, "Não foi possível conectar o MiniPay");
+      const code = providerErrorCode(error);
+      let message = errorMessage(error, "Não foi possível conectar o MiniPay");
+      const normalized = message.toLowerCase();
+
+      if (code === 4001 || code === "4001" || /rejeitad|recusad|denied|rejected|user rejected/.test(normalized)) {
+        message = "Autenticação cancelada na carteira.";
+      }
+
       setAuthStatus(button, message, true);
       showToast(message, "error");
       button.innerHTML = originalHtml;
@@ -855,7 +866,13 @@ async function authenticateWithWallet(button: HTMLElement): Promise<void> {
     await delay(successNavigationDelayMs);
     window.location.assign(authRedirect(button.dataset.authRedirect));
   } catch (error) {
-    const message = errorMessage(error, "Autenticação cancelada");
+    const code = providerErrorCode(error);
+    let message = errorMessage(error, "Autenticação cancelada");
+    const normalized = message.toLowerCase();
+
+    if (code === 4001 || code === "4001" || /rejeitad|recusad|denied|rejected|user rejected/.test(normalized)) {
+      message = "Autenticação cancelada na carteira.";
+    }
 
     if (message === "Carteira ainda não cadastrada") {
       window.location.assign(`/register?next=${encodeURIComponent(authRedirect(button.dataset.authRedirect))}`);

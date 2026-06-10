@@ -8,8 +8,10 @@ import { formatKickoffFull } from "../lib/format";
 import { withUserPick } from "../lib/matches";
 import AppLayout from "../layouts/AppLayout.astro";
 import { getRuntimeEnv } from "../lib/runtime";
+import { useTranslations } from "../i18n";
 
 const env = getRuntimeEnv();
+const t = useTranslations(Astro.locals.lang);
 
 const groupCount = new Set(matches.map((match) => match.groupLabel)).size;
 const now = Date.now();
@@ -17,10 +19,10 @@ const nextMatch = matches.find((match) => new Date(match.kickoffIso).getTime() >
 const msUntilNext = nextMatch ? new Date(nextMatch.kickoffIso).getTime() - now : 0;
 const hoursUntilNext = Math.max(0, Math.ceil(msUntilNext / (1000 * 60 * 60)));
 const countdownLabel = hoursUntilNext >= 48
-  ? `${Math.ceil(hoursUntilNext / 24)} dias`
+  ? `${Math.ceil(hoursUntilNext / 24)} ${t("hero.days")}`
   : hoursUntilNext > 0
-    ? `${hoursUntilNext} horas`
-    : "Ao vivo";
+    ? `${hoursUntilNext} ${t("hero.hours")}`
+    : t("hero.live");
 const nextHomeFlag = nextMatch?.homeFlagCode ? `https://flagcdn.com/w80/${nextMatch.homeFlagCode}.png` : "";
 const nextAwayFlag = nextMatch?.awayFlagCode ? `https://flagcdn.com/w80/${nextMatch.awayFlagCode}.png` : "";
 const heroFlags = [
@@ -57,17 +59,17 @@ const confirmedPickByMatchId = new Map(confirmedPicks.map((pick) => [pick.matchI
 const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMatchId.get(match.id)));
 ---
 
-<AppLayout title="Palpites" isFluid={true}>
+<AppLayout title={t("nav.picks")} isFluid={true}>
   <section class="board-masthead matchday-hero" transition:name="page-hero">
     <div class="app-shell board-masthead-inner matchday-hero-grid">
       <div class="board-title-block matchday-copy">
         <p class="matchday-stamp">
-          <span>Project Ball</span>
+          <span>{t("hero.kicker")}</span>
           <strong>{tournamentConfig.name}</strong>
         </p>
-        <h1 class="board-title">72 jogos. Palpites sem rodeio.</h1>
+        <h1 class="board-title">{t("hero.title")}</h1>
         <p class="board-subtitle">
-          Escolha a partida, marque o time ou empate e confirme o valor. A tela existe para isso.
+          {t("hero.subtitle")}
         </p>
         <div class="hero-flag-strip" aria-hidden="true">
           {heroFlags.map((flag) => (
@@ -82,15 +84,15 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
           ))}
         </div>
         <div class="hero-command-row" aria-label="Resumo das partidas">
-          <span><strong>{matches.length}</strong> jogos</span>
-          <span><strong>{groupCount}</strong> grupos</span>
-          <span><strong>{countdownLabel}</strong> até travar</span>
+          <span><strong>{matches.length}</strong> {t("hero.matches")}</span>
+          <span><strong>{groupCount}</strong> {t("hero.groups")}</span>
+          <span><strong>{countdownLabel}</strong> {t("hero.untilLock")}</span>
         </div>
       </div>
 
-      <aside class="matchday-ticket" aria-label="Próxima partida">
+      <aside class="matchday-ticket" aria-label={t("ticket.nextMatch")}>
         <div class="ticket-topbar">
-          <span>Próxima partida</span>
+          <span>{t("ticket.nextMatch")}</span>
           <strong>{countdownLabel}</strong>
         </div>
         {
@@ -134,11 +136,11 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
         }
         <div class="ticket-meta-grid">
           <span>
-            <small>Trava</small>
-            <strong>{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : "Calendário pendente"}</strong>
+            <small>{t("ticket.lock")}</small>
+            <strong>{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : t("ticket.pending")}</strong>
           </span>
           <span>
-            <small>Tabela</small>
+            <small>{t("ticket.schedule")}</small>
             <strong>{scheduleVerifiedLabel}</strong>
           </span>
         </div>
@@ -146,7 +148,7 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
           nextMatch && (
             <div class="ticket-market-line" aria-hidden="true">
               <span>{nextMatch.homeTeam}</span>
-              <span>Empate</span>
+              <span>{t("ticket.draw")}</span>
               <span>{nextMatch.awayTeam}</span>
             </div>
           )

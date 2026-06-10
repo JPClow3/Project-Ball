@@ -48,7 +48,11 @@ const securityHeaders = {
   "X-Content-Type-Options": "nosniff"
 } as const;
 
+import { getLanguageFromAccept } from "./i18n";
+
 export const onRequest = defineMiddleware(async (context, next) => {
+  context.locals.lang = getLanguageFromAccept(context.request.headers.get("Accept-Language"));
+
   if (context.request.method !== "GET" && context.request.method !== "HEAD") {
     const origin = context.request.headers.get("Origin");
     if (origin && origin !== context.url.origin) {
