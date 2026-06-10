@@ -20,6 +20,7 @@ export default defineConfig({
       name: "mobile",
       use: {
         ...devices["Pixel 5"],
+        locale: "pt-BR",
         viewport: { width: 360, height: 640 }
       }
     }

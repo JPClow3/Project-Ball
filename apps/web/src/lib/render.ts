@@ -39,7 +39,7 @@ function flagImage(code: string | undefined, country: string, alignAway = false)
     return "";
   }
 
-  return `<img class="flag-img${alignAway ? " ml-auto" : ""}" src="https://flagcdn.com/w80/${escapeHtml(code)}.png" alt="${escapeHtml(country)}" aria-hidden="true" width="80" height="60" loading="lazy" decoding="async">`;
+  return `<img class="flag-img${alignAway ? " ml-auto" : ""}" src="https://flagcdn.com/w80/${escapeHtml(code)}.png" alt="Bandeira: ${escapeHtml(country)}" width="80" height="60" loading="lazy" decoding="async">`;
 }
 
 function smallFlag(code: string | undefined): string {

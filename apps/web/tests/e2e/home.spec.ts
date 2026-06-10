@@ -4,7 +4,7 @@ import { CELO_SEPOLIA } from "@project-ball/shared";
 test("mobile home renders match cards and local confirmation flow", async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await expect(page.getByRole("heading", { name: "72 jogos. Palpites sem rodeio." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Futebol sem enrolação." })).toBeVisible();
   await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
   await expect
     .poll(() => page.evaluate(() => typeof (window as Window & { htmx?: { swap?: unknown } }).htmx?.swap))
@@ -107,7 +107,7 @@ test("MiniPay login creates a no-sign session", async ({ page }) => {
   await page.goto("/login?next=/meus-palpites", { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Entrar com carteira" }).click();
   await expect(page).toHaveURL(/\/meus-palpites$/);
-  await expect(page.getByRole("heading", { name: "Palpites" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Palpites" })).toBeVisible();
   await expect(page.locator("[data-auth-user]").first()).toBeVisible();
 });
 
@@ -120,7 +120,7 @@ test("home and match cards render in both themes", async ({ page }) => {
     await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
 
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe(theme);
-    await expect(page.getByRole("heading", { name: "72 jogos. Palpites sem rodeio." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Futebol sem enrolação." })).toBeVisible();
 
     const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
     await expect(firstCard).toBeVisible();

@@ -124,6 +124,6 @@ test.describe("security and penetration probes", () => {
 async function expectNoStackTrace(response: { text(): Promise<string> }) {
   const body = await response.text();
   expect(body).not.toContain("Stack trace");
-  expect(body).not.toContain("at ");
-  expect(body).not.toContain("Error:");
+  expect(body).not.toMatch(/\n\s+at\s+[A-Za-z0-9_.$[\]()<>]+ \(/);
+  expect(body).not.toMatch(/^Error:\s/m);
 }

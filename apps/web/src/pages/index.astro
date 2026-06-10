@@ -59,6 +59,11 @@ const confirmedPickByMatchId = new Map(confirmedPicks.map((pick) => [pick.matchI
 const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMatchId.get(match.id)));
 ---
 
+<meta
+  name="talentapp:project_verification"
+  content="16e92412978e6de6dfeb1f271a079e0d34daa1594e3d34e77c0f611ca77d8fad71e48e8c63fb952220a8a661e32daaaf8acb062d26023f740c3ef5b732668368"
+/>
+
 <AppLayout title={t("nav.picks")} isFluid={true}>
   <section class="board-masthead matchday-hero" transition:name="page-hero">
     <div class="app-shell board-masthead-inner matchday-hero-grid">
@@ -75,7 +80,7 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
           {heroFlags.map((flag) => (
             <img
               src={`https://flagcdn.com/w80/${flag.code}.png`}
-              alt=""
+              alt={`Bandeira: ${flag.country}`}
               width="30"
               height="22"
               loading="eager"

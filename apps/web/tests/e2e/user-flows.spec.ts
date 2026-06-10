@@ -23,7 +23,7 @@ test.describe("user journeys and edge cases", () => {
 
     const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
     const confirmButton = firstCard.getByRole("button", { name: "Confirmar palpite" });
-    const customStake = firstCard.getByRole("spinbutton", { name: "Valor personalizado" });
+    const customStake = firstCard.getByRole("spinbutton", { name: "Valor" });
 
     await firstCard.getByRole("radio", { name: "México vence" }).click();
     await expect(confirmButton).toBeEnabled();
