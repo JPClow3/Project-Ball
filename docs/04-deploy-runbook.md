@@ -78,7 +78,7 @@ pnpm --filter @project-ball/web build
 pnpm --filter @project-ball/web deploy
 ```
 
-The current `deploy` script publishes the SSR app with `wrangler deploy` from the root `wrangler.jsonc`. Before a real release, replace the placeholder D1/KV ids and public contract values there, then run the release preflight. If you switch this app to Cloudflare Pages auto-builds, configure the required `PUBLIC_*` variables in the Pages dashboard before triggering the build:
+The current `deploy` script publishes the SSR app with `wrangler deploy` from the root `wrangler.jsonc`. Before a real release, replace the placeholder D1 id and public contract values there, then run the release preflight. If you switch this app to Cloudflare Pages auto-builds, configure the required `PUBLIC_*` variables in the Pages dashboard before triggering the build:
 
 - `PUBLIC_APP_NAME`
 - `PUBLIC_APP_URL`

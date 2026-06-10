@@ -474,6 +474,15 @@ export async function loginWithWallet(options: {
   return createSession(options.db, await touchLogin(options.db, user));
 }
 
+export async function createMiniPaySession(options: {
+  readonly db: D1;
+  readonly walletAddress: `0x${string}`;
+  readonly displayName: string | null;
+}): Promise<AuthSession> {
+  const user = await upsertUser(options.db, options.walletAddress, options.displayName);
+  return createSession(options.db, user);
+}
+
 export function readSessionId(request: Request): string | null {
   const cookie = request.headers.get("cookie");
 

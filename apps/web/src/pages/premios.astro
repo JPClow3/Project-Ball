@@ -11,9 +11,9 @@ if (!session) {
 
 <AppLayout title="Prêmios">
   <section class="page-stack">
-    <div class="surface-panel p-5">
+    <div class="surface-panel p-6">
       <p class="eyebrow">
-        <i class="fa-solid fa-trophy ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+        <i class="fa-solid fa-trophy ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
         Prêmios
       </p>
       <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)]">Disponíveis</h1>
@@ -22,17 +22,16 @@ if (!session) {
       </p>
     </div>
 
-    <section class="surface-panel p-5">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="font-display text-xl font-extrabold text-[var(--text)]">Nenhum saque disponível agora</p>
-          <p class="mt-2 text-sm font-semibold text-[var(--muted)]">Continue acompanhando os jogos confirmados para liberar prêmios.</p>
-        </div>
-        <a class="btn-gold focus-ring w-fit" href="/">
+    <section class="empty-state-panel">
+      <i class="fa-solid fa-trophy ui-icon text-[var(--gold)]" style="font-size: 24px;" aria-hidden="true"></i>
+      <div>
+        <h2 class="font-display text-xl font-bold text-[var(--text)]">Nenhum saque disponível agora</h2>
+        <p class="mt-2 max-w-prose text-sm font-medium leading-relaxed text-[var(--muted)]">Continue acompanhando os jogos confirmados para liberar prêmios.</p>
+      </div>
+      <a class="btn-gold focus-ring w-fit" href="/">
           <i class="fa-solid fa-futbol ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
           Ver jogos
-        </a>
-      </div>
+      </a>
     </section>
   </section>
 </AppLayout>

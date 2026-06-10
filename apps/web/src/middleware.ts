@@ -1,6 +1,26 @@
 import { defineMiddleware } from "astro:middleware";
+import { appConfig } from "./lib/config";
+
+function configuredRpcOrigin(): string | null {
+  try {
+    return new URL(appConfig.celoRpcUrl).origin;
+  } catch {
+    return null;
+  }
+}
 
 function contentSecurityPolicy(isHttps: boolean): string {
+  const connectSources = new Set([
+    "'self'",
+    "https://forno.celo.org",
+    "https://forno.celo-sepolia.celo-testnet.org"
+  ]);
+  const rpcOrigin = configuredRpcOrigin();
+
+  if (rpcOrigin) {
+    connectSources.add(rpcOrigin);
+  }
+
   const directives = [
     "default-src 'self'",
     "base-uri 'self'",
@@ -10,7 +30,7 @@ function contentSecurityPolicy(isHttps: boolean): string {
     "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "script-src 'self' 'unsafe-inline'",
-    "connect-src 'self' https://forno.celo.org https://forno.celo-sepolia.celo-testnet.org",
+    `connect-src ${[...connectSources].join(" ")}`,
     "form-action 'self'"
   ];
 

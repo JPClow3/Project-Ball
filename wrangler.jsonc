@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "project-ball-web",
+  "name": "project-ball",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./apps/web/dist/server/entry.mjs",
@@ -16,7 +16,7 @@
   ],
   "no_bundle": true,
   "observability": {
-    "enabled": true,
+    "enabled": false,
     "head_sampling_rate": 1,
     "logs": {
       "enabled": true,
@@ -30,12 +30,6 @@
       "head_sampling_rate": 1
     }
   },
-  "kv_namespaces": [
-    {
-      "binding": "SESSION",
-      "id": "00000000000000000000000000000000"
-    }
-  ],
   "d1_databases": [
     {
       "binding": "PROJECT_BALL_DB",
@@ -45,11 +39,10 @@
     }
   ],
   // Used by the current Worker SSR deploy (`pnpm --filter @project-ball/web deploy`).
-  // If deploying through Cloudflare Pages Git builds, mirror PUBLIC_* in
-  // Workers & Pages > Settings > Variables and Secrets before the build runs.
+  // PUBLIC_* values are also loaded by the web build script for dashboard builds.
   "vars": {
     "PUBLIC_APP_NAME": "Project Ball",
-    "PUBLIC_APP_URL": "http://localhost:4321",
+    "PUBLIC_APP_URL": "https://project-ball.github-broadcast509.workers.dev",
     "PUBLIC_CHAIN_ID": "11142220",
     "PUBLIC_CELO_RPC_URL": "https://forno.celo-sepolia.celo-testnet.org",
     "PUBLIC_CELO_EXPLORER_URL": "https://celo-sepolia.blockscout.com",

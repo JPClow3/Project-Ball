@@ -4,8 +4,12 @@ import MatchRail from "../components/MatchRail.astro";
 import PageFooter from "../components/PageFooter.astro";
 import { matches } from "../data/matches";
 import { tournamentConfig } from "../data/tournament";
+import { getSession } from "../lib/auth";
+import { getUserConfirmedPicks } from "../lib/bets";
 import { formatKickoffFull } from "../lib/format";
+import { withUserPick } from "../lib/matches";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { env } from "cloudflare:workers";
 
 const groupCount = new Set(matches.map((match) => match.groupLabel)).size;
 const now = Date.now();
@@ -37,6 +41,12 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
   timeZone: tournamentConfig.displayTimeZone
 }).format(new Date(`${tournamentConfig.scheduleVerifiedAt}T12:00:00Z`));
+const session = await getSession(env.PROJECT_BALL_DB, Astro.request);
+const confirmedPicks = session
+  ? await getUserConfirmedPicks(env.PROJECT_BALL_DB, session.user.walletAddress)
+  : [];
+const confirmedPickByMatchId = new Map(confirmedPicks.map((pick) => [pick.matchId, pick.outcome]));
+const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMatchId.get(match.id)));
 ---
 
 <BaseLayout title="Project Ball | Palpites">
@@ -131,7 +141,7 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
       </div>
     </section>
 
-    <MatchRail />
+    <MatchRail matches={matchBoard} />
   </main>
   <PageFooter />
 </BaseLayout>

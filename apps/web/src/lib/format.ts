@@ -36,7 +36,7 @@ export function formatKickoffFull(isoDate: string): string {
 }
 
 export function getOutcomeTone(outcome: Outcome): string {
-  if (outcome === "HOME") return "from-[rgba(41,220,129,0.24)] to-[rgba(41,220,129,0.06)]";
-  if (outcome === "DRAW") return "from-[rgba(255,209,102,0.24)] to-[rgba(255,209,102,0.06)]";
-  return "from-[rgba(103,216,255,0.22)] to-[rgba(103,216,255,0.06)]";
+  if (outcome === "HOME") return "outcome-tone-home";
+  if (outcome === "DRAW") return "outcome-tone-draw";
+  return "outcome-tone-away";
 }

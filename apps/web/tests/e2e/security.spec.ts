@@ -17,6 +17,8 @@ test.describe("security and penetration probes", () => {
     expect(headers["permissions-policy"]).toContain("camera=()");
     expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
     expect(headers["content-security-policy"]).toContain("object-src 'none'");
+    expect(headers["content-security-policy"]).toContain("connect-src");
+    expect(headers["content-security-policy"]).toContain("https://forno.celo-sepolia.celo-testnet.org");
   });
 
   test("rejects malformed API payloads without leaking stack traces", async ({ request }) => {
@@ -76,6 +78,22 @@ test.describe("security and penetration probes", () => {
     expect(bogusChallenge.status()).toBe(401);
     expect(bogusChallenge.headers()["set-cookie"]).toBeUndefined();
     await expectNoStackTrace(bogusChallenge);
+
+    const invalidMiniPay = await request.post("/api/auth/minipay", {
+      data: {
+        address: "not-a-wallet"
+      }
+    });
+    expect(invalidMiniPay.status()).toBe(400);
+    expect(invalidMiniPay.headers()["set-cookie"]).toBeUndefined();
+
+    const validMiniPay = await request.post("/api/auth/minipay", {
+      data: {
+        address: validAddress
+      }
+    });
+    expect(validMiniPay.status()).toBe(200);
+    expect(validMiniPay.headers()["set-cookie"]).toContain("project_ball_session=");
   });
 
   test("allows local-only fake confirmation only for valid known match payloads", async ({ request }) => {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import {
   createAuthChallenge,
+  createMiniPaySession,
   loginWithWallet,
   normalizeNonce,
   normalizeSignature,
@@ -36,6 +37,19 @@ describe("auth parsing", () => {
 
     expect(readSessionId(malformed)).toBeNull();
     expect(readSessionId(valid)).toBe("session_abc 123");
+  });
+
+  it("creates a no-sign MiniPay session for a valid wallet address", async () => {
+    const account = privateKeyToAccount(`0x${"3".repeat(64)}`);
+    const session = await createMiniPaySession({
+      db: undefined,
+      walletAddress: account.address,
+      displayName: "MiniPay"
+    });
+
+    expect(session.user.walletAddress).toBe(account.address);
+    expect(session.user.displayName).toBe("MiniPay");
+    expect(session.id).toMatch(/^session_/);
   });
 
   it("rejects nonce replay, wrong intent, and wrong-wallet challenge use", async () => {

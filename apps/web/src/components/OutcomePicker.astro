@@ -57,7 +57,15 @@ const outcomeCopy: Record<Outcome, { label: string; helper: string; flagCode?: s
         >
           {
             copy.flagCode ? (
-              <img src={`https://flagcdn.com/w40/${copy.flagCode}.png`} alt="" loading="lazy" aria-hidden="true" />
+              <img
+                src={`https://flagcdn.com/w40/${copy.flagCode}.png`}
+                alt=""
+                width="40"
+                height="30"
+                loading="lazy"
+                decoding="async"
+                aria-hidden="true"
+              />
             ) : (
               <span class="draw-mark" aria-hidden="true">=</span>
             )

@@ -1,8 +1,14 @@
 ---
-import { matches } from "../data/matches";
+import { matches as defaultMatches, type MatchViewModel } from "../data/matches";
 import { tournamentConfig } from "../data/tournament";
 import { formatKickoff, formatUsd } from "../lib/format";
 import MatchCard from "./MatchCard.astro";
+
+type Props = {
+  matches?: readonly MatchViewModel[];
+};
+
+const { matches = defaultMatches } = Astro.props;
 
 function groupId(label: string): string {
   return label.toLowerCase().replace(/\s+/g, "-");
@@ -30,11 +36,11 @@ const firstUpcomingGroup = groups.find((group) =>
 const activeGroup = firstUpcomingGroup ?? groups[0];
 ---
 
-<section id="match-board" class="app-shell page-stack py-5" aria-labelledby="partidas" transition:name="match-board">
+<section id="match-board" class="app-shell page-stack py-6" aria-labelledby="partidas" transition:name="match-board">
   <div class="match-board-header">
     <div>
       <p class="eyebrow">{tournamentConfig.stageLabel}</p>
-      <h2 id="partidas" class="font-display mt-3 text-2xl font-bold text-[var(--text)] md:text-3xl">Partidas</h2>
+      <h2 id="partidas" class="font-display mt-4 text-2xl font-bold text-[var(--text)] md:text-3xl">Partidas</h2>
       <p class="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-[var(--muted)] md:text-base">
         Escolha um grupo, abra a partida e confirme seu palpite. Sem etapa escondida.
       </p>
@@ -43,23 +49,23 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
 
   <div class="quick-filters hide-scrollbar" aria-label="Filtros rápidos">
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="all" aria-pressed="true">
-      <i class="fa-solid fa-table-cells-large ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+      <i class="fa-solid fa-table-cells-large ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
       Todos
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="today" aria-pressed="false">
-      <i class="fa-solid fa-calendar-days ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+      <i class="fa-solid fa-calendar-days ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
       Hoje
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="brazil" aria-pressed="false">
-      <i class="fa-solid fa-star ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+      <i class="fa-solid fa-star ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
       Brasil
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="soon" aria-pressed="false">
-      <i class="fa-solid fa-bolt ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+      <i class="fa-solid fa-bolt ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
       Em breve
     </button>
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="mine" aria-pressed="false" data-auth-user hidden>
-      <i class="fa-solid fa-ticket ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+      <i class="fa-solid fa-ticket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
       Meus palpites
     </button>
   </div>
@@ -108,7 +114,7 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
             <div class="group-summary">
               <div>
                 <p class="text-xs font-semibold uppercase text-[var(--gold)]">{group.label}</p>
-                <p class="mt-1 text-sm font-semibold text-[var(--muted)]">
+                <p class="mt-2 text-sm font-semibold text-[var(--muted)]">
                   Primeiro jogo: {featuredMatch ? formatKickoff(featuredMatch.kickoffIso) : "Calendário pendente"}
                 </p>
               </div>
@@ -128,9 +134,16 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
               {featuredMatch && <MatchCard match={featuredMatch} compact />}
               {restMatches.map((match) => <MatchCard match={match} compact />)}
             </div>
-            <p class="filter-empty mt-3" data-filter-empty hidden>
-              Nenhuma partida deste grupo combina com o filtro atual.
-            </p>
+            <div class="filter-empty mt-4" data-filter-empty hidden>
+              <i class="fa-solid fa-filter-circle-xmark ui-icon text-[var(--gold)]" style="font-size: 24px;" aria-hidden="true"></i>
+              <div>
+                <h3 class="font-display text-xl font-bold text-[var(--text)]">Nenhuma partida encontrada</h3>
+                <p class="mt-2 text-sm font-medium text-[var(--muted)]">Este grupo não combina com o filtro atual.</p>
+              </div>
+              <button class="btn-secondary focus-ring w-fit" type="button" data-filter-reset>
+                Limpar filtro
+              </button>
+            </div>
           </section>
         );
       })

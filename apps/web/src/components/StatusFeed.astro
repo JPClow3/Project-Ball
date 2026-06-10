@@ -30,12 +30,12 @@ const feed = [
 ---
 
 <section class="app-shell pt-4" aria-label="Ritmo do app" transition:name="status-feed">
-  <div class="grid gap-3 md:grid-cols-3">
+  <div class="grid gap-4 md:grid-cols-3">
     {
       feed.map((item) => {
         return (
           <div class="stat-tile">
-            <p class="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)]">
+            <p class="flex items-center gap-2 text-sm font-semibold text-[var(--muted)]">
               <i class={`${item.icon} ui-icon`} style="font-size: 16px;" aria-hidden="true"></i>
               {item.label}
             </p>

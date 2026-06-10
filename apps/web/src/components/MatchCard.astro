@@ -48,6 +48,7 @@ const homeFlagUrl = `https://flagcdn.com/w80/${match.homeFlagCode}.png`;
 const awayFlagUrl = `https://flagcdn.com/w80/${match.awayFlagCode}.png`;
 const cardTitle = `${match.homeTeam} x ${match.awayTeam}`;
 const defaultToken = getDefaultStablecoin();
+const statusId = `bet-status-${match.id}`;
 ---
 
 <article
@@ -61,7 +62,9 @@ const defaultToken = getDefaultStablecoin();
   data-away-team={match.awayTeam}
   data-home-flag-code={match.homeFlagCode}
   data-away-flag-code={match.awayFlagCode}
+  data-match-status={match.status}
   data-confirmed={isConfirmed ? "true" : undefined}
+  aria-describedby={statusId}
   class:list={["match-card", featured && "match-card-featured", compact && "match-card-compact"]}
   transition:name={`match-card-${match.id}`}
 >
@@ -70,22 +73,22 @@ const defaultToken = getDefaultStablecoin();
       <div class="min-w-0">
         <p class="match-label">{match.groupLabel}</p>
         <h2 class="sr-only">{cardTitle}</h2>
-        <p class="mt-1 truncate text-xs font-semibold uppercase text-[var(--muted)]">{defaultToken.label} padrão - {match.competition}</p>
+        <p class="mt-2 truncate text-xs font-semibold uppercase text-[var(--muted)]">{defaultToken.label} padrão - {match.competition}</p>
       </div>
       <span class:list={["status-pill", statusClass]}>
-        <i class={`${statusIconClass} ui-icon`} style="font-size: 14px;" aria-hidden="true"></i>
+        <i class={`${statusIconClass} ui-icon`} style="font-size: 16px;" aria-hidden="true"></i>
         {statusLabel}
       </span>
     </div>
 
     <div class="teams-line" aria-label={cardTitle}>
       <div class="team-block">
-        <img class="flag-img" src={homeFlagUrl} alt={`Bandeira: ${match.homeCountry}`} width="80" height="60" loading="lazy" />
+        <img class="flag-img" src={homeFlagUrl} alt={`Bandeira: ${match.homeCountry}`} width="80" height="60" loading="lazy" decoding="async" />
         <p class="team-name">{match.homeTeam}</p>
       </div>
       <span class="versus-pill" aria-hidden="true">x</span>
       <div class="team-block team-block--away">
-        <img class="flag-img ml-auto" src={awayFlagUrl} alt={`Bandeira: ${match.awayCountry}`} width="80" height="60" loading="lazy" />
+        <img class="flag-img ml-auto" src={awayFlagUrl} alt={`Bandeira: ${match.awayCountry}`} width="80" height="60" loading="lazy" decoding="async" />
         <p class="team-name">{match.awayTeam}</p>
       </div>
     </div>
@@ -104,14 +107,14 @@ const defaultToken = getDefaultStablecoin();
     <div class="match-finance-row" aria-label="Resumo do pote">
       <div class="finance-stat">
         <p class="finance-label">
-          <i class="fa-solid fa-coins text-[var(--gold)] ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+          <i class="fa-solid fa-coins text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
           Pote agora
         </p>
         <p class="finance-value text-[var(--green)]">{formatUsd(match.poolUsd)}</p>
       </div>
       <div class="finance-stat">
         <p class="finance-label justify-end">
-          <i class="fa-solid fa-circle-dollar-to-slot text-[var(--cyan)] ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+          <i class="fa-solid fa-circle-dollar-to-slot text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
           Valor padrão
         </p>
         <p class="finance-value">{formatUsd(defaultStakeUsd)}</p>
@@ -138,7 +141,7 @@ const defaultToken = getDefaultStablecoin();
     </div>
 
     <form
-      class="grid gap-3"
+      class="grid gap-4"
       data-bet-form
     >
       <input type="hidden" name="matchId" value={match.id} />
@@ -158,6 +161,8 @@ const defaultToken = getDefaultStablecoin();
           disabled={controlsDisabled}
         />
       </div>
+
+      <p id={statusId} class="bet-status" data-bet-status role="status" aria-live="polite" tabindex="-1" hidden></p>
 
       {
         match.status === "open" && !isConfirmed ? (
@@ -179,13 +184,21 @@ const defaultToken = getDefaultStablecoin();
               Confirmar palpite
             </button>
           </>
-        ) : (
-          <div class="rounded-[8px] border border-[rgba(97,229,149,0.28)] bg-[rgba(97,229,149,0.09)] p-3">
-            <p class="flex items-center gap-1.5 text-sm font-semibold text-[var(--text)]">
+        ) : isConfirmed ? (
+          <div class="success-panel" data-confirmed-panel tabindex="-1">
+            <p class="flex items-center gap-2 text-sm font-bold text-[var(--text)]">
               <i class="fa-solid fa-circle-check text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
               Palpite registrado
             </p>
-            <p class="mt-1 text-sm font-semibold text-[var(--muted)]">A partida libera saque, reembolso ou liquidação quando o resultado for confirmado.</p>
+            <p class="text-sm font-medium text-[var(--muted)]">A partida libera saque, reembolso ou liquidação quando o resultado for confirmado.</p>
+          </div>
+        ) : (
+          <div class="locked-panel">
+            <p class="flex items-center gap-2 text-sm font-bold text-[var(--text)]">
+              <i class="fa-solid fa-lock text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+              Palpites encerrados
+            </p>
+            <p class="text-sm font-medium text-[var(--muted)]">Esta partida não aceita novos palpites neste momento.</p>
           </div>
         )
       }

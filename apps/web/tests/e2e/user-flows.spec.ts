@@ -73,7 +73,14 @@ test.describe("user journeys and edge cases", () => {
 
     await expect(firstCard).toHaveAttribute("data-bet-pending", "");
     await expect(firstCard).toHaveAttribute("aria-busy", "true");
+    await page.waitForTimeout(100);
+    await expect(firstCard.locator("[data-loading-card].htmx-indicator")).toHaveCount(0);
+    await page.waitForTimeout(250);
     await expect(firstCard.locator("[data-loading-card].htmx-indicator")).toHaveCount(1);
+    await expect(firstCard.locator(".loading-progress")).toBeHidden();
+    await page.waitForTimeout(1700);
+    await expect(firstCard.locator("[data-loading-card]")).toHaveAttribute("data-show-progress", "true");
+    await expect(firstCard.locator(".loading-progress")).toBeVisible();
     await expect(firstCard.getByRole("radio", { name: "México vence" })).toBeDisabled();
     await expect(confirmButton).toBeDisabled();
 

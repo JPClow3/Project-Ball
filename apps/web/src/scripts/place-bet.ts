@@ -7,6 +7,7 @@ import {
   type Outcome,
   type StablecoinSymbol
 } from "@project-ball/shared";
+import htmx from "htmx.org";
 import { defaultStakeUsd, minimumStakeUsd, outcomeOnchainCodes } from "../data/betting";
 import { getAvailableStablecoins, getDefaultStablecoin } from "../lib/tokens";
 
@@ -18,6 +19,11 @@ type EthereumProvider = {
 type AuthIntent = "login" | "register";
 type Theme = "dark" | "light";
 type AuthenticatedSession = Extract<AuthSessionResponse, { readonly authenticated: true }>;
+type LoadingTimers = {
+  skeleton?: number;
+  progress?: number;
+};
+type ToastTone = "info" | "success" | "error";
 
 type AuthChallengeResponse = {
   readonly message: string;
@@ -41,9 +47,7 @@ declare global {
   interface Window {
     ethereum?: EthereumProvider;
     provider?: EthereumProvider;
-    htmx?: {
-      swap(target: Element, content: string, options: { swapStyle: string }): void;
-    };
+    htmx?: typeof htmx;
     projectBallReady?: boolean;
     projectBallEventsBound?: boolean;
     projectBallLastThemeToggleAt?: number;
@@ -60,6 +64,15 @@ const txHashByteLength = 32;
 const hexRadix = 16;
 const hexByteWidth = 2;
 const reusableApprovalUsd = "100";
+const skeletonDelayMs = 300;
+const progressDelayMs = 2_000;
+const successNavigationDelayMs = 300;
+const toastDismissMs = 4_000;
+const logoutConfirmMs = 4_000;
+const authLoadingTimers = new WeakMap<HTMLElement, LoadingTimers>();
+const cardLoadingTimers = new WeakMap<HTMLElement, LoadingTimers>();
+let logoutConfirmUntil = 0;
+let offlineToast: HTMLElement | null = null;
 const betPendingControlSelector = [
   "[data-select-outcome]",
   "[data-select-token]",
@@ -89,6 +102,8 @@ const erc20SpendingAbi = [
     outputs: [{ name: "", type: "bool" }]
   }
 ] as const;
+
+window.htmx ??= htmx;
 
 function getProvider(): EthereumProvider | undefined {
   return window.ethereum ?? window.provider;
@@ -172,7 +187,7 @@ function authRedirect(value: string | undefined): string {
   try {
     const decoded = decodeURIComponent(value).trim();
     if (decoded.startsWith("/") && !decoded.startsWith("//") && !decoded.startsWith("/\\")) {
-      if (!/^(?:[a-z\d+\-.]+ :| \/\/)/i.test(decoded)) {
+      if (!/^(?:[a-z\d+\-.]+:|\/\/)/i.test(decoded)) {
         return value;
       }
     }
@@ -197,7 +212,10 @@ function preferredTheme(): Theme {
 function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.colorScheme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#f5f7fb" : "#090b0f");
+  const themeColor = getComputedStyle(document.documentElement).getPropertyValue("--color-theme-meta").trim();
+  if (themeColor) {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", themeColor);
+  }
 
   for (const button of document.querySelectorAll<HTMLElement>("[data-theme-toggle]")) {
     const label = theme === "light" ? "Usar modo escuro" : "Usar modo claro";
@@ -242,7 +260,7 @@ function setAuthStatus(source: HTMLElement, message: string, isError = false): v
 function iconSvg(name: string): string {
   const icons: Record<string, string> = {
     "badge-check": "fa-circle-check text-[var(--green)]",
-    "loader-circle": "fa-circle-notch fa-spin",
+    "loader-circle": "fa-circle-notch ui-icon--spin",
     "log-in": "fa-right-to-bracket",
     "pen-line": "fa-pen-to-square",
     "rotate-ccw": "fa-rotate-left",
@@ -258,6 +276,82 @@ function setButtonHtml(button: HTMLElement, icon: string, label: string): void {
   button.innerHTML = `${iconSvg(icon)}${label}`;
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function clearLoadingTimers(map: WeakMap<HTMLElement, LoadingTimers>, element: HTMLElement): void {
+  const timers = map.get(element);
+  if (timers?.skeleton) {
+    window.clearTimeout(timers.skeleton);
+  }
+  if (timers?.progress) {
+    window.clearTimeout(timers.progress);
+  }
+  map.delete(element);
+}
+
+function toastRegion(): HTMLElement {
+  let region = document.querySelector<HTMLElement>("[data-toast-region]");
+  if (region) {
+    return region;
+  }
+
+  region = document.createElement("div");
+  region.className = "toast-region";
+  region.dataset.toastRegion = "true";
+  region.setAttribute("aria-live", "polite");
+  region.setAttribute("aria-relevant", "additions removals");
+  document.body.append(region);
+  return region;
+}
+
+function showToast(message: string, tone: ToastTone = "info", persistent = false): HTMLElement {
+  const toast = document.createElement("div");
+  toast.className = `toast${tone === "error" ? " toast--error" : ""}`;
+  toast.dataset.toast = tone;
+  toast.setAttribute("role", tone === "error" ? "alert" : "status");
+  const text = document.createElement("p");
+  text.className = "text-sm font-bold text-[var(--text)]";
+  text.textContent = message;
+  toast.append(text);
+  toastRegion().append(toast);
+
+  if (persistent) {
+    return toast;
+  }
+
+  let timeout = window.setTimeout(() => toast.remove(), toastDismissMs);
+  toast.addEventListener("mouseenter", () => window.clearTimeout(timeout));
+  toast.addEventListener("mouseleave", () => {
+    timeout = window.setTimeout(() => toast.remove(), toastDismissMs);
+  });
+  return toast;
+}
+
+function updateOfflineState(): void {
+  if (!("onLine" in navigator)) {
+    return;
+  }
+
+  if (!navigator.onLine) {
+    if (!offlineToast?.isConnected) {
+      offlineToast = showToast("Sem conexão. As ações ficam disponíveis para tentar novamente quando a rede voltar.", "error", true);
+    }
+    document.documentElement.dataset.offline = "true";
+    return;
+  }
+
+  document.documentElement.removeAttribute("data-offline");
+  if (offlineToast?.isConnected) {
+    offlineToast.remove();
+    showToast("Conexão restabelecida.", "success");
+  }
+  offlineToast = null;
+}
+
 function setAuthLoading(button: HTMLElement, isLoading: boolean): void {
   const root =
     button.closest<HTMLElement>("[data-auth-action-panel]") ??
@@ -268,42 +362,100 @@ function setAuthLoading(button: HTMLElement, isLoading: boolean): void {
     return;
   }
 
+  clearLoadingTimers(authLoadingTimers, root);
   root.querySelector<HTMLElement>("[data-auth-loading]")?.remove();
 
   if (!isLoading) {
     return;
   }
 
-  const skeleton = document.createElement("div");
-  skeleton.className = "auth-loading";
-  skeleton.dataset.authLoading = "true";
-  skeleton.setAttribute("aria-hidden", "true");
-  skeleton.innerHTML = [
-    '<span class="skeleton-line" style="height: 12px; width: 75%" data-skeleton></span>',
-    '<span class="skeleton-line" style="height: 12px; width: 50%" data-skeleton></span>'
-  ].join("");
-  root.append(skeleton);
+  const timers: LoadingTimers = {};
+  timers.skeleton = window.setTimeout(() => {
+    const skeleton = document.createElement("div");
+    skeleton.className = "auth-loading";
+    skeleton.dataset.authLoading = "true";
+    skeleton.setAttribute("aria-hidden", "true");
+    skeleton.innerHTML = [
+      '<span class="skeleton-line" style="height: 12px; width: 75%" data-skeleton></span>',
+      '<span class="skeleton-line" style="height: 12px; width: 50%" data-skeleton></span>',
+      '<span class="loading-progress" aria-hidden="true"></span>'
+    ].join("");
+    root.append(skeleton);
+    timers.progress = window.setTimeout(() => {
+      skeleton.dataset.showProgress = "true";
+    }, Math.max(0, progressDelayMs - skeletonDelayMs));
+  }, skeletonDelayMs);
+  authLoadingTimers.set(root, timers);
 }
 
-function showCardLoading(card: HTMLElement | null | undefined): void {
-  if (!card || card.querySelector("[data-loading-card]")) {
+function setBetStatus(card: HTMLElement | null | undefined, message: string, isError = false): void {
+  const status = card?.querySelector<HTMLElement>("[data-bet-status]");
+
+  if (!status) {
     return;
   }
 
-  const loading = document.createElement("div");
-  loading.className = "loading-card htmx-indicator";
-  loading.dataset.loadingCard = "true";
-  loading.setAttribute("aria-hidden", "true");
-  loading.innerHTML = [
-    '<span class="skeleton-line" style="height: 16px; width: 66%" data-skeleton></span>',
-    '<span class="skeleton-line" style="height: 12px; width: 100%" data-skeleton></span>',
-    '<span class="skeleton-line" style="height: 12px; width: 84%" data-skeleton></span>'
-  ].join("");
-  card.append(loading);
+  status.hidden = false;
+  status.textContent = message;
+  status.classList.toggle("bet-status--error", isError);
+  status.classList.toggle("bet-status--info", !isError);
+}
+
+function clearBetStatus(card: HTMLElement | null | undefined): void {
+  const status = card?.querySelector<HTMLElement>("[data-bet-status]");
+
+  if (!status) {
+    return;
+  }
+
+  status.hidden = true;
+  status.textContent = "";
+  status.classList.remove("bet-status--error", "bet-status--info");
+}
+
+function focusBetStatus(card: HTMLElement | null | undefined): void {
+  const status = card?.querySelector<HTMLElement>("[data-bet-status]");
+
+  if (!status || status.hidden) {
+    return;
+  }
+
+  status.focus({ preventScroll: true });
+  status.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+}
+
+function showCardLoading(card: HTMLElement | null | undefined): void {
+  if (!card || card.querySelector("[data-loading-card]") || cardLoadingTimers.has(card)) {
+    return;
+  }
+
+  const timers: LoadingTimers = {};
+  timers.skeleton = window.setTimeout(() => {
+    const loading = document.createElement("div");
+    loading.className = "loading-card htmx-indicator";
+    loading.dataset.loadingCard = "true";
+    loading.setAttribute("aria-hidden", "true");
+    loading.innerHTML = [
+      '<span class="skeleton-line" style="height: 16px; width: 66%" data-skeleton></span>',
+      '<span class="skeleton-line" style="height: 12px; width: 100%" data-skeleton></span>',
+      '<span class="skeleton-line" style="height: 12px; width: 84%" data-skeleton></span>',
+      '<span class="loading-progress" aria-hidden="true"></span>'
+    ].join("");
+    card.append(loading);
+    timers.progress = window.setTimeout(() => {
+      loading.dataset.showProgress = "true";
+    }, Math.max(0, progressDelayMs - skeletonDelayMs));
+  }, skeletonDelayMs);
+  cardLoadingTimers.set(card, timers);
 }
 
 function hideCardLoading(card: HTMLElement | null | undefined): void {
-  card?.querySelector("[data-loading-card]")?.remove();
+  if (!card) {
+    return;
+  }
+
+  clearLoadingTimers(cardLoadingTimers, card);
+  card.querySelector("[data-loading-card]")?.remove();
 }
 
 function setBetControlsLocked(card: HTMLElement | null | undefined, isLocked: boolean): void {
@@ -374,6 +526,7 @@ function selectOutcome(button: HTMLElement): void {
     setSegmentState(option, option === button);
   }
 
+  clearBetStatus(card);
   syncBetForm(card);
 }
 
@@ -388,6 +541,7 @@ function selectToken(button: HTMLElement): void {
     setSegmentState(option, option === button);
   }
 
+  clearBetStatus(card);
   syncBetForm(card);
 }
 
@@ -406,6 +560,7 @@ function selectStake(button: HTMLElement): void {
     setSegmentState(option, option === button);
   }
 
+  clearBetStatus(card);
   syncBetForm(card);
 }
 
@@ -527,6 +682,69 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+function betErrorMessage(error: unknown): string {
+  const code = providerErrorCode(error);
+  const message = errorMessage(error, "Não foi possível confirmar o palpite");
+  const normalized = message.toLowerCase();
+
+  if (code === 4001 || code === "4001" || /rejeitad|recusad|denied|rejected|user rejected/.test(normalized)) {
+    return "Transação rejeitada na carteira. Seu palpite não foi enviado.";
+  }
+
+  if (/insufficient|saldo|funds|balance/.test(normalized)) {
+    return "Saldo insuficiente para confirmar o palpite e pagar a taxa da rede.";
+  }
+
+  if (/network|rede|fetch|failed to fetch|timeout|tempo/.test(normalized)) {
+    return "Falha de rede. Verifique a conexão e tente novamente.";
+  }
+
+  if (/allowance|approve|aprova/.test(normalized)) {
+    return "A aprovação do token não foi concluída. Tente confirmar novamente.";
+  }
+
+  if (/contrato celo não configurado|project_ball_pools_address|project ball pools address|not configured/.test(normalized)) {
+    return "Contrato Celo não configurado para este ambiente.";
+  }
+
+  return message;
+}
+
+async function postMiniPayAuth(address: `0x${string}`, displayName?: string): Promise<AuthSessionResponse> {
+  const response = await fetch("/api/auth/minipay", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json"
+    },
+    body: JSON.stringify({ address, displayName })
+  });
+  const payload = (await response.json().catch(() => ({}))) as AuthSessionResponse & { error?: string };
+
+  if (!response.ok) {
+    throw new Error(payload.error ?? "Não foi possível iniciar a sessão MiniPay");
+  }
+
+  return payload;
+}
+
+async function ensureMiniPaySession(address: `0x${string}`): Promise<AuthenticatedSession> {
+  const current = await refreshAuthSession().catch(() => ({ authenticated: false }) as AuthSessionResponse);
+
+  if (current.authenticated && current.user.walletAddress.toLowerCase() === address.toLowerCase()) {
+    return current;
+  }
+
+  const session = await postMiniPayAuth(address);
+  applyAuthSession(session);
+
+  if (!session.authenticated) {
+    throw new Error("Não foi possível iniciar a sessão MiniPay");
+  }
+
+  return session;
+}
+
 async function authenticateWithWallet(button: HTMLElement): Promise<void> {
   const intent = button.dataset.authIntent as AuthIntent | undefined;
   const provider = getProvider();
@@ -535,13 +753,45 @@ async function authenticateWithWallet(button: HTMLElement): Promise<void> {
     return;
   }
 
+  if (!navigator.onLine) {
+    const message = "Sem conexão. Reconecte a rede e tente entrar novamente.";
+    setAuthStatus(button, message, true);
+    showToast(message, "error");
+    return;
+  }
+
   if (!provider) {
     setAuthStatus(button, "Carteira não encontrada. Abra no MiniPay ou instale MetaMask.", true);
+    showToast("Carteira não encontrada. Abra no MiniPay ou instale MetaMask.", "error");
     return;
   }
 
   if (provider.isMiniPay) {
-    setAuthStatus(button, "No MiniPay, você pode confirmar palpites sem assinar login.");
+    const originalHtml = button.dataset.originalHtml ?? button.innerHTML;
+    button.dataset.originalHtml = originalHtml;
+    button.setAttribute("disabled", "true");
+    setAuthLoading(button, true);
+    setButtonHtml(button, "loader-circle", "Abrindo MiniPay");
+    setAuthStatus(button, "Conecte a carteira MiniPay para entrar sem assinatura.");
+
+    try {
+      await ensureCeloNetwork(provider);
+      const address = await requestAccount(provider);
+      const session = await postMiniPayAuth(address, getDisplayName(button));
+
+      applyAuthSession(session);
+      setAuthStatus(button, "MiniPay conectado. Abrindo destino.");
+      setButtonHtml(button, "badge-check", "Conectado");
+      window.location.assign(authRedirect(button.dataset.authRedirect));
+    } catch (error) {
+      const message = errorMessage(error, "Não foi possível conectar o MiniPay");
+      setAuthStatus(button, message, true);
+      showToast(message, "error");
+      button.innerHTML = originalHtml;
+    } finally {
+      setAuthLoading(button, false);
+      button.removeAttribute("disabled");
+    }
     return;
   }
 
@@ -582,6 +832,7 @@ async function authenticateWithWallet(button: HTMLElement): Promise<void> {
     setAuthStatus(button, "Carteira conectada. Abrindo destino.");
     setButtonHtml(button, "badge-check", "Conectado");
 
+    await delay(successNavigationDelayMs);
     window.location.assign(authRedirect(button.dataset.authRedirect));
   } catch (error) {
     const message = errorMessage(error, "Autenticação cancelada");
@@ -592,6 +843,7 @@ async function authenticateWithWallet(button: HTMLElement): Promise<void> {
     }
 
     setAuthStatus(button, message, true);
+    showToast(message, "error");
     button.innerHTML = originalHtml;
   } finally {
     setAuthLoading(button, false);
@@ -599,7 +851,24 @@ async function authenticateWithWallet(button: HTMLElement): Promise<void> {
   }
 }
 
-async function logout(): Promise<void> {
+async function logout(button?: HTMLElement): Promise<void> {
+  const now = Date.now();
+  if (now > logoutConfirmUntil) {
+    logoutConfirmUntil = now + logoutConfirmMs;
+    button?.setAttribute("aria-label", "Confirmar saída");
+    button?.setAttribute("title", "Confirmar saída");
+    showToast("Toque em sair novamente para encerrar a sessão.", "error");
+    window.setTimeout(() => {
+      if (Date.now() >= logoutConfirmUntil) {
+        logoutConfirmUntil = 0;
+        button?.setAttribute("aria-label", "Sair");
+        button?.setAttribute("title", "Sair");
+      }
+    }, logoutConfirmMs);
+    return;
+  }
+
+  button?.setAttribute("disabled", "true");
   await fetch("/api/auth/logout", {
     method: "POST",
     headers: {
@@ -679,13 +948,23 @@ async function placeBet(options: {
   const provider = getProvider();
   const { matchId, onchainMatchId, outcome, tokenSymbol, stakeUsd } = options;
 
+  if (provider?.isMiniPay && poolsAddress === emptyContractAddress) {
+    await ensureCeloNetwork(provider);
+    const account = await requestAccount(provider);
+    await ensureMiniPaySession(account);
+  }
+
   if (!provider || poolsAddress === emptyContractAddress) {
     return submitLocalConfirmation(matchId, outcome);
   }
 
-  const session = provider.isMiniPay ? null : await requireAuthSession();
+  let session: AuthenticatedSession | null = provider.isMiniPay ? null : await requireAuthSession();
   await ensureCeloNetwork(provider);
   const account = await requestAccount(provider);
+
+  if (provider.isMiniPay) {
+    session = await ensureMiniPaySession(account);
+  }
 
   if (session && session.user.walletAddress.toLowerCase() !== account.toLowerCase()) {
     throw new Error("Use a mesma carteira do login para confirmar o palpite");
@@ -784,20 +1063,51 @@ async function placeBet(options: {
   }
 }
 
-function swapCard(button: HTMLElement, html: string): void {
+function currentMatchFilter(): string {
+  return document.querySelector<HTMLElement>("[data-filter-chip][aria-pressed='true']")?.dataset.filter ?? "all";
+}
+
+function findReplacementCard(cardId: string, matchId: string | undefined): HTMLElement | null {
+  return (
+    document.getElementById(cardId) ??
+    (matchId ? document.querySelector<HTMLElement>(`[data-match-card][data-match-id="${CSS.escape(matchId)}"]`) : null)
+  );
+}
+
+function replaceMatchCard(button: HTMLElement, html: string): void {
   const card = button.closest("[data-match-card]");
 
   if (!card) {
     return;
   }
 
-  if (window.htmx) {
-    window.htmx.swap(card, html, { swapStyle: "outerHTML" });
+  const cardId = card.id;
+  const matchId = card instanceof HTMLElement ? card.dataset.matchId : undefined;
+  const activeFilter = currentMatchFilter();
+  const runtime = window.htmx ?? htmx;
+
+  try {
+    runtime.swap(card, html, { swapStyle: "outerHTML", swapDelay: 0, settleDelay: 0 });
+  } catch {
+    card.insertAdjacentHTML("afterend", html);
+    card.remove();
+  }
+
+  const replacement = findReplacementCard(cardId, matchId);
+
+  if (!replacement) {
     return;
   }
 
-  card.insertAdjacentHTML("afterend", html);
-  card.remove();
+  runtime.process(replacement);
+  syncBetForm(replacement);
+  applyMatchFilter(activeFilter);
+
+  const focusTarget =
+    replacement.querySelector<HTMLElement>("[data-confirmed-panel]") ??
+    replacement.querySelector<HTMLElement>("[data-bet-status]");
+  focusTarget?.focus({ preventScroll: true });
+  replacement.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
 }
 
 function updateNavigationState(): void {
@@ -1047,7 +1357,7 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
   const logoutButton = target.closest<HTMLElement>("[data-auth-logout]");
 
   if (logoutButton) {
-    await logout();
+    await logout(logoutButton);
     return;
   }
 
@@ -1063,6 +1373,13 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
 
   if (filterChip?.dataset.filter) {
     applyMatchFilter(filterChip.dataset.filter);
+    return;
+  }
+
+  const filterReset = target.closest<HTMLElement>("[data-filter-reset]");
+
+  if (filterReset) {
+    applyMatchFilter("all");
     return;
   }
 
@@ -1093,7 +1410,10 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
     const provider = getProvider();
     if (provider) {
       await ensureCeloNetwork(provider);
-      await requestAccount(provider);
+      const address = await requestAccount(provider);
+      if (provider.isMiniPay) {
+        await ensureMiniPaySession(address);
+      }
       setButtonHtml(connectButton, "badge-check", "Conectado");
     }
     return;
@@ -1117,6 +1437,14 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
   const tokenSymbol = card?.querySelector<HTMLElement>('[data-select-token][aria-checked="true"]')?.dataset
     .tokenSymbol as StablecoinSymbol | undefined;
 
+  if (!navigator.onLine) {
+    const message = "Sem conexão. Verifique a rede e tente confirmar novamente.";
+    setBetStatus(card, message, true);
+    showToast(message, "error");
+    focusBetStatus(card);
+    return;
+  }
+
   if (
     !matchId ||
     (outcome !== "HOME" && outcome !== "DRAW" && outcome !== "AWAY") ||
@@ -1125,10 +1453,13 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
   ) {
     if (card) {
       syncBetForm(card);
+      setBetStatus(card, "Escolha um palpite e informe um valor válido para continuar.", true);
+      focusBetStatus(card);
     }
     return;
   }
 
+  clearBetStatus(card);
   setBetControlsLocked(card, true);
   betButton.innerHTML = `${iconSvg("loader-circle")}Confirmando`;
 
@@ -1140,11 +1471,15 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
       tokenSymbol,
       stakeUsd
     });
-    swapCard(betButton, html);
+    replaceMatchCard(betButton, html);
+    showToast("Palpite confirmado com sucesso.", "success");
   } catch (error) {
+    const message = betErrorMessage(error);
     setBetControlsLocked(card, false);
     betButton.innerHTML = `${iconSvg("rotate-ccw")}Tentar de novo`;
-    console.error(error);
+    setBetStatus(card, message, true);
+    showToast(message, "error");
+    focusBetStatus(card);
   }
 }
 
@@ -1171,6 +1506,7 @@ function handleDocumentInput(event: Event): void {
     setSegmentState(button, button.dataset.stake === stakeInput.value);
   }
 
+  clearBetStatus(card);
   syncBetForm(card);
 }
 
@@ -1186,15 +1522,19 @@ function bindGlobalListeners(): void {
   document.addEventListener("keydown", handleSegmentKeydown);
   document.addEventListener("input", handleDocumentInput);
   document.addEventListener("astro:page-load", initPage);
+  window.addEventListener("online", updateOfflineState);
+  window.addEventListener("offline", updateOfflineState);
   window.projectBallEventsBound = true;
 }
 
 function initPage(): void {
+  (window.htmx ?? htmx).process(document.body);
   initTheme();
   updateNavigationState();
   initGroupTabs();
   initBetForms();
   initMatchFilters();
+  updateOfflineState();
   void refreshAuthSession().catch(() => undefined);
   window.projectBallReady = true;
 }

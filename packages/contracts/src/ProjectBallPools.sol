@@ -81,7 +81,9 @@ contract ProjectBallPools {
     event MatchResolved(bytes32 indexed matchId, uint8 result);
     event PrizeClaimed(bytes32 indexed matchId, address indexed bettor, uint256 normalizedAmount);
     event PoolVoided(bytes32 indexed matchId);
-    event FeesCollected(bytes32 indexed matchId, address indexed token, uint256 treasuryAmount, uint256 burnAmount);
+    event FeesCollected(
+        bytes32 indexed matchId, address indexed token, uint256 treasuryAmount, uint256 burnAmount
+    );
     event Refunded(bytes32 indexed matchId, address indexed bettor, address token, uint256 amount);
 
     error OnlyOwner();

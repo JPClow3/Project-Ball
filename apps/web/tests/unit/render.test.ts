@@ -28,6 +28,7 @@ describe("renderMatchCard", () => {
     expect(html).toContain("México vence");
     expect(html).toContain("Confirmar palpite");
     expect(html).toContain("disabled data-place-bet");
+    expect(html).toContain("data-bet-status");
   });
 
   it("marks a registered pick", () => {
@@ -39,5 +40,18 @@ describe("renderMatchCard", () => {
     expect(html).toContain("Palpite registrado");
     expect(html).toContain("México vence");
     expect(html).toContain("Confirmado");
+    expect(html).toContain("data-confirmed-panel");
+  });
+
+  it("renders locked matches without active betting controls", () => {
+    const html = renderMatchCard({
+      ...worldCupOpener,
+      status: "locked"
+    });
+
+    expect(html).toContain("Palpites encerrados");
+    expect(html).toContain("Travado");
+    expect(html).not.toContain("data-place-bet");
+    expect(html).not.toContain("Palpite registrado");
   });
 });

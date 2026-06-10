@@ -28,11 +28,11 @@ const defaultToken = getDefaultStablecoin();
       <div class="page-hero-row">
         <div>
           <p class="eyebrow">
-            <i class="fa-solid fa-ticket ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+            <i class="fa-solid fa-ticket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
             {accountLabel}
           </p>
           <h1 class="page-title mt-4">Palpites</h1>
-          <p class="page-copy mt-3">
+          <p class="page-copy mt-4">
             Seus jogos confirmados ficam aqui, separados da lista de partidas. Menos ruído, mais acompanhamento.
           </p>
         </div>
@@ -55,12 +55,12 @@ const defaultToken = getDefaultStablecoin();
 
     <section class="picks-layout" aria-label="Área de palpites">
       <div class="pick-column">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p class="match-label">Rodada atual</p>
             <h2 class="mt-2 text-xl">{activePicks.length > 1 ? "Seus palpites" : "Seu palpite"}</h2>
           </div>
-          <a class="btn-secondary focus-ring min-h-11 w-fit px-4" href="/">
+          <a class="btn-secondary focus-ring min-h-12 w-fit px-4" href="/">
             <i class="fa-solid fa-futbol ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
             Ver jogos
           </a>
@@ -75,7 +75,7 @@ const defaultToken = getDefaultStablecoin();
             </div>
           ) : (
             <div class="empty-state-panel">
-              <i class="fa-solid fa-wallet ui-icon text-[var(--gold)]" style="font-size: 22px;" aria-hidden="true"></i>
+              <i class="fa-solid fa-wallet ui-icon text-[var(--gold)]" style="font-size: 24px;" aria-hidden="true"></i>
               <div>
                 <h3 class="font-display text-lg font-extrabold text-[var(--text)]">Nenhum palpite ainda</h3>
                 <p class="mt-2 text-sm font-semibold leading-relaxed text-[var(--muted)]">
@@ -96,21 +96,21 @@ const defaultToken = getDefaultStablecoin();
         <h2 class="text-xl">Acompanhamento</h2>
         <div class="timeline-list">
           <article class="timeline-item">
-            <span class="liquid-icon"><i class="fa-solid fa-clock ui-icon" style="font-size: 18px;" aria-hidden="true"></i></span>
+            <span class="liquid-icon"><i class="fa-solid fa-clock ui-icon" style="font-size: 20px;" aria-hidden="true"></i></span>
             <div>
               <h3>Trava da partida</h3>
               <p>{activePicks[0] ? formatKickoff(activePicks[0].kickoffIso) : "O horário aparece no card antes de confirmar."}</p>
             </div>
           </article>
           <article class="timeline-item">
-            <span class="liquid-icon"><i class="fa-solid fa-futbol ui-icon" style="font-size: 18px;" aria-hidden="true"></i></span>
+            <span class="liquid-icon"><i class="fa-solid fa-futbol ui-icon" style="font-size: 20px;" aria-hidden="true"></i></span>
             <div>
               <h3>Resultado confirmado</h3>
               <p>Quando o jogo termina, o palpite passa para liquidação, saque ou reembolso.</p>
             </div>
           </article>
           <article class="timeline-item">
-            <span class="liquid-icon"><i class="fa-solid fa-wallet ui-icon" style="font-size: 18px;" aria-hidden="true"></i></span>
+            <span class="liquid-icon"><i class="fa-solid fa-wallet ui-icon" style="font-size: 20px;" aria-hidden="true"></i></span>
             <div>
               <h3>Saque</h3>
               <p>No MVP, o saque passa pelo suporte para manter o processo simples e rastreável.</p>

@@ -83,6 +83,16 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response("Partida não encontrada", { status: 404 });
     }
 
+    const session = await getSession(env.PROJECT_BALL_DB, request);
+    await recordBetConfirmation(env.PROJECT_BALL_DB, {
+      txHash: parsed.txHash,
+      matchId: parsed.matchId,
+      bettor: session?.user.walletAddress ?? null,
+      outcome: parsed.outcome,
+      token: null,
+      amount: null
+    });
+
     const html = renderMatchCard(withUserPick(match, parsed.outcome));
 
     return new Response(html, {

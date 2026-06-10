@@ -29,18 +29,18 @@ const stats = [
 <BaseLayout title="Project Ball | Números">
   <AppHeader />
   <main id="conteudo" class="app-shell app-main page-stack" transition:name="page-content">
-    <section class="surface-panel p-5 md:p-6" transition:name="stats-hero">
+    <section class="surface-panel p-6 md:p-6" transition:name="stats-hero">
       <p class="eyebrow">
-        <i class="fa-solid fa-chart-column ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+        <i class="fa-solid fa-chart-column ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
         Público
       </p>
       <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)] md:text-4xl">Números do Project Ball</h1>
-      <p class="lede mt-3">
+      <p class="lede mt-4">
         Atividade, volume, usuários únicos, saúde das transações e distribuição por dólar digital.
       </p>
     </section>
 
-    <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Indicadores">
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Indicadores">
       {
         stats.map((item, index) => {
           return (
@@ -56,25 +56,25 @@ const stats = [
       }
     </section>
 
-    <section class="surface-panel p-4 md:p-5" aria-label="Volume por dólar digital">
-      <div class="flex items-center justify-between gap-3">
+    <section class="surface-panel p-4 md:p-6" aria-label="Volume por dólar digital">
+      <div class="flex items-center justify-between gap-4">
         <div>
           <p class="text-xs font-black uppercase text-[var(--gold)]">Tokens</p>
-          <h2 class="font-display mt-1 text-xl font-extrabold text-[var(--text)]">Volume por dólar digital</h2>
+          <h2 class="font-display mt-2 text-xl font-extrabold text-[var(--text)]">Volume por dólar digital</h2>
         </div>
         <span class="status-pill status-pill--open">
-          <i class="fa-solid fa-database ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
+          <i class="fa-solid fa-database ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
           D1 cache
         </span>
       </div>
-      <div class="mt-5 grid gap-4">
+      <div class="mt-6 grid gap-4">
         {
           tokenVolumes.map((token) => {
             const barWidth = token.share > 0 ? token.share : 5;
 
             return (
               <div class="volume-row">
-                <div class="flex justify-between gap-3 text-sm font-extrabold">
+                <div class="flex justify-between gap-4 text-sm font-extrabold">
                   <span class="text-[var(--text)]">{token.symbol}</span>
                   <span class="text-[var(--muted)]">{formatUsd(token.amountUsd)}</span>
                 </div>

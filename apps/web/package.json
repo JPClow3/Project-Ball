@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
-    "build": "astro check && astro build",
+    "build": "node ./scripts/build-with-wrangler-vars.mjs",
     "check": "astro check",
     "format": "astro check",
     "lint": "astro check",
@@ -14,7 +14,7 @@
     "test:penetration": "playwright test security.spec.ts",
     "test:e2e": "playwright test",
     "test:lighthouse": "playwright test lighthouse-simulation.spec.ts",
-    "deploy": "node ./scripts/release-preflight.mjs && wrangler deploy --cwd ../.."
+    "deploy": "node ./scripts/release-preflight.mjs && node ./scripts/build-with-wrangler-vars.mjs && wrangler deploy --cwd ../.."
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.6.0",

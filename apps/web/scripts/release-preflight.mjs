@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 
 const zeroAddress = /^0x0{40}$/i;
 const zeroD1Id = /^0{8}-0{4}-0{4}-0{4}-0{12}$/i;
-const zeroKvId = /^0{32}$/i;
 
 function stripJsonComments(value) {
   return value
@@ -40,6 +39,14 @@ const config = JSON.parse(stripJsonComments(readFileSync(configUrl, "utf8")));
 const vars = config.vars ?? {};
 const failures = [];
 
+if (config.name !== "project-ball") {
+  failures.push("Wrangler name must be project-ball");
+}
+
+if (config.observability?.enabled !== false) {
+  failures.push("Wrangler observability.enabled must stay false for the current Cloudflare project");
+}
+
 if ("pages_build_output_dir" in config) {
   failures.push("pages_build_output_dir should not be used for the current SSR Worker deploy");
 }
@@ -70,11 +77,6 @@ if (typeof poolsAddress !== "string" || !/^0x[a-fA-F0-9]{40}$/.test(poolsAddress
 const d1Database = (config.d1_databases ?? []).find((database) => database.binding === "PROJECT_BALL_DB");
 if (!d1Database?.database_id || zeroD1Id.test(d1Database.database_id)) {
   failures.push("PROJECT_BALL_DB database_id is still the placeholder value");
-}
-
-const sessionNamespace = (config.kv_namespaces ?? []).find((namespace) => namespace.binding === "SESSION");
-if (!sessionNamespace?.id || zeroKvId.test(sessionNamespace.id)) {
-  failures.push("SESSION KV namespace id is still the placeholder value");
 }
 
 if (failures.length > 0) {
