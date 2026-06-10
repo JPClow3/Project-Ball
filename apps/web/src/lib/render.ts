@@ -39,7 +39,7 @@ function flagImage(code: string | undefined, country: string, alignAway = false)
     return "";
   }
 
-  return `<img class="flag-img${alignAway ? " ml-auto" : ""}" src="https://flagcdn.com/w80/${escapeHtml(code)}.png" alt="Bandeira: ${escapeHtml(country)}" width="80" height="60" loading="lazy" decoding="async">`;
+  return `<img class="flag-img${alignAway ? " ml-auto" : ""}" src="https://flagcdn.com/w80/${escapeHtml(code)}.png" alt="${escapeHtml(country)}" aria-hidden="true" width="80" height="60" loading="lazy" decoding="async">`;
 }
 
 function smallFlag(code: string | undefined): string {
@@ -102,12 +102,13 @@ function renderOutcomeButtons(match: Match, selected?: Outcome, disabled = false
     .map((outcome) => {
       const label = outcomeDisplayLabel(flaggedMatch, outcome);
       const isSelected = selected === outcome;
+      const isFocusable = selected ? isSelected : outcome === "HOME";
       const disabledAttr = disabled ? "disabled" : "";
       const flagCode = outcome === "HOME" ? flaggedMatch.homeFlagCode : outcome === "AWAY" ? flaggedMatch.awayFlagCode : undefined;
       const visual = flagCode ? smallFlag(flagCode) : '<span class="draw-mark" aria-hidden="true">=</span>';
       const drawClass = outcome === "DRAW" ? " team-pick-draw" : "";
 
-      return `<button class="team-pick focus-ring${drawClass}" type="button" role="radio" aria-label="${escapeHtml(outcomeAriaLabel(flaggedMatch, outcome))}" aria-checked="${isSelected ? "true" : "false"}" data-state="${isSelected ? "selected" : "idle"}" data-select-outcome data-match-id="${escapeHtml(match.id)}" data-outcome="${outcome}" data-outcome-label="${escapeHtml(label)}" ${disabledAttr}>${visual}<span class="team-pick-name">${escapeHtml(label)}</span><span class="team-pick-helper">${escapeHtml(outcomeHelper(outcome))}</span></button>`;
+      return `<button class="team-pick focus-ring${drawClass}" type="button" role="radio" aria-label="${escapeHtml(outcomeAriaLabel(flaggedMatch, outcome))}" aria-checked="${isSelected ? "true" : "false"}" data-state="${isSelected ? "selected" : "idle"}" data-select-outcome data-match-id="${escapeHtml(match.id)}" data-outcome="${outcome}" data-outcome-label="${escapeHtml(label)}" tabindex="${isFocusable ? 0 : -1}" ${disabledAttr}>${visual}<span class="team-pick-name">${escapeHtml(label)}</span><span class="team-pick-helper">${escapeHtml(outcomeHelper(outcome))}</span></button>`;
     })
     .join("");
 }
@@ -116,7 +117,7 @@ function renderStakeButtons(): string {
   return stakeOptionsUsd
     .map((stake) => {
       const isSelected = stake === defaultStakeUsd;
-      return `<button class="segment-control focus-ring" type="button" role="radio" aria-checked="${isSelected ? "true" : "false"}" data-state="${isSelected ? "selected" : "idle"}" data-select-stake data-stake="${stake}">$${stake}</button>`;
+      return `<button class="segment-control focus-ring" type="button" role="radio" aria-checked="${isSelected ? "true" : "false"}" data-state="${isSelected ? "selected" : "idle"}" data-select-stake data-stake="${stake}" tabindex="${isSelected ? 0 : -1}">$${stake}</button>`;
     })
     .join("");
 }
@@ -129,7 +130,7 @@ function renderActionArea(match: Match, selected?: Outcome): string {
     const stakeInputId = `custom-stake-${match.id}`;
     const stakeErrorId = `${stakeInputId}-error`;
 
-    return `<div class="grid gap-2"><p class="text-sm font-semibold text-[var(--text)]">Valor</p><div class="grid gap-2" data-stake-field><div class="grid grid-cols-[1fr_auto] gap-4"><div class="segment-grid" role="radiogroup" aria-label="Valor do palpite">${renderStakeButtons()}</div><input id="${escapeHtml(stakeInputId)}" class="form-control focus-ring w-20 text-center text-sm" type="number" min="${minimumStakeUsd}" step="${stakeStepUsd}" value="${defaultStakeUsd}" inputmode="decimal" aria-label="Valor personalizado" aria-describedby="${escapeHtml(stakeErrorId)}" aria-invalid="false" data-custom-stake></div><p id="${escapeHtml(stakeErrorId)}" class="field-error" data-stake-error hidden>Informe pelo menos $${minimumStakeUsd}.</p></div></div><button class="btn-primary focus-ring w-full" type="button" disabled data-place-bet data-match-id="${escapeHtml(match.id)}" data-match-onchain-id="${escapeHtml(match.onchainId ?? "")}" data-outcome=""><i class="fa-solid fa-circle-dot text-[var(--muted)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Confirmar palpite</button>`;
+    return `<div class="grid gap-2"><label class="text-sm font-semibold text-[var(--text)]" for="${escapeHtml(stakeInputId)}">Valor</label><div class="grid gap-2" data-stake-field><div class="grid grid-cols-[1fr_auto] gap-4"><div class="segment-grid" role="radiogroup" aria-label="Valor do palpite">${renderStakeButtons()}</div><input id="${escapeHtml(stakeInputId)}" class="form-control focus-ring w-20 text-center text-sm" type="number" min="${minimumStakeUsd}" step="${stakeStepUsd}" value="${defaultStakeUsd}" inputmode="decimal" aria-describedby="${escapeHtml(stakeErrorId)}" aria-invalid="false" data-custom-stake></div><p id="${escapeHtml(stakeErrorId)}" class="field-error" data-stake-error hidden>Informe pelo menos $${minimumStakeUsd}.</p></div></div><button class="btn-primary focus-ring w-full" type="button" disabled data-place-bet data-match-id="${escapeHtml(match.id)}" data-match-onchain-id="${escapeHtml(match.onchainId ?? "")}" data-outcome=""><i class="fa-solid fa-circle-dot text-[var(--muted)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Confirmar palpite</button>`;
   }
 
   if (selected) {
@@ -170,18 +171,18 @@ export function renderMatchCard(match: Match): string {
   const statusId = `bet-status-${match.id}`;
 
   return `
-    <article id="match-card-${escapeHtml(match.id)}" class="match-card" data-match-card data-filter-card data-match-id="${escapeHtml(match.id)}" data-match-onchain-id="${escapeHtml(onchainId)}" data-match-kickoff-iso="${escapeHtml(match.kickoffIso)}" data-home-team="${escapeHtml(match.homeTeam)}" data-away-team="${escapeHtml(match.awayTeam)}" data-home-flag-code="${escapeHtml(flaggedMatch.homeFlagCode ?? "")}" data-away-flag-code="${escapeHtml(flaggedMatch.awayFlagCode ?? "")}" data-match-status="${match.status}" data-confirmed="${isConfirmed ? "true" : "false"}" aria-describedby="${escapeHtml(statusId)}">
+    <article id="match-card-${escapeHtml(match.id)}" class="match-card" data-match-card data-filter-card data-match-id="${escapeHtml(match.id)}" data-match-onchain-id="${escapeHtml(onchainId)}" data-match-kickoff-iso="${escapeHtml(match.kickoffIso)}" data-home-team="${escapeHtml(match.homeTeam)}" data-away-team="${escapeHtml(match.awayTeam)}" data-home-flag-code="${escapeHtml(flaggedMatch.homeFlagCode ?? "")}" data-away-flag-code="${escapeHtml(flaggedMatch.awayFlagCode ?? "")}" data-match-status="${match.status}" data-confirmed="${isConfirmed ? "true" : "false"}" aria-describedby="${escapeHtml(statusId)}" aria-labelledby="match-title-${escapeHtml(match.id)}">
       <div class="match-card-body">
         <div class="match-topline">
           <div class="min-w-0">
             <p class="match-label">${escapeHtml(groupLabel)}</p>
-            <h2 class="sr-only">${escapeHtml(match.homeTeam)} x ${escapeHtml(match.awayTeam)}</h2>
+            <h2 id="match-title-${escapeHtml(match.id)}" class="sr-only">${escapeHtml(match.homeTeam)} x ${escapeHtml(match.awayTeam)}</h2>
             <p class="mt-2 truncate text-xs font-semibold uppercase text-[var(--muted)]">${escapeHtml(defaultToken.label)} padrão - ${escapeHtml(competition)}</p>
           </div>
           <span class="status-pill ${statusClass}">${statusIcon(match.status, isConfirmed)}${escapeHtml(statusLabel(match.status, isConfirmed))}</span>
         </div>
 
-        <div class="teams-line" aria-label="${escapeHtml(match.homeTeam)} x ${escapeHtml(match.awayTeam)}">
+        <div class="teams-line" role="group" aria-label="${escapeHtml(match.homeTeam)} x ${escapeHtml(match.awayTeam)}">
           <div class="team-block">
             ${flagImage(flaggedMatch.homeFlagCode, homeCountry)}
             <p class="team-name">${escapeHtml(match.homeTeam)}</p>
@@ -198,7 +199,7 @@ export function renderMatchCard(match: Match): string {
           <span class="min-w-0"><i class="fa-solid fa-map-pin text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i><span class="truncate ml-2">${escapeHtml(venue)}</span></span>
         </p>
 
-        <div class="match-finance-row" aria-label="Resumo do pote">
+        <div class="match-finance-row" role="group" aria-label="Resumo do pote">
           <div class="finance-stat">
             <p class="finance-label"><i class="fa-solid fa-coins text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Pote agora</p>
             <p class="finance-value text-[var(--green)]">${escapeHtml(formatUsd(match.poolUsd))}</p>

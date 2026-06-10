@@ -1,25 +1,19 @@
 ---
-import AppHeader from "../components/AppHeader.astro";
-import PageFooter from "../components/PageFooter.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import AppLayout from "../layouts/AppLayout.astro";
 ---
 
-<BaseLayout title="Project Ball | Termos">
-  <AppHeader />
-  <main id="conteudo" class="app-shell app-main" transition:name="page-content">
-    <article class="surface-panel max-w-3xl p-6 leading-relaxed md:p-6" transition:name="legal-content">
-      <p class="eyebrow">
-        <i class="fa-solid fa-file-lines ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-        Legal
-      </p>
-      <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)]">Termos de uso</h1>
-      <p class="mt-6 text-[var(--muted)]">
-        Project Ball é um MVP de palpites em partidas de futebol com dólar digital na rede Celo. Cada carteira pode fazer um palpite por partida. A partida trava antes do início informado.
-      </p>
-      <p class="mt-4 text-[var(--muted)]">
-        Partidas canceladas, adiadas sem resolução ou sem vencedores elegíveis podem ser marcadas como anuladas e liberar reembolso proporcional conforme o contrato.
-      </p>
-    </article>
-  </main>
-  <PageFooter />
-</BaseLayout>
+<AppLayout title="Termos">
+  <article class="surface-panel max-w-3xl p-6 leading-relaxed md:p-6" transition:name="legal-content">
+    <p class="eyebrow">
+      <i class="fa-solid fa-file-lines ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+      Legal
+    </p>
+    <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)]">Termos de uso</h1>
+    <p class="mt-6 text-[var(--muted)]">
+      Project Ball é um MVP de palpites em partidas de futebol com dólar digital na rede Celo. Cada carteira pode fazer um palpite por partida. A partida trava antes do início informado.
+    </p>
+    <p class="mt-4 text-[var(--muted)]">
+      Partidas canceladas, adiadas sem resolução ou sem vencedores elegíveis podem ser marcadas como anuladas e liberar reembolso proporcional conforme o contrato.
+    </p>
+  </article>
+</AppLayout>

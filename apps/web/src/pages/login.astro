@@ -1,7 +1,5 @@
 ---
-import AppHeader from "@/components/AppHeader.astro";
-import PageFooter from "@/components/PageFooter.astro";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 
 const requestedNext = Astro.url.searchParams.get("next");
 const nextPath = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/meus-palpites";
@@ -18,62 +16,58 @@ const loginContextCopy = nextPath.startsWith("/premios")
     : "A próxima tela precisa confirmar sua carteira antes de abrir.";
 ---
 
-<BaseLayout title="Entrar | Project Ball">
-  <AppHeader />
-  <main id="conteudo" class="app-shell app-main" transition:name="page-content">
-    <section class="auth-shell">
-      <div class="surface-panel auth-panel">
-        <p class="eyebrow">
-          <i class="fa-solid fa-wallet ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          Carteira
+<AppLayout title="Entrar">
+  <section class="auth-shell">
+    <div class="surface-panel auth-panel">
+      <p class="eyebrow">
+        <i class="fa-solid fa-wallet ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+        Carteira
+      </p>
+      <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Entrar no Project Ball</h1>
+      <p class="lede mt-4">
+        Assine uma mensagem da sua carteira para abrir sua conta. Não há transação nem taxa.
+      </p>
+      <div class="success-panel mt-4" data-auth-context>
+        <p class="flex items-center gap-2 text-sm font-bold text-[var(--text)]">
+          <i class="fa-solid fa-circle-info text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+          {loginContext}
         </p>
-        <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Entrar no Project Ball</h1>
-        <p class="lede mt-4">
-          Assine uma mensagem da sua carteira para abrir sua conta. Não há transação nem taxa.
-        </p>
-        <div class="success-panel mt-4" data-auth-context>
-          <p class="flex items-center gap-2 text-sm font-bold text-[var(--text)]">
-            <i class="fa-solid fa-circle-info text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-            {loginContext}
-          </p>
-          <p class="text-sm font-medium text-[var(--muted)]">{loginContextCopy}</p>
-        </div>
-
-        <div class="mt-6 rounded-[8px] border border-[var(--line)] bg-white/[0.045] p-4" data-auth-action-panel>
-          <p class="text-sm font-bold text-[var(--muted)]" role="status" data-auth-status>
-            Pronto para conectar.
-          </p>
-          <button
-            class="btn-primary focus-ring mt-4 w-full"
-            type="button"
-            data-auth-intent="login"
-            data-auth-redirect={nextPath}
-          >
-            <i class="fa-solid fa-right-to-bracket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-            Entrar com carteira
-          </button>
-          <a
-            class="btn-secondary focus-ring mt-4 w-full"
-            href={registerHref}
-          >
-            <i class="fa-solid fa-user-plus text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-            Criar conta nova
-          </a>
-        </div>
+        <p class="text-sm font-medium text-[var(--muted)]">{loginContextCopy}</p>
       </div>
 
-      <aside class="surface-panel editorial-side">
-        <div>
-          <p class="text-xs font-black uppercase text-[var(--gold)]">Segurança</p>
-          <h2 class="font-display mt-2 text-2xl font-extrabold text-[var(--text)]">Carteira como identidade</h2>
-        </div>
-        <div class="editorial-list">
-          <p><i class="fa-solid fa-shield-halved text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Assinatura fora da blockchain para iniciar sessão.</p>
-          <p><i class="fa-solid fa-circle-dollar-to-slot text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Saldo e tokens seguem na sua carteira.</p>
-          <p><i class="fa-solid fa-key text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Sem senha para memorizar ou recuperar.</p>
-        </div>
-      </aside>
-    </section>
-  </main>
-  <PageFooter />
-</BaseLayout>
+      <div class="mt-6 rounded-[8px] border border-[var(--line)] bg-white/[0.045] p-4" data-auth-action-panel>
+        <p class="text-sm font-bold text-[var(--muted)]" role="status" data-auth-status>
+          Pronto para conectar.
+        </p>
+        <button
+          class="btn-primary focus-ring mt-4 w-full"
+          type="button"
+          data-auth-intent="login"
+          data-auth-redirect={nextPath}
+        >
+          <i class="fa-solid fa-right-to-bracket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+          Entrar com carteira
+        </button>
+        <a
+          class="btn-secondary focus-ring mt-4 w-full"
+          href={registerHref}
+        >
+          <i class="fa-solid fa-user-plus text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+          Criar conta nova
+        </a>
+      </div>
+    </div>
+
+    <aside class="surface-panel editorial-side">
+      <div>
+        <p class="text-xs font-black uppercase text-[var(--gold)]">Segurança</p>
+        <h2 class="font-display mt-2 text-2xl font-extrabold text-[var(--text)]">Carteira como identidade</h2>
+      </div>
+      <div class="editorial-list">
+        <p><i class="fa-solid fa-shield-halved text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Assinatura fora da blockchain para iniciar sessão.</p>
+        <p><i class="fa-solid fa-circle-dollar-to-slot text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Saldo e tokens seguem na sua carteira.</p>
+        <p><i class="fa-solid fa-key text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Sem senha para memorizar ou recuperar.</p>
+      </div>
+    </aside>
+  </section>
+</AppLayout>

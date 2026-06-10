@@ -1,80 +1,74 @@
 ---
-import AppHeader from "@/components/AppHeader.astro";
-import PageFooter from "@/components/PageFooter.astro";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 
 const requestedNext = Astro.url.searchParams.get("next");
 const nextPath = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/meus-palpites";
 const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
 ---
 
-<BaseLayout title="Criar conta | Project Ball">
-  <AppHeader />
-  <main id="conteudo" class="app-shell app-main" transition:name="page-content">
-    <section class="auth-shell">
-      <form class="surface-panel auth-panel" data-auth-form>
-        <p class="eyebrow">
-          <i class="fa-solid fa-user-plus ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          Cadastro
-        </p>
-        <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Criar conta com carteira</h1>
-        <p class="lede mt-4">
-          Seu perfil fica ligado ao endereço da carteira que assinar a mensagem de cadastro.
-        </p>
-        <p class="mt-4 inline-flex items-center gap-2 rounded-[999px] border border-[var(--line)] bg-white/[0.045] px-4 py-2 text-xs font-black uppercase text-[var(--muted)]">
-          <i class="fa-solid fa-route text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          Depois do cadastro, você segue para {nextPath}
-        </p>
+<AppLayout title="Criar conta">
+  <section class="auth-shell">
+    <form class="surface-panel auth-panel" data-auth-form>
+      <p class="eyebrow">
+        <i class="fa-solid fa-user-plus ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+        Cadastro
+      </p>
+      <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Criar conta com carteira</h1>
+      <p class="lede mt-4">
+        Seu perfil fica ligado ao endereço da carteira que assinar a mensagem de cadastro.
+      </p>
+      <p class="mt-4 inline-flex items-center gap-2 rounded-[999px] border border-[var(--line)] bg-white/[0.045] px-4 py-2 text-xs font-black uppercase text-[var(--muted)]">
+        <i class="fa-solid fa-route text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+        Depois do cadastro, você segue para {nextPath}
+      </p>
 
-        <label class="mt-6 block" for="display-name">
-          <span class="text-sm font-black text-[var(--text)]">Nome de exibição</span>
-          <input
-            id="display-name"
-            class="form-control focus-ring mt-2 text-base"
-            type="text"
-            name="displayName"
-            autocomplete="nickname"
-            maxlength="48"
-            placeholder="Project Ball"
-            data-auth-display-name
-          />
-        </label>
+      <label class="mt-6 block" for="display-name">
+        <span class="text-sm font-black text-[var(--text)]">Nome de exibição</span>
+        <input
+          id="display-name"
+          class="form-control focus-ring mt-2 text-base"
+          type="text"
+          name="displayName"
+          autocomplete="nickname"
+          maxlength="48"
+          placeholder="Project Ball"
+          data-auth-display-name
+        />
+      </label>
 
-        <div class="mt-6 rounded-[8px] border border-[var(--line)] bg-white/[0.045] p-4" data-auth-action-panel>
-          <p class="text-sm font-bold text-[var(--muted)]" role="status" data-auth-status>
-            Pronto para cadastrar.
-          </p>
-          <button
-            class="btn-primary focus-ring mt-4 w-full"
-            type="button"
-            data-auth-intent="register"
-            data-auth-redirect={nextPath}
-          >
-            <i class="fa-solid fa-wallet ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-            Cadastrar com carteira
-          </button>
-          <a
-            class="btn-secondary focus-ring mt-4 w-full"
-            href={loginHref}
-          >
-            <i class="fa-solid fa-right-to-bracket text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-            Já tenho conta
-          </a>
-        </div>
-      </form>
+      <div class="mt-6 rounded-[8px] border border-[var(--line)] bg-white/[0.045] p-4" data-auth-action-panel>
+        <p class="text-sm font-bold text-[var(--muted)]" role="status" data-auth-status>
+          Pronto para cadastrar.
+        </p>
+        <button
+          class="btn-primary focus-ring mt-4 w-full"
+          type="button"
+          data-auth-intent="register"
+          data-auth-redirect={nextPath}
+        >
+          <i class="fa-solid fa-wallet ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+          Cadastrar com carteira
+        </button>
+        <a
+          class="btn-secondary focus-ring mt-4 w-full"
+          href={loginHref}
+        >
+          <i class="fa-solid fa-right-to-bracket text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+          Já tenho conta
+        </a>
+      </div>
+    </form>
 
-      <aside class="surface-panel editorial-side">
-        <div>
-          <p class="text-xs font-black uppercase text-[var(--gold)]">Conta</p>
-          <h2 class="font-display mt-2 text-2xl font-extrabold text-[var(--text)]">Um perfil por carteira</h2>
-        </div>
-        <div class="editorial-list">
-          <p><i class="fa-solid fa-wallet text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Uma carteira conectada ao histórico de palpites.</p>
-          <p><i class="fa-solid fa-receipt text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Palpites confirmados aparecem em Meus Palpites.</p>
-          <p><i class="fa-solid fa-trophy text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Prêmios usam a mesma sessão de carteira.</p>
-        </div>
-      </aside>
-    </section>
-  </main>
-  <PageFooter />
-</BaseLayout>
+    <aside class="surface-panel editorial-side">
+      <div>
+        <p class="text-xs font-black uppercase text-[var(--gold)]">Conta</p>
+        <h2 class="font-display mt-2 text-2xl font-extrabold text-[var(--text)]">Um perfil por carteira</h2>
+      </div>
+      <div class="editorial-list">
+        <p><i class="fa-solid fa-wallet text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Uma carteira conectada ao histórico de palpites.</p>
+        <p><i class="fa-solid fa-receipt text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Palpites confirmados aparecem em Meus Palpites.</p>
+        <p><i class="fa-solid fa-trophy text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Prêmios usam a mesma sessão de carteira.</p>
+      </div>
+    </aside>
+  </section>
+</AppLayout>

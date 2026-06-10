@@ -1,0 +1,23 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+---
+
+<AppLayout title="Página não encontrada" mainClass="flex flex-col justify-center items-center text-center">
+  <section class="surface-panel p-8 max-w-md w-full flex flex-col items-center gap-6 my-12">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/[0.05] border border-[var(--line-strong)] text-[var(--gold)]">
+      <i class="fa-solid fa-compass ui-icon text-3xl" aria-hidden="true"></i>
+    </div>
+    <div>
+      <p class="text-xs font-black uppercase text-[var(--gold)] tracking-wider">Erro 404</p>
+      <h1 class="font-display mt-2 text-3xl font-extrabold text-[var(--text)]">Caminho perdido</h1>
+      <p class="mt-4 text-sm font-semibold leading-relaxed text-[var(--muted)]">
+        A página que você está procurando não existe ou foi movida para outro endereço.
+      </p>
+    </div>
+    <div class="w-full border-t border-[var(--line)] my-2"></div>
+    <a class="btn-primary focus-ring w-full justify-center" href="/">
+      <i class="fa-solid fa-house ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+      Voltar ao início
+    </a>
+  </section>
+</AppLayout>

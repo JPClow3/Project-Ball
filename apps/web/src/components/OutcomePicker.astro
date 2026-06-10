@@ -34,10 +34,12 @@ const outcomeCopy: Record<Outcome, { label: string; helper: string; flagCode?: s
 };
 ---
 
+
 <div class="team-pick-grid" role="radiogroup" aria-label="Escolha do palpite">
   {
     outcomes.map((outcome) => {
       const isSelected = selected === outcome;
+      const isFocusable = selected ? isSelected : outcome === "HOME";
       const copy = outcomeCopy[outcome];
       return (
         <button
@@ -53,6 +55,7 @@ const outcomeCopy: Record<Outcome, { label: string; helper: string; flagCode?: s
           aria-label={copy.ariaLabel}
           aria-checked={isSelected ? "true" : "false"}
           data-state={isSelected ? "selected" : "idle"}
+          tabindex={isFocusable ? 0 : -1}
           disabled={disabled}
         >
           {

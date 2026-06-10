@@ -1,7 +1,5 @@
 ---
-import AppHeader from "../components/AppHeader.astro";
-import PageFooter from "../components/PageFooter.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import AppLayout from "../layouts/AppLayout.astro";
 
 const supportLinks = [
   {
@@ -34,78 +32,74 @@ const checklist = [
 ] as const;
 ---
 
-<BaseLayout title="Project Ball | Suporte">
-  <AppHeader />
-  <main id="conteudo" class="app-shell app-main page-stack" transition:name="page-content">
-    <section class="page-hero support-hero" transition:name="support-hero">
-      <div class="page-hero-row">
-        <div>
-          <p class="eyebrow">Ajuda</p>
-          <h1 class="page-title mt-4">Suporte</h1>
-          <p class="page-copy mt-4">
-            Para depósito, saque, reembolso e resultado de partida. No MVP, o saque passa pelo suporte para manter tudo rastreável.
-          </p>
+<AppLayout title="Suporte" mainClass="page-stack">
+  <section class="page-hero support-hero" transition:name="support-hero">
+    <div class="page-hero-row">
+      <div>
+        <p class="eyebrow">Ajuda</p>
+        <h1 class="page-title mt-4">Suporte</h1>
+        <p class="page-copy mt-4">
+          Para depósito, saque, reembolso e resultado de partida. No MVP, o saque passa pelo suporte para manter tudo rastreável.
+        </p>
+      </div>
+      <div class="support-ticket" aria-label="Resumo do atendimento">
+        <div class="support-ticket-head">
+          <span>Fila de suporte</span>
+          <strong>Aberta</strong>
         </div>
-        <div class="support-ticket" aria-label="Resumo do atendimento">
-          <div class="support-ticket-head">
-            <span>Fila de suporte</span>
-            <strong>Aberta</strong>
-          </div>
-          <div class="support-ticket-row">
-            <span>Depósito</span>
-            <strong>MiniPay</strong>
-            <small>Abre a carteira para adicionar saldo.</small>
-          </div>
-          <div class="support-ticket-row">
-            <span>Saque</span>
-            <strong>Suporte MVP</strong>
-            <small>Pedido manual com carteira e partida.</small>
-          </div>
-          <div class="support-ticket-row">
-            <span>Comprovante</span>
-            <strong>Carteira + jogo</strong>
-            <small>Envie comprovante ou print quando existir.</small>
-          </div>
+        <div class="support-ticket-row">
+          <span>Depósito</span>
+          <strong>MiniPay</strong>
+          <small>Abre a carteira para adicionar saldo.</small>
+        </div>
+        <div class="support-ticket-row">
+          <span>Saque</span>
+          <strong>Suporte MVP</strong>
+          <small>Pedido manual com carteira e partida.</small>
+        </div>
+        <div class="support-ticket-row">
+          <span>Comprovante</span>
+          <strong>Carteira + jogo</strong>
+          <small>Envie comprovante ou print quando existir.</small>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="quiet-grid support-layout" aria-label="Canais de suporte">
-      {
-        supportLinks.map((item) => {
-          return (
-            <a class="support-card focus-ring block transition hover:-translate-y-0.5" href={item.href}>
-              <span class="liquid-icon">
-                <i class={`${item.icon} ui-icon`} style="font-size: 20px;" aria-hidden="true"></i>
-              </span>
-              <p class="font-display mt-6 text-lg font-extrabold text-[var(--text)]">{item.title}</p>
-              <p class="mt-2 text-sm font-semibold leading-relaxed text-[var(--muted)]">{item.text}</p>
-              <p class="mt-4 text-xs font-extrabold uppercase leading-relaxed text-[var(--muted-strong)]">{item.helper}</p>
-              <span class="mt-6 inline-flex items-center gap-2 text-sm font-black text-[var(--gold)]">
-                Abrir
-                <i class="fa-solid fa-arrow-up-right-from-square ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-              </span>
-            </a>
-          );
-        })
-      }
-      <aside class="support-checklist">
-        <span class="liquid-icon"><i class="fa-solid fa-wallet ui-icon" style="font-size: 20px;" aria-hidden="true"></i></span>
-        <h2 class="text-xl">Antes de pedir ajuda</h2>
-        <div class="timeline-list">
-          {
-            checklist.map((item, index) => (
-              <article class="timeline-item">
-                <span class="step-badge">{index + 1}</span>
-                <div>
-                  <h3>{item}</h3>
-                </div>
-              </article>
-            ))
-          }
-        </div>
-      </aside>
-    </section>
-  </main>
-  <PageFooter />
-</BaseLayout>
+  <section class="quiet-grid support-layout" aria-label="Canais de suporte">
+    {
+      supportLinks.map((item) => {
+        return (
+          <a class="support-card focus-ring block transition hover:-translate-y-0.5" href={item.href}>
+            <span class="liquid-icon">
+              <i class={`${item.icon} ui-icon`} style="font-size: 20px;" aria-hidden="true"></i>
+            </span>
+            <p class="font-display mt-6 text-lg font-extrabold text-[var(--text)]">{item.title}</p>
+            <p class="mt-2 text-sm font-semibold leading-relaxed text-[var(--muted)]">{item.text}</p>
+            <p class="mt-4 text-xs font-extrabold uppercase leading-relaxed text-[var(--muted-strong)]">{item.helper}</p>
+            <span class="mt-6 inline-flex items-center gap-2 text-sm font-black text-[var(--gold)]">
+              Abrir
+              <i class="fa-solid fa-arrow-up-right-from-square ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+            </span>
+          </a>
+        );
+      })
+    }
+    <aside class="support-checklist">
+      <span class="liquid-icon"><i class="fa-solid fa-wallet ui-icon" style="font-size: 20px;" aria-hidden="true"></i></span>
+      <h2 class="text-xl">Antes de pedir ajuda</h2>
+      <div class="timeline-list">
+        {
+          checklist.map((item, index) => (
+            <article class="timeline-item">
+              <span class="step-badge">{index + 1}</span>
+              <div>
+                <h3>{item}</h3>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </aside>
+  </section>
+</AppLayout>

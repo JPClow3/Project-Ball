@@ -27,7 +27,7 @@ class PgPreparedStatement implements D1PreparedStatement {
   ) {}
 
   bind(...values: unknown[]): D1PreparedStatement {
-    return new PgPreparedStatement(this.pool, this.sql, values);
+    return new PgPreparedStatement(this.pool, this.sql, [...this.values, ...values]);
   }
 
   async first<T = unknown>(): Promise<T | null> {

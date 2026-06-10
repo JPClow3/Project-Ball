@@ -1,7 +1,4 @@
 ---
-import { getRuntimeEnv } from "@/lib/runtime";
-
-const env = getRuntimeEnv();
 import MatchCard from "@/components/MatchCard.astro";
 import AppLayout from "@/layouts/AppLayout.astro";
 import { getSession } from "@/lib/auth";
@@ -9,13 +6,28 @@ import { getUserConfirmedPicks } from "@/lib/bets";
 import { formatKickoff } from "@/lib/format";
 import { getMatch, withUserPick } from "@/lib/matches";
 import { getDefaultStablecoin } from "@/lib/tokens";
+import { getRuntimeEnv } from "@/lib/runtime";
 
-const session = await getSession(env.PROJECT_BALL_DB, Astro.request);
+const env = getRuntimeEnv();
+
+let session = null;
+try {
+  session = await getSession(env.PROJECT_BALL_DB, Astro.request);
+} catch (error) {
+  console.warn("Database is offline. Unable to fetch session for meus-palpites page.", error);
+}
+
 if (!session) {
   return Astro.redirect(`/login?next=${encodeURIComponent(Astro.url.pathname)}`);
 }
 
-const confirmedPicks = await getUserConfirmedPicks(env.PROJECT_BALL_DB, session.user.walletAddress);
+let confirmedPicks: any[] = [];
+try {
+  confirmedPicks = [...await getUserConfirmedPicks(env.PROJECT_BALL_DB, session.user.walletAddress)];
+} catch (error) {
+  console.warn("Database is offline. Falling back to empty confirmed picks list.", error);
+}
+
 const activePicks = confirmedPicks.flatMap((pick) => {
   const match = getMatch(pick.matchId);
   return match ? [withUserPick(match, pick.outcome)] : [];
@@ -63,7 +75,7 @@ const defaultToken = getDefaultStablecoin();
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p class="match-label">Rodada atual</p>
-            <h2 class="mt-2 text-xl">{activePicks.length > 1 ? "Seus palpites" : "Seu palpite"}</h2>
+            <h2 class="mt-2 text-xl">{activePicks.length === 0 ? "Sem palpites" : activePicks.length > 1 ? "Seus palpites" : "Seu palpite"}</h2>
           </div>
           <a class="btn-secondary focus-ring min-h-12 w-fit px-4" href="/">
             <i class="fa-solid fa-futbol ui-icon" style="font-size: 16px;" aria-hidden="true"></i>

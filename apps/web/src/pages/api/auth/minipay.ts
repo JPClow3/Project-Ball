@@ -19,23 +19,28 @@ function json(data: unknown, init: ResponseInit = {}): Response {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const env = getRuntimeEnv();
-  const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  const walletAddress = normalizeWalletAddress(payload?.address);
+  try {
+    const env = getRuntimeEnv();
+    const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+    const walletAddress = normalizeWalletAddress(payload?.address);
 
-  if (!walletAddress) {
-    return json({ error: "Carteira inválida" }, { status: 400 });
-  }
-
-  const session = await createMiniPaySession({
-    db: env.PROJECT_BALL_DB,
-    walletAddress,
-    displayName: normalizeDisplayName(payload?.displayName)
-  });
-
-  return json(toPublicSession(session), {
-    headers: {
-      "Set-Cookie": makeSessionCookie(session, request)
+    if (!walletAddress) {
+      return json({ error: "Carteira inválida" }, { status: 400 });
     }
-  });
+
+    const session = await createMiniPaySession({
+      db: env.PROJECT_BALL_DB,
+      walletAddress,
+      displayName: normalizeDisplayName(payload?.displayName)
+    });
+
+    return json(toPublicSession(session), {
+      headers: {
+        "Set-Cookie": makeSessionCookie(session, request)
+      }
+    });
+  } catch (error) {
+    console.error("Error in minipay API:", error);
+    return json({ error: "Erro interno no servidor ao autenticar MiniPay" }, { status: 500 });
+  }
 };

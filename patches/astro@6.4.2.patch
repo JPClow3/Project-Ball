@@ -1,0 +1,26 @@
+diff --git a/dist/core/app/base.d.ts b/dist/core/app/base.d.ts
+index f323f033139688806bf63e5e17e9510cd75a2244..89cae52f26b97c8edaa4bd9b5b8016a5dd8ca027 100644
+--- a/dist/core/app/base.d.ts
++++ b/dist/core/app/base.d.ts	
+@@ -97,6 +97,7 @@ export declare abstract class BaseApp<P extends Pipeline = AppPipeline> {
+     baseWithoutTrailingSlash: string;
+     get logger(): AstroLogger;
+     get adapterLogger(): AstroIntegrationLogger;
++    getAdapterLogger(): AstroIntegrationLogger;
+     constructor(manifest: SSRManifest, streaming?: boolean, ...args: any[]);
+     /**
+      * Override the fetch handler used to dispatch requests. Entrypoints
+diff --git a/dist/core/app/base.js b/dist/core/app/base.js
+index 78dfa999272a3b9c576e5cc25c2f3a402f842c07..a11a9fff0e6c105030b3929c99585c9879b7a810 100644
+--- a/dist/core/app/base.js
++++ b/dist/core/app/base.js	
+@@ -54,6 +54,9 @@ class BaseApp {
+     }
+     return this.#adapterLogger;
+   }
++  getAdapterLogger() {
++    return this.adapterLogger;
++  }
+   constructor(manifest, streaming = true, ...args) {
+     this.manifest = manifest;
+     this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);

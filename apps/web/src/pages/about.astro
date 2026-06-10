@@ -1,7 +1,5 @@
 ---
-import AppHeader from "../components/AppHeader.astro";
-import PageFooter from "../components/PageFooter.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import AppLayout from "../layouts/AppLayout.astro";
 
 const steps = [
   {
@@ -42,60 +40,56 @@ const rules = [
 ] as const;
 ---
 
-<BaseLayout title="Project Ball | Sobre">
-  <AppHeader />
-  <main id="conteudo" class="app-shell app-main page-stack" transition:name="page-content">
-    <section class="page-hero" transition:name="about-hero">
-      <div>
-        <p class="hero-kicker">Sobre o Project Ball</p>
-        <h1 class="page-title mt-4">Um jeito simples de palpitar na Copa.</h1>
-        <p class="page-copy mt-4">
-          A tela inicial fica focada nas partidas. Aqui estão as regras: como confirmar, quando o jogo trava e quando o suporte entra.
-        </p>
-      </div>
-    </section>
+<AppLayout title="Sobre" mainClass="page-stack">
+  <section class="page-hero" transition:name="about-hero">
+    <div>
+      <p class="hero-kicker">Sobre o Project Ball</p>
+      <h1 class="page-title mt-4">Um jeito simples de palpitar na Copa.</h1>
+      <p class="page-copy mt-4">
+        A tela inicial fica focada nas partidas. Aqui estão as regras: como confirmar, quando o jogo trava e quando o suporte entra.
+      </p>
+    </div>
+  </section>
 
-    <section class="section-band" aria-labelledby="about-flow">
-      <div class="section-heading">
-        <p class="match-label">Como funciona</p>
-        <h2 id="about-flow" class="font-display text-2xl font-extrabold text-[var(--text)]">Três passos</h2>
-      </div>
-      <div class="timeline-list">
-        {
-          steps.map((step, index) => (
-            <article class="timeline-item">
-              <span class="step-badge">{index + 1}</span>
+  <section class="section-band" aria-labelledby="about-flow">
+    <div class="section-heading">
+      <p class="match-label">Como funciona</p>
+      <h2 id="about-flow" class="font-display text-2xl font-extrabold text-[var(--text)]">Três passos</h2>
+    </div>
+    <div class="timeline-list">
+      {
+        steps.map((step, index) => (
+          <article class="timeline-item">
+            <span class="step-badge">{index + 1}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section-band" aria-labelledby="about-rules">
+    <div class="section-heading">
+      <p class="match-label">Regras rápidas</p>
+      <h2 id="about-rules" class="font-display text-2xl font-extrabold text-[var(--text)]">Clareza antes do clique</h2>
+    </div>
+    <div class="quiet-grid about-rule-grid">
+      {
+        rules.map((rule) => {
+          return (
+            <article class="quiet-card about-card-row">
+              <span class="liquid-icon"><i class={`${rule.icon} ui-icon`} style="font-size: 20px;" aria-hidden="true"></i></span>
               <div>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
+                <h3>{rule.title}</h3>
+                <p>{rule.text}</p>
               </div>
             </article>
-          ))
-        }
-      </div>
-    </section>
-
-    <section class="section-band" aria-labelledby="about-rules">
-      <div class="section-heading">
-        <p class="match-label">Regras rápidas</p>
-        <h2 id="about-rules" class="font-display text-2xl font-extrabold text-[var(--text)]">Clareza antes do clique</h2>
-      </div>
-      <div class="quiet-grid about-rule-grid">
-        {
-          rules.map((rule) => {
-            return (
-              <article class="quiet-card about-card-row">
-                <span class="liquid-icon"><i class={`${rule.icon} ui-icon`} style="font-size: 20px;" aria-hidden="true"></i></span>
-                <div>
-                  <h3>{rule.title}</h3>
-                  <p>{rule.text}</p>
-                </div>
-              </article>
-            );
-          })
-        }
-      </div>
-    </section>
-  </main>
-  <PageFooter />
-</BaseLayout>
+          );
+        })
+      }
+    </div>
+  </section>
+</AppLayout>

@@ -21,31 +21,36 @@ function json(data: unknown, init: ResponseInit = {}): Response {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const env = getRuntimeEnv();
-  const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  const walletAddress = normalizeWalletAddress(payload?.address);
-  const nonce = normalizeNonce(payload?.nonce);
-  const signature = normalizeSignature(payload?.signature);
+  try {
+    const env = getRuntimeEnv();
+    const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+    const walletAddress = normalizeWalletAddress(payload?.address);
+    const nonce = normalizeNonce(payload?.nonce);
+    const signature = normalizeSignature(payload?.signature);
 
-  if (!walletAddress || !nonce || !signature) {
-    return json({ error: "Assinatura inválida" }, { status: 400 });
-  }
-
-  const session = await registerWithWallet({
-    db: env.PROJECT_BALL_DB,
-    walletAddress,
-    nonce,
-    signature,
-    displayName: normalizeDisplayName(payload?.displayName)
-  });
-
-  if (!session) {
-    return json({ error: "Não foi possível validar a assinatura" }, { status: 401 });
-  }
-
-  return json(toPublicSession(session), {
-    headers: {
-      "Set-Cookie": makeSessionCookie(session, request)
+    if (!walletAddress || !nonce || !signature) {
+      return json({ error: "Assinatura inválida" }, { status: 400 });
     }
-  });
+
+    const session = await registerWithWallet({
+      db: env.PROJECT_BALL_DB,
+      walletAddress,
+      nonce,
+      signature,
+      displayName: normalizeDisplayName(payload?.displayName)
+    });
+
+    if (!session) {
+      return json({ error: "Não foi possível validar a assinatura" }, { status: 401 });
+    }
+
+    return json(toPublicSession(session), {
+      headers: {
+        "Set-Cookie": makeSessionCookie(session, request)
+      }
+    });
+  } catch (error) {
+    console.error("Error in register API:", error);
+    return json({ error: "Erro interno no servidor ao cadastrar carteira" }, { status: 500 });
+  }
 };

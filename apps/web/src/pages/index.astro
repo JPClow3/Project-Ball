@@ -1,14 +1,12 @@
 ---
-import AppHeader from "../components/AppHeader.astro";
 import MatchRail from "../components/MatchRail.astro";
-import PageFooter from "../components/PageFooter.astro";
 import { matches } from "../data/matches";
 import { tournamentConfig } from "../data/tournament";
 import { getSession } from "../lib/auth";
 import { getUserConfirmedPicks } from "../lib/bets";
 import { formatKickoffFull } from "../lib/format";
 import { withUserPick } from "../lib/matches";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import AppLayout from "../layouts/AppLayout.astro";
 import { getRuntimeEnv } from "../lib/runtime";
 
 const env = getRuntimeEnv();
@@ -43,107 +41,119 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
   timeZone: tournamentConfig.displayTimeZone
 }).format(new Date(`${tournamentConfig.scheduleVerifiedAt}T12:00:00Z`));
-const session = await getSession(env.PROJECT_BALL_DB, Astro.request);
-const confirmedPicks = session
-  ? await getUserConfirmedPicks(env.PROJECT_BALL_DB, session.user.walletAddress)
-  : [];
+
+let session = null;
+let confirmedPicks: any[] = [];
+try {
+  session = await getSession(env.PROJECT_BALL_DB, Astro.request);
+  if (session) {
+    confirmedPicks = [...await getUserConfirmedPicks(env.PROJECT_BALL_DB, session.user.walletAddress)];
+  }
+} catch (error) {
+  console.warn("Database is offline. Falling back to guest/in-memory mode for homepage rendering.", error);
+}
+
 const confirmedPickByMatchId = new Map(confirmedPicks.map((pick) => [pick.matchId, pick.outcome]));
 const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMatchId.get(match.id)));
 ---
 
-<BaseLayout title="Project Ball | Palpites">
-  <AppHeader />
-  <main id="conteudo" transition:name="page-content">
-    <section class="board-masthead matchday-hero" transition:name="page-hero">
-      <div class="app-shell board-masthead-inner matchday-hero-grid">
-        <div class="board-title-block matchday-copy">
-          <p class="matchday-stamp">
-            <span>Project Ball</span>
-            <strong>{tournamentConfig.name}</strong>
-          </p>
-          <h1 class="board-title">72 jogos. Palpites sem rodeio.</h1>
-          <p class="board-subtitle">
-            Escolha a partida, marque o time ou empate e confirme o valor. A tela existe para isso.
-          </p>
-          <div class="hero-flag-strip" aria-label="Seleções no painel">
-            {heroFlags.map((flag) => (
-              <img
-                src={`https://flagcdn.com/w80/${flag.code}.png`}
-                alt={`Bandeira: ${flag.country}`}
-                loading="eager"
-                decoding="async"
-              />
-            ))}
-          </div>
-          <div class="hero-command-row" aria-label="Resumo das partidas">
-            <span><strong>{matches.length}</strong> jogos</span>
-            <span><strong>{groupCount}</strong> grupos</span>
-            <span><strong>{countdownLabel}</strong> até travar</span>
-          </div>
+<AppLayout title="Palpites" isFluid={true}>
+  <section class="board-masthead matchday-hero" transition:name="page-hero">
+    <div class="app-shell board-masthead-inner matchday-hero-grid">
+      <div class="board-title-block matchday-copy">
+        <p class="matchday-stamp">
+          <span>Project Ball</span>
+          <strong>{tournamentConfig.name}</strong>
+        </p>
+        <h1 class="board-title">72 jogos. Palpites sem rodeio.</h1>
+        <p class="board-subtitle">
+          Escolha a partida, marque o time ou empate e confirme o valor. A tela existe para isso.
+        </p>
+        <div class="hero-flag-strip" aria-hidden="true">
+          {heroFlags.map((flag) => (
+            <img
+              src={`https://flagcdn.com/w80/${flag.code}.png`}
+              alt=""
+              width="30"
+              height="22"
+              loading="eager"
+              decoding="async"
+            />
+          ))}
         </div>
-
-        <aside class="matchday-ticket" aria-label="Próxima partida">
-          <div class="ticket-topbar">
-            <span>Próxima partida</span>
-            <strong>{countdownLabel}</strong>
-          </div>
-          {
-            nextMatch && (
-              <div class="ticket-fixture">
-                <div class="ticket-team">
-                  {nextHomeFlag && (
-                    <img
-                      src={nextHomeFlag}
-                      alt={`Bandeira: ${nextMatch.homeCountry}`}
-                      loading="eager"
-                      decoding="async"
-                      fetchpriority="high"
-                    />
-                  )}
-                  <strong>{nextMatch.homeTeam}</strong>
-                  <span>{nextMatch.homeCountry}</span>
-                </div>
-                <span class="ticket-versus">vs</span>
-                <div class="ticket-team">
-                  {nextAwayFlag && (
-                    <img
-                      src={nextAwayFlag}
-                      alt={`Bandeira: ${nextMatch.awayCountry}`}
-                      loading="eager"
-                      decoding="async"
-                      fetchpriority="high"
-                    />
-                  )}
-                  <strong>{nextMatch.awayTeam}</strong>
-                  <span>{nextMatch.awayCountry}</span>
-                </div>
-              </div>
-            )
-          }
-          <div class="ticket-meta-grid">
-            <span>
-              <small>Trava</small>
-              <strong>{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : "Calendário pendente"}</strong>
-            </span>
-            <span>
-              <small>Tabela</small>
-              <strong>{scheduleVerifiedLabel}</strong>
-            </span>
-          </div>
-          {
-            nextMatch && (
-              <div class="ticket-market-line" aria-hidden="true">
-                <span>{nextMatch.homeTeam}</span>
-                <span>Empate</span>
-                <span>{nextMatch.awayTeam}</span>
-              </div>
-            )
-          }
-        </aside>
+        <div class="hero-command-row" aria-label="Resumo das partidas">
+          <span><strong>{matches.length}</strong> jogos</span>
+          <span><strong>{groupCount}</strong> grupos</span>
+          <span><strong>{countdownLabel}</strong> até travar</span>
+        </div>
       </div>
-    </section>
 
-    <MatchRail matches={matchBoard} />
-  </main>
-  <PageFooter />
-</BaseLayout>
+      <aside class="matchday-ticket" aria-label="Próxima partida">
+        <div class="ticket-topbar">
+          <span>Próxima partida</span>
+          <strong>{countdownLabel}</strong>
+        </div>
+        {
+          nextMatch && (
+            <div class="ticket-fixture">
+              <div class="ticket-team">
+                {nextHomeFlag && (
+                  <img
+                    src={nextHomeFlag}
+                    alt=""
+                    aria-hidden="true"
+                    width="34"
+                    height="24"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high"
+                  />
+                )}
+                <strong>{nextMatch.homeTeam}</strong>
+                <span>{nextMatch.homeCountry}</span>
+              </div>
+              <span class="ticket-versus">vs</span>
+              <div class="ticket-team">
+                {nextAwayFlag && (
+                  <img
+                    src={nextAwayFlag}
+                    alt=""
+                    aria-hidden="true"
+                    width="34"
+                    height="24"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high"
+                  />
+                )}
+                <strong>{nextMatch.awayTeam}</strong>
+                <span>{nextMatch.awayCountry}</span>
+              </div>
+            </div>
+          )
+        }
+        <div class="ticket-meta-grid">
+          <span>
+            <small>Trava</small>
+            <strong>{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : "Calendário pendente"}</strong>
+          </span>
+          <span>
+            <small>Tabela</small>
+            <strong>{scheduleVerifiedLabel}</strong>
+          </span>
+        </div>
+        {
+          nextMatch && (
+            <div class="ticket-market-line" aria-hidden="true">
+              <span>{nextMatch.homeTeam}</span>
+              <span>Empate</span>
+              <span>{nextMatch.awayTeam}</span>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+  </section>
+
+  <MatchRail matches={matchBoard} />
+</AppLayout>

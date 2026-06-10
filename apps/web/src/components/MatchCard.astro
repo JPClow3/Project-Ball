@@ -10,9 +10,10 @@ type Props = {
   match: MatchViewModel;
   featured?: boolean;
   compact?: boolean;
+  loading?: "lazy" | "eager";
 };
 
-const { match, featured = false, compact = false } = Astro.props;
+const { match, featured = false, compact = false, loading = "lazy" } = Astro.props;
 
 const poolShareLabels = {
   HOME: match.homeTeam,
@@ -44,8 +45,8 @@ const statusIconClass = isConfirmed
     ? "fa-solid fa-circle-dot"
     : "fa-solid fa-lock";
 const statusClass = match.status === "open" && !isConfirmed ? "status-pill--open" : "status-pill--locked";
-const homeFlagUrl = `https://flagcdn.com/w80/${match.homeFlagCode}.png`;
-const awayFlagUrl = `https://flagcdn.com/w80/${match.awayFlagCode}.png`;
+const homeFlagUrl = match.homeFlagCode ? `https://flagcdn.com/w80/${match.homeFlagCode}.png` : "";
+const awayFlagUrl = match.awayFlagCode ? `https://flagcdn.com/w80/${match.awayFlagCode}.png` : "";
 const cardTitle = `${match.homeTeam} x ${match.awayTeam}`;
 const defaultToken = getDefaultStablecoin();
 const statusId = `bet-status-${match.id}`;
@@ -73,6 +74,7 @@ const selectedResultText =
   data-match-status={match.status}
   data-confirmed={isConfirmed ? "true" : undefined}
   aria-describedby={statusId}
+  aria-labelledby={`match-title-${match.id}`}
   class:list={["match-card", featured && "match-card-featured", compact && "match-card-compact"]}
   transition:name={`match-card-${match.id}`}
 >
@@ -80,7 +82,7 @@ const selectedResultText =
     <div class="match-topline">
       <div class="min-w-0">
         <p class="match-label">{match.groupLabel}</p>
-        <h2 class="sr-only">{cardTitle}</h2>
+        <h2 id={`match-title-${match.id}`} class="sr-only">{cardTitle}</h2>
         <p class="mt-2 truncate text-xs font-semibold uppercase text-[var(--muted)]">{defaultToken.label} padrão - {match.competition}</p>
       </div>
       <span class:list={["status-pill", statusClass]}>
@@ -89,14 +91,14 @@ const selectedResultText =
       </span>
     </div>
 
-    <div class="teams-line" aria-label={cardTitle}>
+    <div class="teams-line" role="group" aria-label={cardTitle}>
       <div class="team-block">
-        <img class="flag-img" src={homeFlagUrl} alt={`Bandeira: ${match.homeCountry}`} width="80" height="60" loading="lazy" decoding="async" />
+        {homeFlagUrl && <img class="flag-img" src={homeFlagUrl} alt="" aria-hidden="true" width="80" height="60" loading={loading} decoding="async" />}
         <p class="team-name">{match.homeTeam}</p>
       </div>
       <span class="versus-pill" aria-hidden="true">x</span>
       <div class="team-block team-block--away">
-        <img class="flag-img ml-auto" src={awayFlagUrl} alt={`Bandeira: ${match.awayCountry}`} width="80" height="60" loading="lazy" decoding="async" />
+        {awayFlagUrl && <img class="flag-img ml-auto" src={awayFlagUrl} alt="" aria-hidden="true" width="80" height="60" loading={loading} decoding="async" />}
         <p class="team-name">{match.awayTeam}</p>
       </div>
     </div>
@@ -108,11 +110,11 @@ const selectedResultText =
       </span>
       <span class="min-w-0">
         <i class="fa-solid fa-map-pin text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-        <span class="truncate ml-2">{match.venue}</span>
+        <span class="truncate">{match.venue}</span>
       </span>
     </p>
 
-    <div class="match-finance-row" aria-label="Resumo do pote">
+    <div class="match-finance-row" role="group" aria-label="Resumo do pote">
       <div class="finance-stat">
         <p class="finance-label">
           <i class="fa-solid fa-coins text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
@@ -176,7 +178,7 @@ const selectedResultText =
         match.status === "open" && !isConfirmed ? (
           <>
             <div class="grid gap-2">
-              <p class="text-sm font-semibold text-[var(--text)]">Valor</p>
+              <label class="text-sm font-semibold text-[var(--text)]" for={`custom-stake-${match.id}`}>Valor</label>
               <StakeStepper id={`custom-stake-${match.id}`} />
             </div>
             <button

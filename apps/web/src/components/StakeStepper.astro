@@ -26,6 +26,7 @@ const errorId = `${id}-error`;
               data-state={isSelected ? "selected" : "idle"}
               data-select-stake
               data-stake={String(stake)}
+              tabindex={isSelected ? 0 : -1}
             >
               ${stake}
             </button>
@@ -34,7 +35,6 @@ const errorId = `${id}-error`;
       }
     </div>
 
-    <label class="sr-only" for={id}>Valor personalizado</label>
     <input
       id={id}
       class="form-control focus-ring w-20 text-center text-sm"
@@ -43,7 +43,6 @@ const errorId = `${id}-error`;
       step={String(stakeStepUsd)}
       value={String(selectedStake)}
       inputmode="decimal"
-      aria-label="Valor personalizado"
       aria-describedby={errorId}
       aria-invalid="false"
       data-custom-stake

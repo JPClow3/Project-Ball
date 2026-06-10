@@ -50,7 +50,6 @@ function parseConfirmBetPayload(payload: unknown): ConfirmBetPayload | null {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const env = getRuntimeEnv();
   const contentType = request.headers.get("content-type") ?? "";
   let payload: unknown;
 
@@ -65,80 +64,86 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response("Requisição malformada", { status: 400 });
   }
 
-  const parsed = parseConfirmBetPayload(payload);
+  try {
+    const env = getRuntimeEnv();
+    const parsed = parseConfirmBetPayload(payload);
 
-  if (!parsed) {
-    return new Response("Confirmação inválida", { status: 400 });
-  }
-
-  const contractConfigured = isContractConfigured();
-
-  if (!contractConfigured) {
-    if (!isLocalRequest(request)) {
-      return new Response("Contrato Celo não configurado", { status: 503 });
+    if (!parsed) {
+      return new Response("Confirmação inválida", { status: 400 });
     }
 
-    const match = getMatch(parsed.matchId);
+    const contractConfigured = isContractConfigured();
+
+    if (!contractConfigured) {
+      if (!isLocalRequest(request)) {
+        return new Response("Contrato Celo não configurado", { status: 503 });
+      }
+
+      const match = getMatch(parsed.matchId);
+
+      if (!match) {
+        return new Response("Partida não encontrada", { status: 404 });
+      }
+
+      const session = await getSession(env.PROJECT_BALL_DB, request);
+      await recordBetConfirmation(env.PROJECT_BALL_DB, {
+        txHash: parsed.txHash,
+        matchId: parsed.matchId,
+        bettor: session?.user.walletAddress ?? null,
+        outcome: parsed.outcome,
+        token: null,
+        amount: null
+      });
+
+      const html = renderMatchCard(withUserPick(match, parsed.outcome));
+
+      return new Response(html, {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8"
+        }
+      });
+    }
+
+    const [{ confirmBetTransaction }, session] = await Promise.all([
+      import("../../lib/chain"),
+      getSession(env.PROJECT_BALL_DB, request)
+    ]);
+    const confirmation = await confirmBetTransaction(parsed.txHash);
+
+    if (!confirmation || !confirmation.outcome || !confirmation.bettor) {
+      return new Response("Transação Celo não encontrada ou sem evento BetPlaced", { status: 400 });
+    }
+
+    if (session && confirmation.bettor.toLowerCase() !== session.user.walletAddress.toLowerCase()) {
+      return new Response("Transação pertence a outra carteira", { status: 403 });
+    }
+
+    const matchId = confirmation.matchId;
+    const outcome: Outcome = confirmation.outcome;
+    const match = getMatch(matchId);
 
     if (!match) {
       return new Response("Partida não encontrada", { status: 404 });
     }
 
-    const session = await getSession(env.PROJECT_BALL_DB, request);
     await recordBetConfirmation(env.PROJECT_BALL_DB, {
       txHash: parsed.txHash,
-      matchId: parsed.matchId,
-      bettor: session?.user.walletAddress ?? null,
-      outcome: parsed.outcome,
-      token: null,
-      amount: null
+      matchId,
+      bettor: confirmation.bettor,
+      outcome,
+      token: confirmation.token ?? null,
+      amount: confirmation.normalizedAmount ?? confirmation.amount ?? null
     });
 
-    const html = renderMatchCard(withUserPick(match, parsed.outcome));
+    const html = renderMatchCard(withUserPick(match, outcome));
 
     return new Response(html, {
       headers: {
         "Content-Type": "text/html; charset=utf-8"
       }
     });
+  } catch (error) {
+    console.error("Error confirming bet:", error);
+    return new Response("Erro ao verificar palpite na blockchain. Tente novamente.", { status: 500 });
   }
-
-  const [{ confirmBetTransaction }, session] = await Promise.all([
-    import("../../lib/chain"),
-    getSession(env.PROJECT_BALL_DB, request)
-  ]);
-  const confirmation = await confirmBetTransaction(parsed.txHash);
-
-  if (!confirmation || !confirmation.outcome || !confirmation.bettor) {
-    return new Response("Transação Celo não encontrada ou sem evento BetPlaced", { status: 400 });
-  }
-
-  if (session && confirmation.bettor.toLowerCase() !== session.user.walletAddress.toLowerCase()) {
-    return new Response("Transação pertence a outra carteira", { status: 403 });
-  }
-
-  const matchId = confirmation.matchId;
-  const outcome: Outcome = confirmation.outcome;
-  const match = getMatch(matchId);
-
-  if (!match) {
-    return new Response("Partida não encontrada", { status: 404 });
-  }
-
-  await recordBetConfirmation(env.PROJECT_BALL_DB, {
-    txHash: parsed.txHash,
-    matchId,
-    bettor: confirmation.bettor,
-    outcome,
-    token: confirmation.token ?? null,
-    amount: confirmation.normalizedAmount ?? confirmation.amount ?? null
-  });
-
-  const html = renderMatchCard(withUserPick(match, outcome));
-
-  return new Response(html, {
-    headers: {
-      "Content-Type": "text/html; charset=utf-8"
-    }
-  });
 };

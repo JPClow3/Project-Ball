@@ -1,11 +1,17 @@
 ---
+import AppLayout from "@/layouts/AppLayout.astro";
+import { getSession } from "@/lib/auth";
 import { getRuntimeEnv } from "@/lib/runtime";
 
 const env = getRuntimeEnv();
-import AppLayout from "@/layouts/AppLayout.astro";
-import { getSession } from "@/lib/auth";
 
-const session = await getSession(env.PROJECT_BALL_DB, Astro.request);
+let session = null;
+try {
+  session = await getSession(env.PROJECT_BALL_DB, Astro.request);
+} catch (error) {
+  console.warn("Database is offline. Unable to fetch session for premios page.", error);
+}
+
 if (!session) {
   return Astro.redirect(`/login?next=${encodeURIComponent(Astro.url.pathname)}`);
 }

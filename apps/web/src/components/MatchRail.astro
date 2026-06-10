@@ -47,7 +47,7 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
     </div>
   </div>
 
-  <div class="quick-filters hide-scrollbar" aria-label="Filtros rápidos">
+  <div class="quick-filters hide-scrollbar" role="group" aria-label="Filtros rápidos">
     <button class="filter-chip focus-ring" type="button" data-filter-chip data-filter="all" aria-pressed="true">
       <i class="fa-solid fa-table-cells-large ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
       Todos
@@ -131,8 +131,8 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
             </div>
 
             <div class="match-grid">
-              {featuredMatch && <MatchCard match={featuredMatch} compact />}
-              {restMatches.map((match) => <MatchCard match={match} compact />)}
+              {featuredMatch && <MatchCard match={featuredMatch} featured={true} loading={isActive ? "eager" : "lazy"} />}
+              {restMatches.map((match) => <MatchCard match={match} compact loading="lazy" />)}
             </div>
             <div class="filter-empty mt-4" data-filter-empty hidden>
               <i class="fa-solid fa-filter-circle-xmark ui-icon text-[var(--gold)]" style="font-size: 24px;" aria-hidden="true"></i>

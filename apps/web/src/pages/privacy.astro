@@ -1,25 +1,19 @@
 ---
-import AppHeader from "../components/AppHeader.astro";
-import PageFooter from "../components/PageFooter.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import AppLayout from "../layouts/AppLayout.astro";
 ---
 
-<BaseLayout title="Project Ball | Privacidade">
-  <AppHeader />
-  <main id="conteudo" class="app-shell app-main" transition:name="page-content">
-    <article class="surface-panel max-w-3xl p-6 leading-relaxed md:p-6" transition:name="legal-content">
-      <p class="eyebrow">
-        <i class="fa-solid fa-shield-halved ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-        Legal
-      </p>
-      <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)]">Privacidade</h1>
-      <p class="mt-6 text-[var(--muted)]">
-        O app usa registros públicos da rede Celo e dados leves de confirmação para exibir partidas, estatísticas, suporte e histórico de palpites.
-      </p>
-      <p class="mt-4 text-[var(--muted)]">
-        Endereços não aparecem como identidade principal na interface. Dados de suporte são usados apenas para responder solicitações.
-      </p>
-    </article>
-  </main>
-  <PageFooter />
-</BaseLayout>
+<AppLayout title="Privacidade">
+  <article class="surface-panel max-w-3xl p-6 leading-relaxed md:p-6" transition:name="legal-content">
+    <p class="eyebrow">
+      <i class="fa-solid fa-shield-halved ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+      Legal
+    </p>
+    <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)]">Privacidade</h1>
+    <p class="mt-6 text-[var(--muted)]">
+      O app usa registros públicos da rede Celo e dados leves de confirmação para exibir partidas, estatísticas, suporte e histórico de palpites.
+    </p>
+    <p class="mt-4 text-[var(--muted)]">
+      Endereços não aparecem como identidade principal na interface. Dados de suporte são usados apenas para responder solicitações.
+    </p>
+  </article>
+</AppLayout>

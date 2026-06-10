@@ -188,7 +188,7 @@ function authRedirect(value: string | undefined): string {
     const decoded = decodeURIComponent(value).trim();
     if (decoded.startsWith("/") && !decoded.startsWith("//") && !decoded.startsWith("/\\")) {
       if (!/^(?:[a-z\d+\-.]+:|\/\/)/i.test(decoded)) {
-        return value;
+        return decoded;
       }
     }
   } catch {}
@@ -492,6 +492,7 @@ function setBetControlsLocked(card: HTMLElement | null | undefined, isLocked: bo
 function setSegmentState(button: HTMLElement, isActive: boolean): void {
   button.setAttribute("aria-checked", isActive ? "true" : "false");
   button.dataset.state = isActive ? "selected" : "idle";
+  button.tabIndex = isActive ? 0 : -1;
 }
 
 function selectedStakeValue(card: HTMLElement): string {
@@ -1105,6 +1106,9 @@ function replaceMatchCard(button: HTMLElement, html: string): void {
   const activeFilter = currentMatchFilter();
   const runtime = window.htmx ?? htmx;
 
+  const isCompact = card.classList.contains("match-card-compact");
+  const isFeatured = card.classList.contains("match-card-featured");
+
   try {
     runtime.swap(card, html, { swapStyle: "outerHTML", swapDelay: 0, settleDelay: 0 });
   } catch {
@@ -1116,6 +1120,13 @@ function replaceMatchCard(button: HTMLElement, html: string): void {
 
   if (!replacement) {
     return;
+  }
+
+  if (isCompact) {
+    replacement.classList.add("match-card-compact");
+  }
+  if (isFeatured) {
+    replacement.classList.add("match-card-featured");
   }
 
   runtime.process(replacement);
@@ -1428,12 +1439,27 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
   if (connectButton) {
     const provider = getProvider();
     if (provider) {
-      await ensureCeloNetwork(provider);
-      const address = await requestAccount(provider);
-      if (provider.isMiniPay) {
-        await ensureMiniPaySession(address);
+      const originalHtml = connectButton.innerHTML;
+      try {
+        setButtonHtml(connectButton, "loader-circle", "Conectando");
+        connectButton.setAttribute("disabled", "true");
+        await ensureCeloNetwork(provider);
+        const address = await requestAccount(provider);
+        if (provider.isMiniPay) {
+          await ensureMiniPaySession(address);
+        }
+        setButtonHtml(connectButton, "badge-check", "Conectado");
+        showToast("Carteira conectada com sucesso.", "success");
+      } catch (error) {
+        console.error("Wallet connection failed:", error);
+        const message = error instanceof Error ? error.message : "Falha ao conectar carteira.";
+        showToast(message, "error");
+        connectButton.innerHTML = originalHtml;
+      } finally {
+        connectButton.removeAttribute("disabled");
       }
-      setButtonHtml(connectButton, "badge-check", "Conectado");
+    } else {
+      showToast("Carteira não encontrada. Abra no MiniPay ou instale MetaMask.", "error");
     }
     return;
   }
@@ -1535,7 +1561,9 @@ function bindGlobalListeners(): void {
   }
 
   document.addEventListener("click", (event) => {
-    void handleDocumentClick(event);
+    handleDocumentClick(event).catch((error) => {
+      console.error("Unhandled error in click handler:", error);
+    });
   });
   document.addEventListener("keydown", handleGroupKeydown);
   document.addEventListener("keydown", handleSegmentKeydown);

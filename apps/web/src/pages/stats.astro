@@ -1,23 +1,27 @@
 ---
+import AppLayout from "../layouts/AppLayout.astro";
+import { formatUsd } from "../lib/format";
+import { getStats, getTokenVolumes, getBetRows, type TokenVolume } from "../lib/stats";
+import { statsSnapshot as demoStats, tokenVolumes as demoTokenVolumes } from "../data/stats";
 import { getRuntimeEnv } from "../lib/runtime";
 
 const env = getRuntimeEnv();
-import AppHeader from "../components/AppHeader.astro";
-import PageFooter from "../components/PageFooter.astro";
-import { formatUsd } from "../lib/format";
-import { getStats, getTokenVolumes, getBetRows } from "../lib/stats";
-import BaseLayout from "../layouts/BaseLayout.astro";
-
 const db = env?.PROJECT_BALL_DB;
-let rows = undefined;
+let rows: Awaited<ReturnType<typeof getBetRows>> | undefined = undefined;
 if (db) {
   try {
     rows = await getBetRows(db);
   } catch {}
 }
 
-const statsSnapshot = await getStats(env, rows);
-const tokenVolumes = await getTokenVolumes(env, rows);
+let statsSnapshot = demoStats;
+let tokenVolumes: readonly TokenVolume[] = demoTokenVolumes;
+try {
+  statsSnapshot = await getStats(env, rows);
+  tokenVolumes = await getTokenVolumes(env, rows);
+} catch (error) {
+  console.warn("Database is offline. Using demo fallbacks for stats page.", error);
+}
 const stats = [
   { label: "DAU", value: statsSnapshot.dailyActiveUsers.toLocaleString("pt-BR"), icon: "fa-solid fa-sun", tone: "text-[var(--green)]" },
   { label: "MAU", value: statsSnapshot.monthlyActiveUsers.toLocaleString("pt-BR"), icon: "fa-solid fa-calendar", tone: "text-[var(--gold)]" },
@@ -28,72 +32,68 @@ const stats = [
 ] as const;
 ---
 
-<BaseLayout title="Project Ball | Números">
-  <AppHeader />
-  <main id="conteudo" class="app-shell app-main page-stack" transition:name="page-content">
-    <section class="surface-panel p-6 md:p-6" transition:name="stats-hero">
-      <p class="eyebrow">
-        <i class="fa-solid fa-chart-column ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-        Público
-      </p>
-      <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)] md:text-4xl">Números do Project Ball</h1>
-      <p class="lede mt-4">
-        Atividade, volume, usuários únicos, saúde das transações e distribuição por dólar digital.
-      </p>
-    </section>
+<AppLayout title="Números" mainClass="page-stack">
+  <section class="surface-panel p-6 md:p-6" transition:name="stats-hero">
+    <p class="eyebrow">
+      <i class="fa-solid fa-chart-column ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+      Público
+    </p>
+    <h1 class="font-display mt-4 text-3xl font-extrabold text-[var(--text)] md:text-4xl">Números do Project Ball</h1>
+    <p class="lede mt-4">
+      Atividade, volume, usuários únicos, saúde das transações e distribuição por dólar digital.
+    </p>
+  </section>
 
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Indicadores">
+  <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Indicadores">
+    {
+      stats.map((item, index) => {
+        return (
+          <div class="stat-tile" style={`animation-delay: ${index * 45}ms`}>
+            <p class="flex items-center gap-2 text-sm font-extrabold text-[var(--muted)]">
+              <i class={`${item.icon} ${item.tone} ui-icon`} style="font-size: 16px;" aria-hidden="true"></i>
+              {item.label}
+            </p>
+            <p class:list={["stat-value", item.tone]}>{item.value}</p>
+          </div>
+        );
+      })
+    }
+  </section>
+
+  <section class="surface-panel p-4 md:p-6" aria-label="Volume por dólar digital">
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <p class="text-xs font-black uppercase text-[var(--gold)]">Tokens</p>
+        <h2 class="font-display mt-2 text-xl font-extrabold text-[var(--text)]">Volume por dólar digital</h2>
+      </div>
+      <span class:list={["status-pill", db ? "status-pill--open" : "status-pill--locked"]}>
+        <i class="fa-solid fa-database ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+        {db ? "Base de dados" : "Dados de demonstração"}
+      </span>
+    </div>
+    <div class="mt-6 grid gap-4">
       {
-        stats.map((item, index) => {
+        tokenVolumes.map((token) => {
+          const barWidth = token.share > 0 ? token.share : 5;
+
           return (
-            <div class="stat-tile" style={`animation-delay: ${index * 45}ms`}>
-              <p class="flex items-center gap-2 text-sm font-extrabold text-[var(--muted)]">
-                <i class={`${item.icon} ${item.tone} ui-icon`} style="font-size: 16px;" aria-hidden="true"></i>
-                {item.label}
-              </p>
-              <p class:list={["stat-value", item.tone]}>{item.value}</p>
+            <div class="volume-row">
+              <div class="flex justify-between gap-4 text-sm font-extrabold">
+                <span class="text-[var(--text)]">{token.symbol}</span>
+                <span class="text-[var(--muted)]">{formatUsd(token.amountUsd)}</span>
+              </div>
+              <div class="volume-track" aria-hidden="true">
+                <div
+                  class:list={["volume-bar", token.share === 0 && "opacity-45"]}
+                  style={`--bar-width: ${barWidth}%`}
+                  aria-hidden="true"
+                >
+                </div>
+              </div>
             </div>
           );
         })
       }
-    </section>
-
-    <section class="surface-panel p-4 md:p-6" aria-label="Volume por dólar digital">
-      <div class="flex items-center justify-between gap-4">
-        <div>
-          <p class="text-xs font-black uppercase text-[var(--gold)]">Tokens</p>
-          <h2 class="font-display mt-2 text-xl font-extrabold text-[var(--text)]">Volume por dólar digital</h2>
-        </div>
-        <span class="status-pill status-pill--open">
-          <i class="fa-solid fa-database ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          PostgreSQL cache
-        </span>
-      </div>
-      <div class="mt-6 grid gap-4">
-        {
-          tokenVolumes.map((token) => {
-            const barWidth = token.share > 0 ? token.share : 5;
-
-            return (
-              <div class="volume-row">
-                <div class="flex justify-between gap-4 text-sm font-extrabold">
-                  <span class="text-[var(--text)]">{token.symbol}</span>
-                  <span class="text-[var(--muted)]">{formatUsd(token.amountUsd)}</span>
-                </div>
-                <div class="volume-track">
-                  <div
-                    class:list={["volume-bar", token.share === 0 && "opacity-45"]}
-                    style={`--bar-width: ${barWidth}%`}
-                    aria-hidden="true"
-                  >
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        }
-      </div>
-    </section>
-  </main>
-  <PageFooter />
-</BaseLayout>
+    </div>
+  </section>
+</AppLayout>
