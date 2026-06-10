@@ -29,8 +29,9 @@ const title = Astro.props.title ? `${Astro.props.title} | Project Ball` : "Proje
     <ClientRouter />
   </head>
   <body>
+    <a class="skip-link" href="#conteudo">Pular para conteúdo</a>
     <AppHeader />
-    <main class="app-shell app-main" transition:name="page-content">
+    <main id="conteudo" class="app-shell app-main" transition:name="page-content">
       <slot />
     </main>
     <BottomNav />

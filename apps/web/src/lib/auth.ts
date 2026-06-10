@@ -155,20 +155,20 @@ export function buildAuthMessage(options: {
   readonly issuedAt: string;
   readonly expiresAt: string;
 }): string {
-  const action = options.intent === "register" ? "register" : "log in";
+  const action = options.intent === "register" ? "criar sua conta" : "entrar";
 
   return [
-    `${appConfig.appName} asks you to ${action} with MetaMask.`,
+    `${appConfig.appName} solicita assinatura para ${action}.`,
     "",
-    `Wallet: ${options.walletAddress}`,
-    `Domain: ${new URL(options.origin).host}`,
+    `Carteira: ${options.walletAddress}`,
+    `Domínio: ${new URL(options.origin).host}`,
     `URI: ${options.origin}`,
     `Chain ID: ${appConfig.chainId}`,
     `Nonce: ${options.nonce}`,
-    `Issued At: ${options.issuedAt}`,
-    `Expires At: ${options.expiresAt}`,
+    `Criado em: ${options.issuedAt}`,
+    `Expira em: ${options.expiresAt}`,
     "",
-    "This signature does not authorize a transaction or spend funds."
+    "Esta assinatura não autoriza transação nem gasto de saldo."
   ].join("\n");
 }
 

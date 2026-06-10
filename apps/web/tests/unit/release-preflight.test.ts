@@ -19,6 +19,10 @@ describe("release preflight", () => {
       expect(failure.stderr).toContain("PUBLIC_APP_URL still points at localhost");
       expect(failure.stderr).toContain("PUBLIC_PROJECT_BALL_POOLS_ADDRESS is still the zero-address placeholder");
       expect(failure.stderr).toContain("PROJECT_BALL_DB database_id is still the placeholder value");
+      expect(failure.stderr).toContain("SESSION KV namespace id is still the placeholder value");
+      expect(failure.stderr).not.toContain("pages_build_output_dir should not be used");
+      expect(failure.stderr).not.toContain("Wrangler main must point");
+      expect(failure.stderr).not.toContain("Wrangler assets.directory must point");
     }
   });
 });

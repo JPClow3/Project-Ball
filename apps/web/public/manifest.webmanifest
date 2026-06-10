@@ -1,7 +1,7 @@
 {
   "name": "Project Ball",
   "short_name": "Project Ball",
-  "description": "Palpites de futebol com dolar digital na MiniPay.",
+  "description": "Palpites de futebol com dólar digital na MiniPay.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d1511",

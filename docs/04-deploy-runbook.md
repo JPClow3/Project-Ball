@@ -51,6 +51,8 @@ Configure the frontend environment with the newly deployed contract address:
 - `PUBLIC_CELO_EXPLORER_URL=https://celo-sepolia.blockscout.com`
 - `PUBLIC_PROJECT_BALL_POOLS_ADDRESS=<deployed-contract-address>`
 
+If the frontend is deployed with Cloudflare Pages dashboard/Git builds, add these same `PUBLIC_*` keys in **Workers & Pages > Project > Settings > Variables and Secrets** for both Preview and Production. The values in `apps/web/wrangler.jsonc` are local development/reference values and are not enough for a dashboard-triggered build.
+
 ---
 
 ## 🚀 Production Deployment (Celo Mainnet & Cloudflare)
@@ -75,6 +77,18 @@ Run checks and compile the Astro build bundle before deploying to Cloudflare:
 pnpm --filter @project-ball/web build
 pnpm --filter @project-ball/web deploy
 ```
+
+The current `deploy` script publishes the SSR app with `wrangler deploy` from the root `wrangler.jsonc`. Before a real release, replace the placeholder D1/KV ids and public contract values there, then run the release preflight. If you switch this app to Cloudflare Pages auto-builds, configure the required `PUBLIC_*` variables in the Pages dashboard before triggering the build:
+
+- `PUBLIC_APP_NAME`
+- `PUBLIC_APP_URL`
+- `PUBLIC_CHAIN_ID`
+- `PUBLIC_CELO_RPC_URL`
+- `PUBLIC_CELO_EXPLORER_URL`
+- `PUBLIC_PROJECT_BALL_POOLS_ADDRESS`
+- `PUBLIC_SUPPORT_URL`
+
+Keep `PUBLIC_PROJECT_BALL_POOLS_ADDRESS` synced with the verified deployment address for the selected Celo network. A successful Pages build with missing dashboard variables can still render a broken client because Astro exposes `PUBLIC_*` values at build time.
 
 ---
 

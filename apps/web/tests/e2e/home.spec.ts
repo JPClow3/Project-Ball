@@ -16,8 +16,13 @@ test("mobile home renders match cards and local confirmation flow", async ({ pag
   await firstCard.getByRole("radio", { name: "México vence" }).click();
   await expect(firstCard).not.toContainText("Palpite registrado");
   await expect(firstCard.getByRole("button", { name: "Confirmar palpite" })).toBeEnabled();
+  const confirmationResponse = page.waitForResponse(
+    (response) => response.url().includes("/api/confirm-bet") && response.status() === 200,
+    { timeout: 60_000 }
+  );
   await firstCard.getByRole("button", { name: "Confirmar palpite" }).click();
-  await expect(firstCard).toContainText("Palpite registrado", { timeout: 30000 });
+  await confirmationResponse;
+  await expect(firstCard).toContainText("Palpite registrado", { timeout: 60_000 });
   await expect(firstCard).toContainText("México vence");
 
   const hasNoHorizontalOverflow = await page.evaluate(

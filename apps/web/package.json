@@ -14,7 +14,7 @@
     "test:penetration": "playwright test security.spec.ts",
     "test:e2e": "playwright test",
     "test:lighthouse": "playwright test lighthouse-simulation.spec.ts",
-    "deploy": "node ./scripts/release-preflight.mjs && wrangler deploy"
+    "deploy": "node ./scripts/release-preflight.mjs && wrangler deploy --cwd ../.."
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.6.0",

@@ -10,14 +10,14 @@ const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
 
 <BaseLayout title="Criar conta | Project Ball">
   <AppHeader />
-  <main class="app-shell app-main" transition:name="page-content">
+  <main id="conteudo" class="app-shell app-main" transition:name="page-content">
     <section class="auth-shell">
       <form class="surface-panel auth-panel" data-auth-form>
         <p class="eyebrow">
           <i class="fa-solid fa-user-plus ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
           Cadastro
         </p>
-        <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Criar conta com MetaMask</h1>
+        <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Criar conta com carteira</h1>
         <p class="lede mt-3">
           Seu perfil fica ligado ao endereço da carteira que assinar a mensagem de cadastro.
         </p>
@@ -51,7 +51,7 @@ const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
             data-auth-redirect={nextPath}
           >
             <i class="fa-solid fa-wallet ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-            Cadastrar com MetaMask
+            Cadastrar com carteira
           </button>
           <a
             class="btn-secondary focus-ring mt-3 w-full"

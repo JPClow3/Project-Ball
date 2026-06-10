@@ -39,6 +39,48 @@ test.describe("user journeys and edge cases", () => {
     await expect(confirmButton).toBeEnabled();
   });
 
+  test("bet confirmation locks the card while confirmation is pending", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitForProjectBall(page);
+
+    let releaseConfirmation!: () => void;
+    let markConfirmationStarted!: () => void;
+    const confirmationStarted = new Promise<void>((resolve) => {
+      markConfirmationStarted = resolve;
+    });
+    const confirmationGate = new Promise<void>((resolve) => {
+      releaseConfirmation = resolve;
+    });
+
+    await page.route("**/api/confirm-bet", async (route) => {
+      markConfirmationStarted();
+      await confirmationGate;
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html",
+        body: '<article data-match-card data-match-id="wc26-400021443">Palpite registrado</article>'
+      });
+    });
+
+    const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
+    const confirmButton = firstCard.locator("[data-place-bet]");
+
+    await firstCard.getByRole("radio", { name: "México vence" }).click();
+    await expect(confirmButton).toBeEnabled();
+
+    await confirmButton.click();
+    await confirmationStarted;
+
+    await expect(firstCard).toHaveAttribute("data-bet-pending", "");
+    await expect(firstCard).toHaveAttribute("aria-busy", "true");
+    await expect(firstCard.locator("[data-loading-card].htmx-indicator")).toHaveCount(1);
+    await expect(firstCard.getByRole("radio", { name: "México vence" })).toBeDisabled();
+    await expect(confirmButton).toBeDisabled();
+
+    releaseConfirmation();
+    await expect(firstCard).toContainText("Palpite registrado");
+  });
+
   test("filters keep the board navigable and do not introduce overflow", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForProjectBall(page);

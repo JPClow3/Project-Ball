@@ -28,15 +28,15 @@ const supportLinks = [
 ] as const;
 
 const checklist = [
-  "Endereço da carteira usada no palpite.",
+  "Carteira usada no palpite.",
   "Partida ou grupo relacionado ao pedido.",
-  "Print ou hash quando existir confirmação."
+  "Comprovante ou print quando existir confirmação."
 ] as const;
 ---
 
 <BaseLayout title="Project Ball | Suporte">
   <AppHeader />
-  <main class="app-shell app-main page-stack" transition:name="page-content">
+  <main id="conteudo" class="app-shell app-main page-stack" transition:name="page-content">
     <section class="page-hero support-hero" transition:name="support-hero">
       <div class="page-hero-row">
         <div>
@@ -62,9 +62,9 @@ const checklist = [
             <small>Pedido manual com carteira e partida.</small>
           </div>
           <div class="support-ticket-row">
-            <span>Rastro</span>
+            <span>Comprovante</span>
             <strong>Carteira + jogo</strong>
-            <small>Envie hash ou print quando existir.</small>
+            <small>Envie comprovante ou print quando existir.</small>
           </div>
         </div>
       </div>

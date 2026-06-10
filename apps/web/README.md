@@ -1,6 +1,6 @@
 # 🌐 Project Ball - Web Application (`apps/web`)
 
-This is the web frontend and API server for Project Ball, built using **Astro** for server-side rendering, **Tailwind CSS v4** for styling, and **htmx** for lightweight, dynamic HTML-swapping interactions. It integrates with Celo via **viem** and deploys to **Cloudflare Pages** utilizing **Cloudflare D1** for database caching.
+This is the web frontend and API server for Project Ball, built using **Astro** for server-side rendering, **Tailwind CSS v4** for styling, and **htmx** for lightweight, dynamic HTML-swapping interactions. It integrates with Celo via **viem** and deploys with Cloudflare's edge runtime, using **Cloudflare D1** for database caching.
 
 ---
 
@@ -109,3 +109,7 @@ The `deploy` script automatically executes a release preflight audit (verifying 
 ```bash
 pnpm deploy
 ```
+
+The current package deploy path uses `wrangler deploy --cwd ../..`, so the root `wrangler.jsonc` is the Worker SSR deploy source of truth. The `apps/web/wrangler.jsonc` file is kept as local development/reference configuration.
+
+For Cloudflare Pages dashboard/Git builds, configure the `PUBLIC_*` values in **Workers & Pages > Settings > Variables and Secrets** before the build runs. In particular, do not rely on the local `apps/web/wrangler.jsonc` values for `PUBLIC_CELO_RPC_URL` or `PUBLIC_PROJECT_BALL_POOLS_ADDRESS` when Pages is building production.

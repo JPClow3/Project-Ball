@@ -59,7 +59,25 @@ const themeStorageKey = "project-ball-theme";
 const txHashByteLength = 32;
 const hexRadix = 16;
 const hexByteWidth = 2;
-const erc20ApproveAbi = [
+const reusableApprovalUsd = "100";
+const betPendingControlSelector = [
+  "[data-select-outcome]",
+  "[data-select-token]",
+  "[data-select-stake]",
+  "[data-custom-stake]",
+  "[data-place-bet]"
+].join(",");
+const erc20SpendingAbi = [
+  {
+    type: "function",
+    name: "allowance",
+    stateMutability: "view",
+    inputs: [
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" }
+    ],
+    outputs: [{ name: "", type: "uint256" }]
+  },
   {
     type: "function",
     name: "approve",
@@ -272,9 +290,8 @@ function showCardLoading(card: HTMLElement | null | undefined): void {
     return;
   }
 
-  card.setAttribute("aria-busy", "true");
   const loading = document.createElement("div");
-  loading.className = "loading-card";
+  loading.className = "loading-card htmx-indicator";
   loading.dataset.loadingCard = "true";
   loading.setAttribute("aria-hidden", "true");
   loading.innerHTML = [
@@ -286,8 +303,37 @@ function showCardLoading(card: HTMLElement | null | undefined): void {
 }
 
 function hideCardLoading(card: HTMLElement | null | undefined): void {
-  card?.removeAttribute("aria-busy");
   card?.querySelector("[data-loading-card]")?.remove();
+}
+
+function setBetControlsLocked(card: HTMLElement | null | undefined, isLocked: boolean): void {
+  if (!card) {
+    return;
+  }
+
+  card.classList.toggle("htmx-request", isLocked);
+  card.toggleAttribute("data-bet-pending", isLocked);
+
+  if (isLocked) {
+    card.setAttribute("aria-busy", "true");
+    showCardLoading(card);
+  } else {
+    card.removeAttribute("aria-busy");
+    hideCardLoading(card);
+  }
+
+  for (const control of card.querySelectorAll<HTMLInputElement | HTMLButtonElement>(betPendingControlSelector)) {
+    if (isLocked) {
+      control.dataset.wasDisabledBeforeBet = control.disabled ? "true" : "false";
+      control.disabled = true;
+      continue;
+    }
+
+    if (control.dataset.wasDisabledBeforeBet !== "true") {
+      control.disabled = false;
+    }
+    delete control.dataset.wasDisabledBeforeBet;
+  }
 }
 
 function setSegmentState(button: HTMLElement, isActive: boolean): void {
@@ -415,7 +461,7 @@ async function requireAuthSession(): Promise<AuthenticatedSession> {
   if (!session.authenticated) {
     const next = `${window.location.pathname}${window.location.search}`;
     window.location.assign(`/login?next=${encodeURIComponent(next)}`);
-    throw new Error("Entre com MetaMask antes de confirmar na Celo");
+    throw new Error("Entre com sua carteira antes de confirmar na Celo");
   }
 
   return session;
@@ -653,9 +699,13 @@ async function placeBet(options: {
     throw new Error("Dólar digital indisponível nesta rede");
   }
 
-  const [{ createWalletClient, custom, encodeFunctionData, parseUnits, stringToHex }, { celo, celoSepolia }] =
+  const [{ createPublicClient, createWalletClient, custom, encodeFunctionData, parseUnits, stringToHex }, { celo, celoSepolia }] =
     await Promise.all([import("viem"), import("viem/chains")]);
   const chain = chainId === celo.id ? celo : celoSepolia;
+  const publicClient = createPublicClient({
+    chain,
+    transport: custom(provider)
+  });
   const wallet = createWalletClient({
     account,
     chain,
@@ -663,23 +713,35 @@ async function placeBet(options: {
   });
 
   const amount = parseUnits(stakeUsd, token.decimals);
-  const approveData = encodeFunctionData({
-    abi: erc20ApproveAbi,
-    functionName: "approve",
-    args: [poolsAddress, amount]
+  const reusableApprovalAmount = parseUnits(reusableApprovalUsd, token.decimals);
+  const currentAllowance = await publicClient.readContract({
+    address: tokenAddress,
+    abi: erc20SpendingAbi,
+    functionName: "allowance",
+    args: [account, poolsAddress]
   });
   const data = encodeFunctionData({
     abi: projectBallPoolsAbi,
     functionName: "placeBet",
     args: [resolveOnchainMatchId(matchId, stringToHex, onchainMatchId), normalizeOutcome(outcome), tokenAddress, amount]
   });
+  let approvedAllowance = false;
 
-  await wallet.sendTransaction({
-    account,
-    to: tokenAddress,
-    data: approveData,
-    feeCurrency: feeCurrency ?? undefined
-  });
+  if (currentAllowance < amount) {
+    const approveData = encodeFunctionData({
+      abi: erc20SpendingAbi,
+      functionName: "approve",
+      args: [poolsAddress, amount > reusableApprovalAmount ? amount : reusableApprovalAmount]
+    });
+
+    await wallet.sendTransaction({
+      account,
+      to: tokenAddress,
+      data: approveData,
+      feeCurrency: feeCurrency ?? undefined
+    });
+    approvedAllowance = true;
+  }
 
   try {
     const txHash = await wallet.sendTransaction({
@@ -701,20 +763,22 @@ async function placeBet(options: {
 
     return response.text();
   } catch (error) {
-    try {
-      const resetApproveData = encodeFunctionData({
-        abi: erc20ApproveAbi,
-        functionName: "approve",
-        args: [poolsAddress, 0n]
-      });
-      await wallet.sendTransaction({
-        account,
-        to: tokenAddress,
-        data: resetApproveData,
-        feeCurrency: feeCurrency ?? undefined
-      });
-    } catch (resetError) {
-      console.error("Failed to reset allowance:", resetError);
+    if (approvedAllowance) {
+      try {
+        const resetApproveData = encodeFunctionData({
+          abi: erc20SpendingAbi,
+          functionName: "approve",
+          args: [poolsAddress, 0n]
+        });
+        await wallet.sendTransaction({
+          account,
+          to: tokenAddress,
+          data: resetApproveData,
+          feeCurrency: feeCurrency ?? undefined
+        });
+      } catch (resetError) {
+        console.error("Failed to reset allowance:", resetError);
+      }
     }
     throw error;
   }
@@ -1042,6 +1106,11 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
   }
 
   const card = betButton.closest<HTMLElement>("[data-match-card]");
+
+  if (card?.hasAttribute("data-bet-pending")) {
+    return;
+  }
+
   const matchId = betButton.dataset.matchId ?? card?.dataset.matchId;
   const outcome = betButton.dataset.outcome as Outcome | undefined;
   const stakeUsd = card ? selectedStakeValue(card) : String(defaultStakeUsd);
@@ -1060,9 +1129,8 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
     return;
   }
 
-  betButton.setAttribute("disabled", "true");
+  setBetControlsLocked(card, true);
   betButton.innerHTML = `${iconSvg("loader-circle")}Confirmando`;
-  showCardLoading(card);
 
   try {
     const html = await placeBet({
@@ -1074,8 +1142,7 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
     });
     swapCard(betButton, html);
   } catch (error) {
-    hideCardLoading(card);
-    betButton.removeAttribute("disabled");
+    setBetControlsLocked(card, false);
     betButton.innerHTML = `${iconSvg("rotate-ccw")}Tentar de novo`;
     console.error(error);
   }

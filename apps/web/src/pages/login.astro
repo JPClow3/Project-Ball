@@ -20,12 +20,12 @@ const loginContextCopy = nextPath.startsWith("/premios")
 
 <BaseLayout title="Entrar | Project Ball">
   <AppHeader />
-  <main class="app-shell app-main" transition:name="page-content">
+  <main id="conteudo" class="app-shell app-main" transition:name="page-content">
     <section class="auth-shell">
       <div class="surface-panel auth-panel">
         <p class="eyebrow">
           <i class="fa-solid fa-wallet ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
-          MetaMask
+          Carteira
         </p>
         <h1 class="font-display mt-4 text-3xl font-extrabold leading-tight text-[var(--text)] md:text-4xl">Entrar no Project Ball</h1>
         <p class="lede mt-3">
@@ -50,7 +50,7 @@ const loginContextCopy = nextPath.startsWith("/premios")
             data-auth-redirect={nextPath}
           >
             <i class="fa-solid fa-right-to-bracket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-            Entrar com MetaMask
+            Entrar com carteira
           </button>
           <a
             class="btn-secondary focus-ring mt-3 w-full"

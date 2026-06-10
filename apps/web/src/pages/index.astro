@@ -41,7 +41,7 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
 
 <BaseLayout title="Project Ball | Palpites">
   <AppHeader />
-  <main transition:name="page-content">
+  <main id="conteudo" transition:name="page-content">
     <section class="board-masthead matchday-hero" transition:name="page-hero">
       <div class="app-shell board-masthead-inner matchday-hero-grid">
         <div class="board-title-block matchday-copy">
@@ -55,7 +55,12 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
           </p>
           <div class="hero-flag-strip" aria-label="Seleções no painel">
             {heroFlags.map((flag) => (
-              <img src={`https://flagcdn.com/w80/${flag.code}.png`} alt={`Bandeira: ${flag.country}`} loading="lazy" />
+              <img
+                src={`https://flagcdn.com/w80/${flag.code}.png`}
+                alt={`Bandeira: ${flag.country}`}
+                loading="eager"
+                decoding="async"
+              />
             ))}
           </div>
           <div class="hero-command-row" aria-label="Resumo das partidas">
@@ -74,13 +79,29 @@ const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
             nextMatch && (
               <div class="ticket-fixture">
                 <div class="ticket-team">
-                  {nextHomeFlag && <img src={nextHomeFlag} alt={`Bandeira: ${nextMatch.homeCountry}`} loading="lazy" />}
+                  {nextHomeFlag && (
+                    <img
+                      src={nextHomeFlag}
+                      alt={`Bandeira: ${nextMatch.homeCountry}`}
+                      loading="eager"
+                      decoding="async"
+                      fetchpriority="high"
+                    />
+                  )}
                   <strong>{nextMatch.homeTeam}</strong>
                   <span>{nextMatch.homeCountry}</span>
                 </div>
                 <span class="ticket-versus">vs</span>
                 <div class="ticket-team">
-                  {nextAwayFlag && <img src={nextAwayFlag} alt={`Bandeira: ${nextMatch.awayCountry}`} loading="lazy" />}
+                  {nextAwayFlag && (
+                    <img
+                      src={nextAwayFlag}
+                      alt={`Bandeira: ${nextMatch.awayCountry}`}
+                      loading="eager"
+                      decoding="async"
+                      fetchpriority="high"
+                    />
+                  )}
                   <strong>{nextMatch.awayTeam}</strong>
                   <span>{nextMatch.awayCountry}</span>
                 </div>

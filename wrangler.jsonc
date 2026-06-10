@@ -8,9 +8,32 @@
     "directory": "./apps/web/dist/client",
     "binding": "ASSETS"
   },
+  "rules": [
+    {
+      "type": "ESModule",
+      "globs": ["**/*.js", "**/*.mjs"]
+    }
+  ],
+  "no_bundle": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  },
   "kv_namespaces": [
     {
-      "binding": "SESSION"
+      "binding": "SESSION",
+      "id": "00000000000000000000000000000000"
     }
   ],
   "d1_databases": [
@@ -21,6 +44,9 @@
       "migrations_dir": "./apps/web/migrations"
     }
   ],
+  // Used by the current Worker SSR deploy (`pnpm --filter @project-ball/web deploy`).
+  // If deploying through Cloudflare Pages Git builds, mirror PUBLIC_* in
+  // Workers & Pages > Settings > Variables and Secrets before the build runs.
   "vars": {
     "PUBLIC_APP_NAME": "Project Ball",
     "PUBLIC_APP_URL": "http://localhost:4321",
