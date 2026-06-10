@@ -1659,7 +1659,7 @@
   }
 
   .form-control {
-    min-height: 46px;
+    min-height: 48px;
     width: 100%;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -1682,6 +1682,22 @@
     border-color: var(--color-accent);
     outline: 0;
     box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .form-control[aria-invalid="true"] {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 22%, transparent);
+  }
+
+  .field-error {
+    color: var(--color-danger);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .field-error[hidden] {
+    display: none;
   }
 
   .auth-shell {

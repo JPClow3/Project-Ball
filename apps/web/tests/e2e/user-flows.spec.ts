@@ -30,9 +30,13 @@ test.describe("user journeys and edge cases", () => {
 
     await customStake.fill("1");
     await expect(confirmButton).toBeDisabled();
+    await expect(customStake).toHaveAttribute("aria-invalid", "true");
+    await expect(firstCard.locator("[data-stake-error]")).toContainText("Informe pelo menos $2.");
 
     await customStake.fill("2");
     await expect(confirmButton).toBeEnabled();
+    await expect(customStake).toHaveAttribute("aria-invalid", "false");
+    await expect(firstCard.locator("[data-stake-error]")).toBeHidden();
 
     await firstCard.getByRole("radio", { name: "$10" }).click();
     await expect(customStake).toHaveValue("10");

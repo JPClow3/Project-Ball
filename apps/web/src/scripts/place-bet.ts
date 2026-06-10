@@ -497,12 +497,30 @@ function selectedStakeValue(card: HTMLElement): string {
   return card.querySelector<HTMLInputElement>("[data-custom-stake]")?.value.trim() ?? String(defaultStakeUsd);
 }
 
+function updateStakeError(card: HTMLElement, isInvalid: boolean): void {
+  const input = card.querySelector<HTMLInputElement>("[data-custom-stake]");
+  const error = card.querySelector<HTMLElement>("[data-stake-error]");
+
+  if (input) {
+    input.setAttribute("aria-invalid", isInvalid ? "true" : "false");
+  }
+
+  if (error) {
+    error.textContent = `Informe pelo menos $${minimumStakeUsd}.`;
+    error.hidden = !isInvalid;
+  }
+}
+
 function syncBetForm(card: HTMLElement): void {
   const outcomeButton = card.querySelector<HTMLElement>('[data-select-outcome][aria-checked="true"]');
   const stake = selectedStakeValue(card);
   const submitButton = card.querySelector<HTMLButtonElement>("[data-place-bet]");
   const outcome = outcomeButton?.dataset.outcome as Outcome | undefined;
-  const isValid = Boolean(outcome && Number(stake) >= minimumStakeUsd);
+  const amount = Number(stake);
+  const isStakeValid = Number.isFinite(amount) && amount >= minimumStakeUsd;
+  const isValid = Boolean(outcome && isStakeValid);
+
+  updateStakeError(card, !isStakeValid);
 
   if (!submitButton) {
     return;

@@ -8,40 +8,46 @@ type Props = {
 const { id = "custom-stake" } = Astro.props;
 const stakes = stakeOptionsUsd;
 const selectedStake = defaultStakeUsd;
+const errorId = `${id}-error`;
 ---
 
-<div class="grid grid-cols-[1fr_auto] gap-4">
-  <div class="segment-grid" role="radiogroup" aria-label="Valor do palpite">
-    {
-      stakes.map((stake) => {
-        const isSelected = stake === selectedStake;
-        return (
-          <button
-            class="segment-control focus-ring"
-            type="button"
-            role="radio"
-            aria-checked={isSelected ? "true" : "false"}
-            data-state={isSelected ? "selected" : "idle"}
-            data-select-stake
-            data-stake={String(stake)}
-          >
-            ${stake}
-          </button>
-        );
-      })
-    }
-  </div>
+<div class="grid gap-2" data-stake-field>
+  <div class="grid grid-cols-[1fr_auto] gap-4">
+    <div class="segment-grid" role="radiogroup" aria-label="Valor do palpite">
+      {
+        stakes.map((stake) => {
+          const isSelected = stake === selectedStake;
+          return (
+            <button
+              class="segment-control focus-ring"
+              type="button"
+              role="radio"
+              aria-checked={isSelected ? "true" : "false"}
+              data-state={isSelected ? "selected" : "idle"}
+              data-select-stake
+              data-stake={String(stake)}
+            >
+              ${stake}
+            </button>
+          );
+        })
+      }
+    </div>
 
-  <label class="sr-only" for={id}>Valor personalizado</label>
-  <input
-    id={id}
-    class="form-control focus-ring w-20 text-center text-sm"
-    type="number"
-    min={String(minimumStakeUsd)}
-    step={String(stakeStepUsd)}
-    value={String(selectedStake)}
-    inputmode="decimal"
-    aria-label="Valor personalizado"
-    data-custom-stake
-  />
+    <label class="sr-only" for={id}>Valor personalizado</label>
+    <input
+      id={id}
+      class="form-control focus-ring w-20 text-center text-sm"
+      type="number"
+      min={String(minimumStakeUsd)}
+      step={String(stakeStepUsd)}
+      value={String(selectedStake)}
+      inputmode="decimal"
+      aria-label="Valor personalizado"
+      aria-describedby={errorId}
+      aria-invalid="false"
+      data-custom-stake
+    />
+  </div>
+  <p id={errorId} class="field-error" data-stake-error hidden>Informe pelo menos ${minimumStakeUsd}.</p>
 </div>

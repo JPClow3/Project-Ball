@@ -126,7 +126,10 @@ function renderActionArea(match: Match, selected?: Outcome): string {
   const isConfirmed = Boolean(selected);
 
   if (match.status === "open" && !isConfirmed) {
-    return `<div class="grid gap-2"><p class="text-sm font-semibold text-[var(--text)]">Valor</p><div class="grid grid-cols-[1fr_auto] gap-4"><div class="segment-grid" role="radiogroup" aria-label="Valor do palpite">${renderStakeButtons()}</div><input class="form-control focus-ring w-20 text-center text-sm" type="number" min="${minimumStakeUsd}" step="${stakeStepUsd}" value="${defaultStakeUsd}" inputmode="decimal" aria-label="Valor personalizado" data-custom-stake></div></div><button class="btn-primary focus-ring w-full" type="button" disabled data-place-bet data-match-id="${escapeHtml(match.id)}" data-match-onchain-id="${escapeHtml(match.onchainId ?? "")}" data-outcome=""><i class="fa-solid fa-lock ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Confirmar palpite</button>`;
+    const stakeInputId = `custom-stake-${match.id}`;
+    const stakeErrorId = `${stakeInputId}-error`;
+
+    return `<div class="grid gap-2"><p class="text-sm font-semibold text-[var(--text)]">Valor</p><div class="grid gap-2" data-stake-field><div class="grid grid-cols-[1fr_auto] gap-4"><div class="segment-grid" role="radiogroup" aria-label="Valor do palpite">${renderStakeButtons()}</div><input id="${escapeHtml(stakeInputId)}" class="form-control focus-ring w-20 text-center text-sm" type="number" min="${minimumStakeUsd}" step="${stakeStepUsd}" value="${defaultStakeUsd}" inputmode="decimal" aria-label="Valor personalizado" aria-describedby="${escapeHtml(stakeErrorId)}" aria-invalid="false" data-custom-stake></div><p id="${escapeHtml(stakeErrorId)}" class="field-error" data-stake-error hidden>Informe pelo menos $${minimumStakeUsd}.</p></div></div><button class="btn-primary focus-ring w-full" type="button" disabled data-place-bet data-match-id="${escapeHtml(match.id)}" data-match-onchain-id="${escapeHtml(match.onchainId ?? "")}" data-outcome=""><i class="fa-solid fa-lock ui-icon" style="font-size: 16px;" aria-hidden="true"></i>Confirmar palpite</button>`;
   }
 
   if (selected) {

@@ -29,6 +29,8 @@ describe("renderMatchCard", () => {
     expect(html).toContain("Confirmar palpite");
     expect(html).toContain("disabled data-place-bet");
     expect(html).toContain("data-bet-status");
+    expect(html).toContain("data-stake-error");
+    expect(html).toContain('aria-invalid="false"');
   });
 
   it("marks a registered pick", () => {
