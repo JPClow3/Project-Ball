@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS bet_confirmations (
 );
 
 CREATE TABLE IF NOT EXISTS stats_snapshots (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id SERIAL PRIMARY KEY,
   daily_active_users INTEGER NOT NULL DEFAULT 0,
   monthly_active_users INTEGER NOT NULL DEFAULT 0,
   transaction_count INTEGER NOT NULL DEFAULT 0,

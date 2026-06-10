@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import cloudflare from "@astrojs/cloudflare";
+import node from "@astrojs/node";
 import { defineConfig, sessionDrivers } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -7,14 +7,12 @@ export default defineConfig({
   devToolbar: {
     enabled: false
   },
-  // Project Ball stores app sessions in D1 via project_ball_session; this keeps
-  // Astro's unused session layer from provisioning a Cloudflare KV namespace.
   session: {
     driver: sessionDrivers.lruCache()
   },
   output: "server",
-  adapter: cloudflare({
-    imageService: "compile"
+  adapter: node({
+    mode: "standalone"
   }),
   vite: {
     plugins: [tailwindcss()],

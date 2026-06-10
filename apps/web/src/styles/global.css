@@ -3,7 +3,7 @@
 @import "./tokens.css";
 
 /* Tailwind v4 safelist for classes used only by htmx-injected fragments or runtime feedback states. */
-@source inline("success-panel error-panel locked-panel bet-status bet-status--error bet-status--info rounded-[8px] p-4 mt-2 flex items-center gap-2 text-sm text-xs font-medium font-bold uppercase text-[var(--coral)] text-[var(--muted)] text-[var(--green)] text-[var(--text)] text-[var(--cyan)] text-[var(--gold)] w-full");
+@source inline("success-panel error-panel locked-panel bet-status bet-status--error bet-status--info sr-only rounded-[8px] p-4 mt-2 flex items-center gap-2 text-sm text-xs font-medium font-bold uppercase text-[var(--coral)] text-[var(--muted)] text-[var(--green)] text-[var(--text)] text-[var(--cyan)] text-[var(--gold)] w-full ml-2 ml-auto truncate");
 
 @layer base {
   * {
@@ -1113,6 +1113,8 @@
     border-block: 1px solid var(--line);
     padding: 8px 16px;
     overscroll-behavior-inline: contain;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
   }
 
   .quick-filters {
@@ -1124,11 +1126,13 @@
     scroll-padding-inline: 16px;
     scroll-snap-type: x proximity;
     overscroll-behavior-inline: contain;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
   }
 
   .filter-chip {
     display: inline-flex;
-    min-height: 38px;
+    min-height: 44px;
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
@@ -2222,6 +2226,18 @@
 }
 
 @layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   .focus-ring:focus-visible {
     outline: 3px solid var(--color-focus-ring);
     outline-offset: 3px;

@@ -28,7 +28,3 @@ interface ImportMetaEnv extends RuntimeEnv {}
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
-
-declare module "cloudflare:workers" {
-  export const env: RuntimeEnv;
-}

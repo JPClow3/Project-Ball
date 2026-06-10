@@ -51,7 +51,7 @@ function nowIso(): string {
 
 function isMissingBetTable(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return message.includes("no such table: bet_confirmations");
+  return message.includes("no such table: bet_confirmations") || message.includes('relation "bet_confirmations" does not exist');
 }
 
 function isOutcome(value: unknown): value is Outcome {
@@ -76,8 +76,9 @@ export async function recordBetConfirmation(db: D1, confirmation: BetConfirmatio
     try {
       await db
         .prepare(
-          `INSERT OR IGNORE INTO bet_confirmations (tx_hash, match_id, bettor, outcome, token, amount)
-           VALUES (?, ?, ?, ?, ?, ?)`
+          `INSERT INTO bet_confirmations (tx_hash, match_id, bettor, outcome, token, amount)
+           VALUES (?, ?, ?, ?, ?, ?)
+           ON CONFLICT (tx_hash) DO NOTHING`
         )
         .bind(
           confirmation.txHash,

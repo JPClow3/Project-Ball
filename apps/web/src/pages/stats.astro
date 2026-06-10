@@ -1,5 +1,7 @@
 ---
-import { env } from "cloudflare:workers";
+import { getRuntimeEnv } from "../lib/runtime";
+
+const env = getRuntimeEnv();
 import AppHeader from "../components/AppHeader.astro";
 import PageFooter from "../components/PageFooter.astro";
 import { formatUsd } from "../lib/format";
@@ -64,7 +66,7 @@ const stats = [
         </div>
         <span class="status-pill status-pill--open">
           <i class="fa-solid fa-database ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          D1 cache
+          PostgreSQL cache
         </span>
       </div>
       <div class="mt-6 grid gap-4">

@@ -1,0 +1,17 @@
+node_modules
+.git
+.env
+.env.*
+!.env.example
+dist
+.astro
+coverage
+test-results
+playwright-report
+packages/contracts/lib
+packages/contracts/broadcast
+packages/contracts/cache
+.codex-logs
+*.log
+.DS_Store
+Thumbs.db

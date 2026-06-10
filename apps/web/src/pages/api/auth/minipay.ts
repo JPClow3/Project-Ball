@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
+import { getRuntimeEnv } from "../../../lib/runtime";
 import {
   createMiniPaySession,
   makeSessionCookie,
@@ -19,6 +19,7 @@ function json(data: unknown, init: ResponseInit = {}): Response {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const env = getRuntimeEnv();
   const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const walletAddress = normalizeWalletAddress(payload?.address);
 

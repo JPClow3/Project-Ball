@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import type { Outcome } from "@project-ball/shared";
-import { env } from "cloudflare:workers";
+import { getRuntimeEnv } from "../../lib/runtime";
 import { getSession } from "../../lib/auth";
 import { recordBetConfirmation } from "../../lib/bets";
 import { isContractConfigured } from "../../lib/config";
@@ -50,6 +50,7 @@ function parseConfirmBetPayload(payload: unknown): ConfirmBetPayload | null {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const env = getRuntimeEnv();
   const contentType = request.headers.get("content-type") ?? "";
   let payload: unknown;
 

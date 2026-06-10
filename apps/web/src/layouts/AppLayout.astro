@@ -3,22 +3,28 @@ import { ClientRouter } from "astro:transitions";
 import ThemeInit from "@/components/ThemeInit.astro";
 import AppHeader from "@/components/AppHeader.astro";
 import BottomNav from "@/components/BottomNav.astro";
+import PageFooter from "@/components/PageFooter.astro";
 import "@/styles/global.css";
 
 type Props = {
   title?: string;
+  description?: string;
 };
 
-const title = Astro.props.title ? `${Astro.props.title} | Project Ball` : "Project Ball";
+const {
+  title: pageTitle,
+  description = "Palpites rápidos de futebol na Celo, feitos para MiniPay."
+} = Astro.props;
+const title = pageTitle ? `${pageTitle} | Project Ball` : "Project Ball";
 ---
 
 <!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="Canvas" />
-    <meta name="description" content="Palpites rápidos de futebol na Celo, feitos para MiniPay." />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="description" content={description} />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=" />
     <ThemeInit />
@@ -34,6 +40,7 @@ const title = Astro.props.title ? `${Astro.props.title} | Project Ball` : "Proje
     <main id="conteudo" class="app-shell app-main" transition:name="page-content">
       <slot />
     </main>
+    <PageFooter />
     <BottomNav />
     <script>
       import "../scripts/place-bet";

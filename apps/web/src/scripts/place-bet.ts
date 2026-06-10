@@ -265,7 +265,8 @@ function iconSvg(name: string): string {
     "pen-line": "fa-pen-to-square",
     "rotate-ccw": "fa-rotate-left",
     "send": "fa-paper-plane",
-    "lock-keyhole": "fa-lock"
+    "lock-keyhole": "fa-lock",
+    "circle-dot": "fa-circle-dot text-[var(--muted)]"
   };
   const classes = icons[name] ?? "fa-circle-question";
 
@@ -530,7 +531,7 @@ function syncBetForm(card: HTMLElement): void {
   submitButton.dataset.outcome = outcome ?? "";
   submitButton.innerHTML = isValid
     ? `${iconSvg("send")}Confirmar palpite`
-    : `${iconSvg("lock-keyhole")}Confirmar palpite`;
+    : `${iconSvg("circle-dot")}Confirmar palpite`;
 }
 
 function selectOutcome(button: HTMLElement): void {

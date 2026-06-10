@@ -9,7 +9,9 @@ import { getUserConfirmedPicks } from "../lib/bets";
 import { formatKickoffFull } from "../lib/format";
 import { withUserPick } from "../lib/matches";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { env } from "cloudflare:workers";
+import { getRuntimeEnv } from "../lib/runtime";
+
+const env = getRuntimeEnv();
 
 const groupCount = new Set(matches.map((match) => match.groupLabel)).size;
 const now = Date.now();

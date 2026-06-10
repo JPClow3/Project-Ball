@@ -30,7 +30,12 @@ const monthMs = 30 * dayMs;
 
 function isMissingStatsTable(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return message.includes("no such table: bet_confirmations") || message.includes("no such table: stats_snapshots");
+  return (
+    message.includes("no such table: bet_confirmations") ||
+    message.includes("no such table: stats_snapshots") ||
+    message.includes('relation "bet_confirmations" does not exist') ||
+    message.includes('relation "stats_snapshots" does not exist')
+  );
 }
 
 function parseCreatedAt(value: string): number {

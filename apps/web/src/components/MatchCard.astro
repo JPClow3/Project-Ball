@@ -49,6 +49,14 @@ const awayFlagUrl = `https://flagcdn.com/w80/${match.awayFlagCode}.png`;
 const cardTitle = `${match.homeTeam} x ${match.awayTeam}`;
 const defaultToken = getDefaultStablecoin();
 const statusId = `bet-status-${match.id}`;
+const selectedResultText =
+  match.userPick === "DRAW"
+    ? "Empate"
+    : match.userPick === "HOME"
+      ? `${match.homeTeam} vence`
+      : match.userPick === "AWAY"
+        ? `${match.awayTeam} vence`
+        : "";
 ---
 
 <article
@@ -100,7 +108,7 @@ const statusId = `bet-status-${match.id}`;
       </span>
       <span class="min-w-0">
         <i class="fa-solid fa-map-pin text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-        <span class="truncate">{match.venue}</span>
+        <span class="truncate ml-2">{match.venue}</span>
       </span>
     </p>
 
@@ -180,7 +188,7 @@ const statusId = `bet-status-${match.id}`;
               data-match-onchain-id={match.onchainId}
               data-outcome=""
             >
-              <i class="fa-solid fa-lock ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+              <i class="fa-solid fa-circle-dot text-[var(--muted)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
               Confirmar palpite
             </button>
           </>
@@ -190,7 +198,9 @@ const statusId = `bet-status-${match.id}`;
               <i class="fa-solid fa-circle-check text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
               Palpite registrado
             </p>
-            <p class="text-sm font-medium text-[var(--muted)]">A partida libera saque, reembolso ou liquidação quando o resultado for confirmado.</p>
+            <p class="text-sm font-medium text-[var(--muted)]">
+              {selectedResultText}. A partida libera saque, reembolso ou liquidação quando o resultado for confirmado.
+            </p>
           </div>
         ) : (
           <div class="locked-panel">

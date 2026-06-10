@@ -91,7 +91,9 @@ function makeId(prefix: string): string {
 function isMissingAuthTable(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   const KNOWN_AUTH_TABLES = ["wallet_auth_nonces", "wallet_users", "wallet_sessions"];
-  return KNOWN_AUTH_TABLES.some((t) => message.includes(`no such table: ${t}`));
+  return KNOWN_AUTH_TABLES.some(
+    (table) => message.includes(`no such table: ${table}`) || message.includes(`relation "${table}" does not exist`)
+  );
 }
 
 function toUser(row: UserRow): AuthUser {

@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
+import { getRuntimeEnv } from "../../../lib/runtime";
 import {
   createAuthChallenge,
   normalizeWalletAddress,
@@ -16,6 +16,7 @@ function json(data: unknown, status = 200): Response {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const env = getRuntimeEnv();
   const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const walletAddress = normalizeWalletAddress(payload?.address);
   const intent = parseAuthIntent(payload?.intent);

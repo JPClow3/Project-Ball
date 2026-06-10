@@ -6,18 +6,23 @@ This guide details the deployment sequence for smart contracts and the frontend 
 
 ## 💻 Local Environment Setup
 
-1. **Verify Prerequisites:** Ensure Node, pnpm, and Foundry are installed.
+1. **Verify Prerequisites:** Ensure Node, pnpm, Docker, and Foundry are installed.
 2. **Install & Setup:**
    ```bash
    pnpm install
    forge install foundry-rs/forge-std --root packages/contracts
    ```
 3. **Environment Setup:** Copy `.env.example` to `.env` in the root workspace directory.
-4. **Boot Development Server:**
+4. **Start PostgreSQL (optional):**
+   ```bash
+   docker compose up db -d
+   pnpm --filter @project-ball/web db:migrate
+   ```
+5. **Boot Development Server:**
    ```bash
    pnpm dev
    ```
-5. **MiniPay Device Tunneling:** Expose port `4321` using ngrok or a Cloudflare Tunnel:
+6. **MiniPay Device Tunneling:** Expose port `4321` using ngrok:
    ```bash
    ngrok http 4321
    ```
@@ -51,11 +56,9 @@ Configure the frontend environment with the newly deployed contract address:
 - `PUBLIC_CELO_EXPLORER_URL=https://celo-sepolia.blockscout.com`
 - `PUBLIC_PROJECT_BALL_POOLS_ADDRESS=<deployed-contract-address>`
 
-If the frontend is deployed with Cloudflare Pages dashboard/Git builds, add these same `PUBLIC_*` keys in **Workers & Pages > Project > Settings > Variables and Secrets** for both Preview and Production. The values in `apps/web/wrangler.jsonc` are local development/reference values and are not enough for a dashboard-triggered build.
-
 ---
 
-## 🚀 Production Deployment (Celo Mainnet & Cloudflare)
+## 🚀 Production Deployment (Celo Mainnet & Docker)
 
 ### 1. Smart Contract Deployment
 Execute the mainnet deployment script:
@@ -72,23 +75,33 @@ forge script packages/contracts/script/DeployCeloMainnet.s.sol:DeployCeloMainnet
 > Keep the private key used for deployment secure. Verify that the deployer address holds sufficient Celo to cover gas fees.
 
 ### 2. Frontend Application Deployment
-Run checks and compile the Astro build bundle before deploying to Cloudflare:
-```bash
-pnpm --filter @project-ball/web build
-pnpm --filter @project-ball/web deploy
-```
-
-The current `deploy` script publishes the SSR app with `wrangler deploy` from the root `wrangler.jsonc`. Before a real release, replace the placeholder D1 id and public contract values there, then run the release preflight. If you switch this app to Cloudflare Pages auto-builds, configure the required `PUBLIC_*` variables in the Pages dashboard before triggering the build:
+Set production values in `.env` before building:
 
 - `PUBLIC_APP_NAME`
-- `PUBLIC_APP_URL`
+- `PUBLIC_APP_URL` (must be your production HTTPS URL)
 - `PUBLIC_CHAIN_ID`
 - `PUBLIC_CELO_RPC_URL`
 - `PUBLIC_CELO_EXPLORER_URL`
 - `PUBLIC_PROJECT_BALL_POOLS_ADDRESS`
 - `PUBLIC_SUPPORT_URL`
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 
-Keep `PUBLIC_PROJECT_BALL_POOLS_ADDRESS` synced with the verified deployment address for the selected Celo network. A successful Pages build with missing dashboard variables can still render a broken client because Astro exposes `PUBLIC_*` values at build time.
+Deploy with Docker Compose:
+
+```bash
+docker compose up -d --build
+```
+
+Or from the repo root:
+
+```bash
+pnpm deploy
+```
+
+The web container runs database migrations on startup, then starts the Astro Node.js server on port `4321`.
+
+> [!NOTE]
+> `PUBLIC_*` values are baked into the Astro build at image build time. After changing them, rebuild with `docker compose up -d --build`.
 
 ---
 

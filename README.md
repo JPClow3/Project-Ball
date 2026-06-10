@@ -24,7 +24,7 @@ The application is designed to behave like a fast, casual mobile web game rather
 * **Frontend Web App:** [Astro](https://astro.build/), [Tailwind CSS v4](https://tailwindcss.com/), [htmx](https://htmx.org/), and vanilla TypeScript.
 * **Blockchain Operations:** [Viem](https://viem.sh/) for contract reads, balance checks, ERC-20 approvals, and transaction submission.
 * **Smart Contracts:** [Solidity](https://soliditylang.org/) contracts developed, tested, and deployed using [Foundry](https://book.getfoundry.sh/).
-* **Backend & API:** [Cloudflare Workers & Pages](https://pages.cloudflare.com/) utilizing [Cloudflare D1](https://developers.cloudflare.com/d1/) for fast database caching, game state management, and SSR.
+* **Backend & API:** Astro SSR on Node.js with [PostgreSQL](https://www.postgresql.org/) for sessions, bet cache, and stats. Deployed via Docker.
 
 ---
 
@@ -34,7 +34,7 @@ Project Ball is configured as a `pnpm` monorepo containing the following workspa
 
 ```txt
 ├── apps/
-│   └── web/                  # Astro frontend and server-side API handlers (Cloudflare Pages/Workers)
+│   └── web/                  # Astro frontend and server-side API handlers (Node.js SSR)
 ├── packages/
 │   ├── contracts/            # Solidity smart contracts and Foundry deploy/test scripts
 │   └── shared/               # Shared TypeScript types, utility constants, and ABI configurations
@@ -58,9 +58,10 @@ cp .env.example .env
 
 Review and update the variables in `.env` as required:
 - `PUBLIC_PROJECT_BALL_POOLS_ADDRESS`: Address of the deployed `ProjectBallPools` contract.
+- `PUBLIC_APP_URL`: Canonical HTTPS URL of the deployed app (required for production Docker builds).
+- `DATABASE_URL`: PostgreSQL connection string for sessions and off-chain data.
 - `DEPLOYER_PRIVATE_KEY`: Private key used for contract deployment and transactions.
 - `OWNER_ADDRESS`, `TREASURY_ADDRESS`, `BURN_SINK_ADDRESS`: Owner and treasury addresses for contract configuration.
-- `CLOUDFLARE_ACCOUNT_ID` & `CLOUDFLARE_DATABASE_ID`: Cloudflare credentials for D1 local/remote database setups.
 
 ---
 
@@ -70,6 +71,7 @@ Review and update the variables in `.env` as required:
 Ensure you have the following installed on your machine:
 * [Node.js](https://nodejs.org/) (v20+ recommended)
 * [pnpm](https://pnpm.io/) (v10+ recommended)
+* [Docker](https://www.docker.com/) (for production deployment and local PostgreSQL)
 * [Foundry](https://book.getfoundry.sh/getting-started/installation) (for smart contract testing and compilation)
 
 ### 2. Install Dependencies
@@ -80,7 +82,15 @@ pnpm install
 forge install foundry-rs/forge-std --root packages/contracts
 ```
 
-### 3. Spin up the Development Server
+### 3. Start PostgreSQL (optional for local dev)
+The app falls back to in-memory storage without a database. For persistent sessions and bet cache, start Postgres:
+
+```bash
+docker compose up db -d
+pnpm --filter @project-ball/web db:migrate
+```
+
+### 4. Spin up the Development Server
 Start the local server for the web app:
 
 ```bash
@@ -91,11 +101,24 @@ The app will run at `http://localhost:4321`.
 
 > [!TIP]
 > **Testing on MiniPay Devices:**
-> To test the application on an actual phone inside MiniPay, expose your local port `4321` to the internet using a tool like `ngrok` or Cloudflare Tunnel:
+> To test the application on an actual phone inside MiniPay, expose your local port `4321` to the internet using ngrok:
 > ```bash
 > ngrok http 4321
 > ```
 > Load the generated HTTPS URL in the MiniPay Developer Mode settings on your device.
+
+---
+
+## 🐳 Docker Deployment
+
+Deploy the full stack (web + PostgreSQL) with one command:
+
+```bash
+cp .env.example .env   # set PUBLIC_* and contract address
+pnpm deploy            # runs: docker compose up -d --build
+```
+
+The app will be available at `http://localhost:4321`. Set `PUBLIC_APP_URL` to your production HTTPS URL before building for a real release.
 
 ---
 

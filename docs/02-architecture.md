@@ -15,7 +15,7 @@ sequenceDiagram
   participant Web as 🌐 Astro UI
   participant Wallet as 📱 MiniPay Wallet
   participant Chain as ⛓️ Celo Blockchain
-  participant API as 🖥️ Astro API (Cloudflare)
+  participant API as 🖥️ Astro API (Node.js)
 
   User->>Web: Selects outcome (Home/Draw/Away)
   Web->>Wallet: Request ERC-20 approval & placeBet call
@@ -33,7 +33,7 @@ sequenceDiagram
 
 ```
 ┌──────────────────────────────────────┐     ┌──────────────────────────────────────┐
-│        ⛓️ ON-CHAIN STATE             │     │         📂 OFF-CHAIN (D1 DB)         │
+│        ⛓️ ON-CHAIN STATE             │     │      📂 OFF-CHAIN (PostgreSQL)       │
 ├──────────────────────────────────────┤     ├──────────────────────────────────────┤
 │ - Total normalized stakes            │     │ - Football match schedules & cache   │
 │ - Settlement outcomes & resolved flag│     │ - User profile & session cookies     │
@@ -43,7 +43,7 @@ sequenceDiagram
 ```
 
 * **On-Chain Boundaries:** Pure monetary state, prediction claims, stablecoin token deposits, refunds, and resolution status are stored in `ProjectBallPools.sol`.
-* **Off-Chain Boundaries:** Cloudflare D1 houses the match catalog, scheduled kickoff times, team names, user metadata, and historical stats.
+* **Off-Chain Boundaries:** PostgreSQL houses the match catalog, scheduled kickoff times, team names, user metadata, and historical stats.
 
 ---
 

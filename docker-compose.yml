@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-projectball}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projectball}
+      POSTGRES_DB: ${POSTGRES_DB:-projectball}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-projectball} -d ${POSTGRES_DB:-projectball}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      args:
+        PUBLIC_APP_NAME: ${PUBLIC_APP_NAME}
+        PUBLIC_APP_URL: ${PUBLIC_APP_URL}
+        PUBLIC_SUPPORT_URL: ${PUBLIC_SUPPORT_URL}
+        PUBLIC_CHAIN_ID: ${PUBLIC_CHAIN_ID}
+        PUBLIC_CELO_RPC_URL: ${PUBLIC_CELO_RPC_URL}
+        PUBLIC_CELO_EXPLORER_URL: ${PUBLIC_CELO_EXPLORER_URL}
+        PUBLIC_PROJECT_BALL_POOLS_ADDRESS: ${PUBLIC_PROJECT_BALL_POOLS_ADDRESS}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT:-4321}:4321"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4321
+      DATABASE_URL: postgresql://${POSTGRES_USER:-projectball}:${POSTGRES_PASSWORD:-projectball}@db:5432/${POSTGRES_DB:-projectball}
+    env_file:
+      - .env
+
+volumes:
+  pgdata:

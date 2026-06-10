@@ -1,16 +1,16 @@
 # 🌐 Project Ball - Web Application (`apps/web`)
 
-This is the web frontend and API server for Project Ball, built using **Astro** for server-side rendering, **Tailwind CSS v4** for styling, and **htmx** for lightweight, dynamic HTML-swapping interactions. It integrates with Celo via **viem** and deploys with Cloudflare's edge runtime, using **Cloudflare D1** for database caching.
+This is the web frontend and API server for Project Ball, built using **Astro** for server-side rendering, **Tailwind CSS v4** for styling, and **htmx** for lightweight, dynamic HTML-swapping interactions. It integrates with Celo via **viem** and runs on Node.js with **PostgreSQL** for sessions and off-chain data.
 
 ---
 
 ## 🏗️ Tech Stack
 
-* **Framework:** [Astro v6](https://astro.build/) (Configured in hybrid SSR/Prerender mode with `@astrojs/cloudflare`).
+* **Framework:** [Astro v6](https://astro.build/) (SSR with `@astrojs/node` standalone mode).
 * **Interactive UI:** [htmx v2](https://htmx.org/) for AJAX-based HTML node replacements, completely avoiding bulky SPA frameworks.
 * **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) with native CSS variables.
 * **Web3 Integration:** [Viem v2](https://viem.sh/) for contract event parsing, balance reads, and network transaction checks.
-* **Database & Auth:** [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite on the edge) for caching match data and session credentials.
+* **Database & Auth:** [PostgreSQL](https://www.postgresql.org/) for bet confirmations, wallet sessions, and stats snapshots.
 
 ---
 
@@ -18,18 +18,17 @@ This is the web frontend and API server for Project Ball, built using **Astro** 
 
 ```txt
 apps/web/
-├── migrations/         # D1 database schema migrations
+├── migrations/         # PostgreSQL schema migrations
 ├── public/             # Static assets (images, icons, robots.txt)
-├── scripts/            # Pre-deployment validation and preflight scripts
+├── scripts/            # Database migration runner
 ├── src/
 │   ├── components/     # Astro UI components (MatchCard, Navbar, Footer)
-│   ├── data/           # Mock data and database client definitions
+│   ├── data/           # Mock data and static content
 │   ├── layouts/        # Page layout wrappers (Layout.astro)
-│   ├── lib/            # Utility modules (contracts, formatting, auth)
+│   ├── lib/            # Utility modules (contracts, formatting, auth, db)
 │   ├── middleware.ts   # Session validation and routing security middleware
 │   └── pages/          # Astro pages (Routes) and API endpoints
 ├── tests/              # Vitest unit tests and Playwright E2E specs
-├── wrangler.jsonc      # Cloudflare wrangler development configuration
 └── package.json        # Web app dependencies and scripts
 ```
 
@@ -60,22 +59,28 @@ apps/web/
 
 ---
 
-## 🛠️ Local Development & Cloudflare D1
+## 🛠️ Local Development
 
-### 1. Database Migrations
-Initialize the local SQLite database from the migrations folder using Wrangler:
+### 1. Database
+Start PostgreSQL and apply migrations:
+
 ```bash
-npx wrangler d1 migrations apply project-ball-db --local
+docker compose up db -d
+pnpm db:migrate
 ```
 
+Set `DATABASE_URL` in the root `.env` file (see `.env.example`).
+
 ### 2. Run Dev Server
-Start the local server. It targets port `4321` on `127.0.0.1`:
+Start the local server on port `4321`:
+
 ```bash
 pnpm dev
 ```
 
-### 3. Build & Preflight Checks
+### 3. Build
 Generate a production bundle:
+
 ```bash
 pnpm build
 ```
@@ -104,12 +109,12 @@ pnpm test:lighthouse
 
 ## 🚀 Deployment
 
-The `deploy` script automatically executes a release preflight audit (verifying env configurations and database links) before publishing to Cloudflare:
+Deploy the full stack from the repo root:
 
 ```bash
-pnpm deploy
+cp .env.example .env
+# Set PUBLIC_APP_URL, PUBLIC_PROJECT_BALL_POOLS_ADDRESS, and other PUBLIC_* vars
+docker compose up -d --build
 ```
 
-The current package deploy path uses `wrangler deploy --cwd ../..`, so the root `wrangler.jsonc` is the Worker SSR deploy source of truth. The `apps/web/wrangler.jsonc` file is kept as local development/reference configuration.
-
-For Cloudflare Pages dashboard/Git builds, configure the `PUBLIC_*` values in **Workers & Pages > Settings > Variables and Secrets** before the build runs. In particular, do not rely on the local `apps/web/wrangler.jsonc` values for `PUBLIC_CELO_RPC_URL` or `PUBLIC_PROJECT_BALL_POOLS_ADDRESS` when Pages is building production.
+Migrations run automatically on container start. Rebuild the image when `PUBLIC_*` values change (they are baked in at build time).
