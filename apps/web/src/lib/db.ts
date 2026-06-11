@@ -52,6 +52,14 @@ class PgDatabase implements D1Database {
   prepare(query: string): D1PreparedStatement {
     return new PgPreparedStatement(this.pool, query);
   }
+
+  async batch<T = unknown>(statements: D1PreparedStatement[]): Promise<{ results?: T[] }[]> {
+    const results = [];
+    for (const statement of statements) {
+      results.push(await statement.all<T>());
+    }
+    return results;
+  }
 }
 
 export function getDatabase(): D1Database | undefined {
