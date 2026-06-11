@@ -56,7 +56,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (context.request.method !== "GET" && context.request.method !== "HEAD") {
     const origin = context.request.headers.get("Origin");
     if (origin && origin !== context.url.origin) {
-      return new Response("Forbidden (CSRF)", { status: 403 });
+      const host = context.request.headers.get("x-forwarded-host") || context.request.headers.get("host");
+      const isProxyMatch = host && (origin === `https://${host}` || origin === `http://${host}`);
+      if (!isProxyMatch) {
+        return new Response("Forbidden (CSRF)", { status: 403 });
+      }
     }
   }
 
