@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@700&family=Source+Sans+3:wght@500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "./tokens.css";
 
@@ -27,7 +27,7 @@
       var(--bg);
     background-size: 56px 56px, auto, auto;
     color: var(--text);
-    font-family: "Source Sans 3", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Outfit", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-weight: 500;
     font-synthesis: none;
     letter-spacing: 0;
@@ -35,11 +35,22 @@
     text-rendering: optimizeLegibility;
   }
 
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+  }
+
   h1,
   h2,
   h3,
   .font-display {
-    font-family: Archivo, "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
     letter-spacing: 0;
   }
 
@@ -91,6 +102,10 @@
 
   .app-main {
     padding-block: 32px 128px;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 
   .skip-link {
@@ -1276,6 +1291,17 @@
     gap: 24px;
   }
 
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .match-card {
     position: relative;
     display: flex;
@@ -1293,11 +1319,19 @@
     backdrop-filter: blur(12px);
     content-visibility: auto;
     contain-intrinsic-size: auto 300px;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
     transition:
       transform 160ms ease,
       box-shadow 160ms ease,
       border-color 160ms ease;
   }
+
+  .match-card:nth-child(1) { animation-delay: 0ms; }
+  .match-card:nth-child(2) { animation-delay: 50ms; }
+  .match-card:nth-child(3) { animation-delay: 100ms; }
+  .match-card:nth-child(4) { animation-delay: 150ms; }
+  .match-card:nth-child(5) { animation-delay: 200ms; }
+  .match-card:nth-child(n+6) { animation-delay: 250ms; }
 
   .match-card::before {
     position: absolute;
@@ -2018,8 +2052,8 @@
     background: var(--panel-gradient), var(--surface-glass);
     padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
     box-shadow: var(--shadow-glass);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
   }
 
   @media (min-width: 768px) {

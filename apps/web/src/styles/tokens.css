@@ -34,7 +34,7 @@
     --color-theme-meta: #0f172a;
     --shadow-raised: 0 18px 52px rgba(2, 6, 23, 0.34);
     --shadow-soft: 0 10px 28px rgba(2, 6, 23, 0.24);
-    --shadow-glass: inset 0 1px 0 var(--color-glass-highlight), 0 18px 52px rgba(2, 6, 23, 0.3);
+    --shadow-glass: inset 0 1px 1px var(--color-glass-highlight), inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 24px 64px rgba(2, 6, 23, 0.4);
     --surface-depth-gradient:
       radial-gradient(circle at 8% 0%, rgba(124, 137, 179, 0.22), transparent 32%),
       linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.88));
@@ -104,7 +104,7 @@
     --color-theme-meta: #eef3f8;
     --shadow-raised: 0 18px 42px rgba(15, 23, 42, 0.16);
     --shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.1);
-    --shadow-glass: inset 0 1px 0 var(--color-glass-highlight), 0 18px 42px rgba(15, 23, 42, 0.14);
+    --shadow-glass: inset 0 1px 1px var(--color-glass-highlight), inset 0 0 0 1px rgba(255, 255, 255, 0.4), 0 24px 48px rgba(15, 23, 42, 0.18);
     --surface-depth-gradient:
       radial-gradient(circle at 8% 0%, rgba(82, 101, 143, 0.18), transparent 32%),
       linear-gradient(135deg, rgba(238, 243, 248, 0.98), rgba(219, 228, 238, 0.82));

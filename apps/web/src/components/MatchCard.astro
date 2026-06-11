@@ -36,8 +36,8 @@ const isConfirmed = Boolean(match.userPick);
 const isLocked = match.status !== "open";
 const controlsDisabled = isLocked || isConfirmed;
 const statusClass = match.status === "open" && !isConfirmed ? "status-pill--open" : "status-pill--locked";
-const homeFlagUrl = match.homeFlagCode ? `https://flagcdn.com/w64/${match.homeFlagCode}.png` : "";
-const awayFlagUrl = match.awayFlagCode ? `https://flagcdn.com/w64/${match.awayFlagCode}.png` : "";
+const homeFlagUrl = match.homeFlagCode ? `https://flagcdn.com/w80/${match.homeFlagCode}.png` : "";
+const awayFlagUrl = match.awayFlagCode ? `https://flagcdn.com/w80/${match.awayFlagCode}.png` : "";
 const cardTitle = `${match.homeTeam} x ${match.awayTeam}`;
 const defaultToken = getDefaultStablecoin();
 const statusId = `bet-status-${match.id}`;
@@ -93,7 +93,7 @@ const kickoffTime = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: 
       
       <div class="flex flex-col items-center justify-center">
         <span class="text-xs font-semibold text-[var(--muted)]">{kickoffWeekday}</span>
-        <span class="text-2xl lg:text-3xl font-black text-[var(--text)] leading-none my-1">{kickoffTime}</span>
+        <span class="text-2xl lg:text-3xl font-black text-[var(--text)] leading-none my-1 tabular-nums">{kickoffTime}</span>
         <span class="text-[10px] font-bold text-[var(--muted-strong)]">BRT</span>
       </div>
 
@@ -109,11 +109,11 @@ const kickoffTime = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: 
       <div class="flex items-end justify-between">
         <div class="flex flex-col">
           <span class="text-xs font-semibold text-[var(--muted-strong)]">{Number(match.poolUsd) > 0 ? "Pote agora" : `${match.supporterCount.toLocaleString("pt-BR")} palpites`}</span>
-          {Number(match.poolUsd) > 0 && <span class="text-2xl font-bold text-[var(--green)]">{formatUsd(match.poolUsd)}</span>}
+          {Number(match.poolUsd) > 0 && <span class="text-2xl font-bold text-[var(--green)] tabular-nums">{formatUsd(match.poolUsd)}</span>}
         </div>
         <div class="flex flex-col items-end">
           <span class="text-xs font-semibold text-[var(--muted-strong)]">{Number(match.poolUsd) > 0 ? "Valor padrão" : "Divisão do pote"}</span>
-          {Number(match.poolUsd) > 0 && <span class="text-2xl font-bold text-[var(--text)]">{formatUsd(5)}</span>}
+          {Number(match.poolUsd) > 0 && <span class="text-2xl font-bold text-[var(--text)] tabular-nums">{formatUsd(5)}</span>}
         </div>
       </div>
       
