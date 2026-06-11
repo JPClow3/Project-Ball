@@ -255,7 +255,7 @@ export async function getLeaderboard(
   }
 }
 
-export async function getUserLeaderboardEntry(
+async function getUserLeaderboardEntry(
   db: D1,
   walletAddress: string
 ): Promise<LeaderboardEntry | null> {

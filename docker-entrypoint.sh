@@ -7,4 +7,5 @@ if [ "$NODE_ENV" = "production" ] && [ "$POSTGRES_PASSWORD" = "projectball" ]; t
 fi
 
 cd /app/apps/web
+node ./scripts/cron.mjs &
 exec node ./dist/server/entry.mjs

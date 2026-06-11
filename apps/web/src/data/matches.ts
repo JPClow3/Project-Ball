@@ -17,7 +17,7 @@ export type MatchViewModel = Match & {
   readonly supporterCount: number;
 };
 
-export { outcomeLabels };
+
 
 type FixtureSeed = readonly [
   fifaId: string,
@@ -237,5 +237,3 @@ function toMatchViewModel(fixture: FixtureSeed): MatchViewModel {
 export const matches: readonly MatchViewModel[] = [...worldCup2026GroupFixtures]
   .sort(([, , leftKickoffIso], [, , rightKickoffIso]) => new Date(leftKickoffIso).getTime() - new Date(rightKickoffIso).getTime())
   .map(toMatchViewModel);
-
-export const featuredMatch = matches[0];

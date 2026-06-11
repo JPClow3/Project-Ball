@@ -6,7 +6,7 @@ export const outcomeLabels: Record<Outcome, string> = {
   AWAY: "Time 2"
 };
 
-export const outcomeColors: Record<Outcome, string> = {
+const outcomeColors: Record<Outcome, string> = {
   HOME: "bg-[#2563eb]",
   DRAW: "bg-[#7e22ce]",
   AWAY: "bg-[#0891b2]"
@@ -50,7 +50,7 @@ export const emptyMatchPoolSnapshot: MatchPoolSnapshot = {
   outcomeTotalsUsd: emptyOutcomeTotalsUsd
 };
 
-export const matchPoolSnapshotsByFifaId: Readonly<Record<string, MatchPoolSnapshot>> = {};
+const matchPoolSnapshotsByFifaId: Readonly<Record<string, MatchPoolSnapshot>> = {};
 
 export function getMatchPoolSnapshot(fifaId: string): MatchPoolSnapshot {
   return matchPoolSnapshotsByFifaId[fifaId] ?? emptyMatchPoolSnapshot;

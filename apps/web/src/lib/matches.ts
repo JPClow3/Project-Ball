@@ -3,9 +3,9 @@ import type { MatchViewModel } from "../data/matches";
 import { matches } from "../data/matches";
 import { statsSnapshot } from "../data/stats";
 
-export const demoMatches = matches;
+const demoMatches = matches;
 
-export const demoStats: StatsSnapshot = statsSnapshot;
+const demoStats: StatsSnapshot = statsSnapshot;
 
 export function getMatch(matchId: string): MatchViewModel | undefined {
   return demoMatches.find((match) => match.id === matchId || match.onchainId === matchId);
@@ -15,7 +15,7 @@ export function withUserPick<T extends Match>(match: T, outcome?: Outcome): T {
   return outcome ? ({ ...match, userPick: outcome } as T) : match;
 }
 
-export function isLastChance(iso: string, now = new Date()): boolean {
+function isLastChance(iso: string, now = new Date()): boolean {
   const diffMs = new Date(iso).getTime() - now.getTime();
   return diffMs > 0 && diffMs <= 60 * 60 * 1000;
 }

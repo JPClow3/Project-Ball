@@ -5,7 +5,7 @@ import {
   type Stablecoin
 } from "@project-ball/shared";
 
-export function getConfiguredChainId(): number {
+function getConfiguredChainId(): number {
   const chainId = Number(import.meta.env.PUBLIC_CHAIN_ID ?? CELO_SEPOLIA.id);
   return Number.isFinite(chainId) ? chainId : CELO_SEPOLIA.id;
 }

@@ -270,6 +270,16 @@ contract ProjectBallPools {
     }
 
     function claim(bytes32 matchId) external nonReentrant {
+        _claim(matchId);
+    }
+
+    function claimBatch(bytes32[] calldata matchIds) external nonReentrant {
+        for (uint256 i = 0; i < matchIds.length; i++) {
+            _claim(matchIds[i]);
+        }
+    }
+
+    function _claim(bytes32 matchId) private {
         MatchPool storage pool = pools[matchId];
         Stake storage stake = stakes[matchId][msg.sender];
 

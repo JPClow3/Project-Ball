@@ -1233,6 +1233,15 @@ function replaceMatchCard(button: HTMLElement, html: string): void {
     replacement.querySelector<HTMLElement>("[data-bet-status]");
   focusTarget?.focus({ preventScroll: true });
   replacement.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+
+  // Micro-animation: Celebrate with confetti if the card indicates a confirmed bet
+  if (replacement.dataset.confirmed === "true" && typeof (window as any).confetti === "function") {
+    (window as any).confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
 }
 
 function updateNavigationState(): void {
@@ -1611,14 +1620,38 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
       tokenSymbol,
       stakeUsd,
       onTxSent: () => {
-        if (betButton.isConnected) {
-          betButton.innerHTML = `${iconSvg("loader-circle")}Confirmando na rede...`;
+        if (betButton.isConnected && card) {
+          // Optimistic UI Update
+          card.classList.add("optimistic-registered");
+          const form = card.querySelector("[data-bet-form]");
+          const stakeContainer = card.querySelector("[data-stake-container]");
+          if (stakeContainer) stakeContainer.setAttribute("hidden", "true");
+          betButton.setAttribute("hidden", "true");
+          
+          const optimisticPanel = document.createElement("div");
+          optimisticPanel.className = "success-panel";
+          optimisticPanel.setAttribute("data-optimistic-panel", "true");
+          optimisticPanel.innerHTML = `
+            <p class="flex items-center gap-2 text-sm font-bold text-[var(--text)]">
+              <svg class="ui-icon animate-spin" style="color: var(--green); width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              Confirmando na rede...
+            </p>
+          `;
+          form?.appendChild(optimisticPanel);
         }
       }
     });
     replaceMatchCard(betButton, html);
     showToast("Palpite confirmado com sucesso.", "success");
   } catch (error) {
+    if (card) {
+      card.classList.remove("optimistic-registered");
+      const optimisticPanel = card.querySelector("[data-optimistic-panel]");
+      if (optimisticPanel) optimisticPanel.remove();
+      const stakeContainer = card.querySelector("[data-stake-container]");
+      if (stakeContainer) stakeContainer.removeAttribute("hidden");
+      betButton.removeAttribute("hidden");
+    }
     const message = betErrorMessage(error);
     setBetControlsLocked(card, false);
     betButton.innerHTML = `${iconSvg("rotate-ccw")}Tentar de novo`;

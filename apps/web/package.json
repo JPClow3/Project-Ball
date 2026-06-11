@@ -19,10 +19,13 @@
   "dependencies": {
     "@astrojs/node": "10.0.4",
     "@project-ball/shared": "workspace:*",
+    "@upstash/redis": "^1.30.0",
     "astro": "6.4.2",
+    "dotenv": "^16.4.5",
     "htmx.org": "2.0.10",
     "pg": "8.16.3",
-    "viem": "2.52.0"
+    "viem": "2.52.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",

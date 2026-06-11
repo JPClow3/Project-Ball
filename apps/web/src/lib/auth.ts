@@ -3,7 +3,7 @@ import { appConfig } from "./config";
 
 export type AuthIntent = "login" | "register";
 
-export type AuthUser = {
+type AuthUser = {
   readonly id: string;
   readonly walletAddress: `0x${string}`;
   readonly displayName: string | null;
@@ -149,7 +149,7 @@ export function normalizeDisplayName(value: unknown): string | null {
   return displayName.length > 0 ? displayName : null;
 }
 
-export function buildAuthMessage(options: {
+function buildAuthMessage(options: {
   readonly walletAddress: `0x${string}`;
   readonly intent: AuthIntent;
   readonly nonce: string;

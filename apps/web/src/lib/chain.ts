@@ -12,7 +12,7 @@ export type BetConfirmation = {
   readonly normalizedAmount?: string;
 };
 
-export type MatchResolution = {
+type MatchResolution = {
   readonly matchId: string;
   readonly outcome: Outcome;
   readonly txHash: string;
@@ -24,7 +24,7 @@ const outcomeById: Record<number, Outcome> = {
   3: "AWAY"
 };
 
-export function getPublicClient() {
+function getPublicClient() {
   return createPublicClient({
     chain: appConfig.chainId === celo.id ? celo : celoSepolia,
     transport: http(appConfig.celoRpcUrl)
@@ -71,7 +71,7 @@ export async function confirmBetTransaction(txHash: `0x${string}`): Promise<BetC
   };
 }
 
-export async function listenForMatchResolved(txHash: `0x${string}`): Promise<MatchResolution | null> {
+async function listenForMatchResolved(txHash: `0x${string}`): Promise<MatchResolution | null> {
   if (!isContractConfigured()) {
     return null;
   }

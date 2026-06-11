@@ -1,4 +1,4 @@
-export const supportedLanguages = ["pt-BR", "en"] as const;
+const supportedLanguages = ["pt-BR", "en"] as const;
 export type Language = typeof supportedLanguages[number];
 
 export function getLanguageFromAccept(accept: string | null): Language {

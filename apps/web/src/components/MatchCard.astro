@@ -70,8 +70,11 @@ const kickoffTime = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: 
   data-confirmed={isConfirmed ? "true" : undefined}
   aria-describedby={statusId}
   aria-labelledby={`match-title-${match.id}`}
-  class:list={["match-card", featured && "match-card-featured", compact && "match-card-compact"]}
+  class:list={["match-card", featured && "match-card-featured", compact && "match-card-compact", "transition-transform", "duration-300", "hover:scale-[1.02]"]}
   transition:name={`match-card-${match.id}`}
+  hx-ext="sse"
+  sse-connect="/api/sse"
+  sse-swap={`MatchCard-${match.id}`}
 >
   <div class="match-card-body">
     <div class="flex items-center justify-between mb-4">

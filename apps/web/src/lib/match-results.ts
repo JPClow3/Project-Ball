@@ -42,7 +42,7 @@ function isMissingMatchResultsTable(error: unknown): boolean {
   );
 }
 
-export async function recordMatchResult(
+async function recordMatchResult(
   db: D1,
   matchId: string,
   outcome: Outcome,
@@ -73,7 +73,7 @@ export async function recordMatchResult(
   }
 }
 
-export async function getMatchResult(db: D1, matchId: string): Promise<MatchResult | null> {
+async function getMatchResult(db: D1, matchId: string): Promise<MatchResult | null> {
   if (!db) {
     return null;
   }

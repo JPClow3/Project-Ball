@@ -136,6 +136,19 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     const html = renderMatchCard(withUserPick(match, outcome));
+    
+    // Create a generic card without the specific user's pick for broadcast
+    const genericHtml = renderMatchCard(match);
+
+    import("@/lib/cache").then(({ deleteCache }) => {
+      deleteCache(`matchcard:html:${match.id}`);
+    }).catch(console.error);
+
+    // Dynamic import to avoid circular dependency
+    import("./sse").then(({ broadcastUpdate }) => {
+      // Broadcast the generic MatchCard to update odds/pool sizes for all users
+      broadcastUpdate({ type: "MatchCard", id: match.id, html: genericHtml });
+    }).catch(console.error);
 
     return new Response(html, {
       headers: {
