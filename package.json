@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.19.0",
   "scripts": {
     "build": "pnpm --filter @project-ball/shared build && pnpm --filter @project-ball/web build",
-    "clean": "node -e \"['apps/web/.astro', 'apps/web/node_modules/.vite', 'apps/web/dist', 'packages/shared/dist'].forEach(p => require('fs').rmSync(p, { recursive: true, force: true }))\"",
+    "clean": "node -e \"import('fs').then(fs => ['apps/web/.astro', 'apps/web/node_modules/.vite', 'apps/web/dist', 'packages/shared/dist'].forEach(p => fs.rmSync(p, { recursive: true, force: true })))\"",
     "deploy": "docker compose up -d --build",
     "check": "pnpm -r check",
     "dev": "pnpm --filter @project-ball/web dev",

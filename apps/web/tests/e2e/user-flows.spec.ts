@@ -22,7 +22,7 @@ test.describe("user journeys and edge cases", () => {
     await waitForProjectBall(page);
 
     const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
-    const confirmButton = firstCard.getByRole("button", { name: "Confirmar palpite" });
+    const confirmButton = firstCard.locator("[data-place-bet]");
     const customStake = firstCard.getByRole("spinbutton", { name: "Valor" });
 
     await firstCard.getByRole("radio", { name: "México vence" }).click();
@@ -85,7 +85,7 @@ test.describe("user journeys and edge cases", () => {
     await page.waitForTimeout(1700);
     await expect(firstCard.locator("[data-loading-card]")).toHaveAttribute("data-show-progress", "true");
     await expect(firstCard.locator(".loading-progress")).toBeVisible();
-    await expect(firstCard.getByRole("radio", { name: "México vence" })).toBeDisabled();
+    await expect(firstCard.locator("[data-place-bet]")).toBeDisabled();
     await expect(confirmButton).toBeDisabled();
 
     releaseConfirmation();

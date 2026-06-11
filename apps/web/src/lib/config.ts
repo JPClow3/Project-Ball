@@ -6,6 +6,15 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 const rawChainId = Number(import.meta.env.PUBLIC_CHAIN_ID ?? CELO_SEPOLIA.id);
 const validatedChainId = Number.isFinite(rawChainId) && rawChainId > 0 ? rawChainId : CELO_SEPOLIA.id;
 
+const VALID_CONFIGS = {
+  42220: { name: 'Celo Mainnet', rpc: 'https://forno.celo.org' },
+  11142220: { name: 'Celo Sepolia', rpc: 'https://forno.celo-sepolia.celo-testnet.org' },
+} as const;
+
+if (import.meta.env.PROD && !(validatedChainId in VALID_CONFIGS)) {
+  throw new Error(`CRITICAL: Chain ID ${validatedChainId} is not in the allowed VALID_CONFIGS!`);
+}
+
 export const appConfig = {
   appName: import.meta.env.PUBLIC_APP_NAME ?? "Project Ball",
   appUrl: import.meta.env.PUBLIC_APP_URL ?? "http://localhost:4321",

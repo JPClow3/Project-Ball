@@ -4,6 +4,9 @@
 [![MiniPay Optimized](https://img.shields.io/badge/Wallet-MiniPay-00E676?style=flat-square)](https://www.opera.com/products/minipay)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
+- **Live Demo:** [project-ball.vercel.app](https://project-ball.vercel.app)
+- **Smart Contract:** [Verified on Blockscout](https://celoscan.io/) *(Update with actual contract link)*
+
 Project Ball is a mobile-first football prediction decentralized application (dApp) specifically engineered for the Celo blockchain and Opera's MiniPay wallet. 
 
 The application is designed to behave like a fast, casual mobile web game rather than a complex DeFi protocol. Users can select match outcomes (win, draw, or away win) and stake stablecoins directly from their MiniPay wallet, with match outcomes verified on-chain and UI states updated instantly without page reloads.

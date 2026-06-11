@@ -12,15 +12,17 @@ To build a friendly, gaming-like interface for MiniPay users in Brazil, standard
 
 | Technical Concept | Approved Copy (PT-BR) | Avoid in UI |
 | :--- | :--- | :--- |
-| Gas / Network Fee | **Taxa de rede** | Gas, Gwei, Taxa Celo |
-| Stablecoin / USD | **Dólar digital** | Crypto, Stablecoin, Token, USD, cUSD |
-| Deposit | **Depositar** | Onramp, Funding, Transfer in |
-| Withdraw | **Sacar** | Offramp, Claim, Transfer out |
+| Gas / Network Fee | **Taxa de rede** | Gas, Gwei, Taxa Celo, fee |
+| Stablecoin / USD | **Dólar digital** | Crypto, Stablecoin, Token, USD, cUSD, USDT, USDC |
+| Deposit | **Adicionar fundos** | Onramp, Funding, Transfer in, Depositar |
+| Withdraw | **Sacar / Resgatar** | Offramp, Claim, Transfer out |
 | Place Bet / Predict | **Dar um palpite** | Apostar, Bet, Registrar hash |
 | Wallet Address | **Identidade / Perfil** | Endereço, Wallet Hash, Hex string |
+| Pending | **Enviando... / Confirmando na rede...** | Loading, Pending, tx sent |
 
 > [!WARNING]
 > Never display raw transaction hashes, hex keys, or solidity error strings directly to the user. Show human-readable explanations instead.
+> Example: Show "Saldo insuficiente para pagar a taxa da rede" instead of "insufficient funds for gas".
 
 ---
 

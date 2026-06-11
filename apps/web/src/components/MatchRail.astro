@@ -90,7 +90,6 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
             data-group-id={group.id}
           >
             <span>{group.label.replace("Grupo ", "")}</span>
-            <span class="text-xs text-[var(--muted)]">{group.matches.length}</span>
           </button>
         );
       })
@@ -138,13 +137,13 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
               {restMatches.map((match) => <MatchCard match={match} compact loading="lazy" />)}
             </div>
             <div class="filter-empty mt-4" data-filter-empty hidden>
-              <i class="fa-solid fa-filter-circle-xmark ui-icon text-[var(--gold)]" style="font-size: 24px;" aria-hidden="true"></i>
+              <i class="fa-solid fa-futbol ui-icon text-[var(--gold)]" style="font-size: 24px;" aria-hidden="true"></i>
               <div>
-                <h3 class="font-display text-xl font-bold text-[var(--text)]">Nenhuma partida encontrada</h3>
-                <p class="mt-2 text-sm font-medium text-[var(--muted)]">Este grupo não combina com o filtro atual.</p>
+                <h3 class="font-display text-xl font-bold text-[var(--text)]">Próximas partidas chegam em breve ⚽</h3>
+                <p class="mt-2 text-sm font-medium text-[var(--muted)]">Não há partidas abertas correspondentes no momento.</p>
               </div>
               <button class="btn-secondary focus-ring w-fit" type="button" data-filter-reset>
-                Limpar filtro
+                Ver todas as partidas
               </button>
             </div>
           </section>

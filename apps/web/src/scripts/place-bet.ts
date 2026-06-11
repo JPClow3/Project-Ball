@@ -515,6 +515,13 @@ function updateStakeError(card: HTMLElement, isInvalid: boolean): void {
 
 function syncBetForm(card: HTMLElement): void {
   const outcomeButton = card.querySelector<HTMLElement>('[data-select-outcome][aria-checked="true"]');
+  const stakeContainer = card.querySelector<HTMLElement>("[data-stake-container]");
+  if (stakeContainer) {
+    stakeContainer.style.opacity = outcomeButton ? "1" : "0.55";
+    stakeContainer.style.pointerEvents = outcomeButton ? "auto" : "none";
+    stakeContainer.style.transition = "opacity 160ms ease";
+    stakeContainer.hidden = false;
+  }
   const stake = selectedStakeValue(card);
   const submitButton = card.querySelector<HTMLButtonElement>("[data-place-bet]");
   const outcome = outcomeButton?.dataset.outcome as Outcome | undefined;
@@ -531,8 +538,8 @@ function syncBetForm(card: HTMLElement): void {
   submitButton.disabled = !isValid;
   submitButton.dataset.outcome = outcome ?? "";
   submitButton.innerHTML = isValid
-    ? `${iconSvg("send")}Confirmar palpite`
-    : `${iconSvg("circle-dot")}Confirmar palpite`;
+    ? "Confirmar palpite"
+    : "Escolha um palpite primeiro";
 }
 
 function selectOutcome(button: HTMLElement): void {
@@ -616,6 +623,70 @@ function applyAuthSession(session: AuthSessionResponse): void {
 
   for (const element of document.querySelectorAll<HTMLElement>("[data-auth-address]")) {
     element.textContent = label;
+  }
+
+  updateBalances(session.user.walletAddress).catch((e) => {
+    console.error("Failed to update balances:", e);
+  });
+}
+
+async function updateBalances(address: `0x${string}`) {
+  const provider = getProvider();
+  if (!provider) return;
+  const [{ createPublicClient, custom, formatUnits }, { celo, celoSepolia }] = await Promise.all([import("viem"), import("viem/chains")]);
+  const chain = chainId === celo.id ? celo : celoSepolia;
+  const publicClient = createPublicClient({ chain, transport: custom(provider) });
+  
+  const tokens = getAvailableStablecoins(chainId);
+  const erc20Abi = [
+    { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "account", type: "address" }], outputs: [{ name: "", type: "uint256" }] }
+  ] as const;
+
+  let highestBalance = 0;
+  let highestToken = tokens[0];
+
+  for (const token of tokens) {
+    const tokenAddress = getTokenAddress(token.symbol, chainId);
+    if (!tokenAddress) continue;
+    try {
+      const balance = await publicClient.readContract({
+        address: tokenAddress,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [address]
+      });
+      const formatted = Number(formatUnits(balance, token.decimals));
+      if (formatted >= highestBalance) {
+        highestBalance = formatted;
+        highestToken = token;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const balanceDisplay = document.querySelector<HTMLElement>("[data-balance-display]");
+  const balanceContainer = document.querySelector<HTMLElement>("[data-balance-container]");
+  const addFunds = document.querySelector<HTMLElement>("[data-add-funds]");
+
+  if (balanceDisplay) {
+    balanceDisplay.textContent = `$${highestBalance.toFixed(2)} ${highestToken.symbol}`;
+    try {
+      localStorage.setItem("preferred-stablecoin", highestToken.symbol);
+    } catch {}
+    
+    for (const badge of document.querySelectorAll<HTMLElement>("[data-preferred-token-badge]")) {
+      badge.textContent = highestToken.symbol;
+      badge.dataset.tokenSymbol = highestToken.symbol;
+    }
+  }
+
+  if (highestBalance === 0) {
+    if (balanceContainer) balanceContainer.hidden = true;
+    if (addFunds) addFunds.hidden = false;
+  } else {
+    if (balanceContainer) balanceContainer.hidden = false;
+    if (addFunds) addFunds.hidden = true;
   }
 }
 
@@ -724,7 +795,7 @@ function betErrorMessage(error: unknown): string {
   }
 
   if (/allowance|approve|aprova/.test(normalized)) {
-    return "A aprovação do token não foi concluída. Tente confirmar novamente.";
+    return "A aprovação do dólar digital não foi concluída. Tente confirmar novamente.";
   }
 
   if (/contrato celo não configurado|project_ball_pools_address|project ball pools address|not configured/.test(normalized)) {
@@ -981,9 +1052,10 @@ async function placeBet(options: {
   outcome: Outcome;
   tokenSymbol?: StablecoinSymbol;
   stakeUsd: string;
+  onTxSent?: () => void;
 }): Promise<string> {
   const provider = getProvider();
-  const { matchId, onchainMatchId, outcome, tokenSymbol, stakeUsd } = options;
+  const { matchId, onchainMatchId, outcome, tokenSymbol, stakeUsd, onTxSent } = options;
 
   if (provider?.isMiniPay && poolsAddress === emptyContractAddress) {
     await ensureCeloNetwork(provider);
@@ -992,6 +1064,7 @@ async function placeBet(options: {
   }
 
   if (!provider || poolsAddress === emptyContractAddress) {
+    if (onTxSent) onTxSent();
     return submitLocalConfirmation(matchId, outcome);
   }
 
@@ -1066,6 +1139,8 @@ async function placeBet(options: {
       data,
       feeCurrency: feeCurrency ?? undefined
     });
+
+    if (onTxSent) onTxSent();
 
     const response = await fetch("/api/confirm-bet", {
       method: "POST",
@@ -1523,7 +1598,7 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
 
   clearBetStatus(card);
   setBetControlsLocked(card, true);
-  betButton.innerHTML = `${iconSvg("loader-circle")}Confirmando`;
+  betButton.innerHTML = `${iconSvg("loader-circle")}Enviando...`;
 
   try {
     const html = await placeBet({
@@ -1531,7 +1606,12 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
       onchainMatchId: betButton.dataset.matchOnchainId ?? card?.dataset.matchOnchainId,
       outcome,
       tokenSymbol,
-      stakeUsd
+      stakeUsd,
+      onTxSent: () => {
+        if (betButton.isConnected) {
+          betButton.innerHTML = `${iconSvg("loader-circle")}Confirmando na rede...`;
+        }
+      }
     });
     replaceMatchCard(betButton, html);
     showToast("Palpite confirmado com sucesso.", "success");

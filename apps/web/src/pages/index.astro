@@ -37,12 +37,7 @@ const heroFlags = [
       .map(([code, country]) => [code, { code, country }])
   ).values()
 ].slice(0, 10);
-const scheduleVerifiedLabel = new Intl.DateTimeFormat("pt-BR", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  timeZone: tournamentConfig.displayTimeZone
-}).format(new Date(`${tournamentConfig.scheduleVerifiedAt}T12:00:00Z`));
+
 
 let session = null;
 let confirmedPicks: any[] = [];
@@ -65,102 +60,101 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
 />
 
 <AppLayout title={t("nav.picks")} isFluid={true}>
-  <section class="board-masthead matchday-hero" transition:name="page-hero">
-    <div class="app-shell board-masthead-inner matchday-hero-grid">
-      <div class="board-title-block matchday-copy">
-        <p class="matchday-stamp">
-          <span>{t("hero.kicker")}</span>
-          <strong>{tournamentConfig.name}</strong>
-        </p>
-        <h1 class="board-title">{t("hero.title")}</h1>
-        <p class="board-subtitle">
-          {t("hero.subtitle")}
-        </p>
-        <div class="hero-flag-strip" aria-hidden="true">
-          {heroFlags.map((flag) => (
-            <img
-              src={`https://flagcdn.com/w80/${flag.code}.png`}
-              alt={`Bandeira: ${flag.country}`}
-              width="30"
-              height="22"
-              loading="eager"
-              decoding="async"
-            />
-          ))}
+  <div class="app-shell mb-6">
+    <div class="relative overflow-hidden bg-[#0c1523] border border-[var(--glass-border,rgba(255,255,255,0.07))] rounded-2xl md:rounded-[24px]">
+      <svg class="absolute -right-[110px] -top-[90px] opacity-[0.055] pointer-events-none" width="440" height="380" viewBox="0 0 440 380" aria-hidden="true">
+        <circle cx="220" cy="180" r="170" stroke="white" stroke-width="1.5" fill="none"/>
+        <circle cx="220" cy="180" r="12" stroke="white" stroke-width="1.5" fill="none"/>
+        <line x1="50" y1="180" x2="390" y2="180" stroke="white" stroke-width="1"/>
+        <rect x="150" y="110" width="140" height="140" stroke="white" stroke-width="1" fill="none"/>
+        <rect x="175" y="135" width="90" height="90" stroke="white" stroke-width="1" fill="none"/>
+      </svg>
+
+      <div class="relative z-10 p-6 md:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
+        <div class="flex-1">
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="bg-[rgba(255,255,255,0.06)] text-[var(--muted)] text-[9px] px-2 py-1 rounded tracking-[0.6px] uppercase font-bold">Project Ball</span>
+            <span class="bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_22%,transparent)] text-[var(--green)] text-[9px] px-2 py-1 rounded tracking-[0.6px] uppercase font-bold">{tournamentConfig.name}</span>
+          </div>
+
+          <h1 class="text-3xl md:text-4xl lg:text-[42px] font-normal text-white leading-tight mb-3">
+            Football without <br class="hidden sm:block" /><span class="text-[var(--green)] font-semibold">the fluff.</span>
+          </h1>
+
+          <p class="text-[var(--muted)] text-sm leading-relaxed mb-6 max-w-[340px]">
+            {t("hero.subtitle")}
+          </p>
+
+          <div class="flex flex-wrap gap-1.5 mb-6 text-xl">
+            {heroFlags.slice(0, 10).map((flag) => (
+              <img
+                src={`https://flagcdn.com/w80/${flag.code}.png`}
+                alt={`Bandeira: ${flag.country}`}
+                class="w-6 h-auto rounded-[2px]"
+                loading="eager"
+                decoding="async"
+              />
+            ))}
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-4 py-2.5 min-w-[80px]">
+              <div class="text-[var(--text)] text-2xl font-bold leading-none mb-1">{matches.length}</div>
+              <div class="text-[var(--muted-strong)] text-[9px] tracking-wider uppercase font-medium">{t("hero.matches")}</div>
+            </div>
+            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-4 py-2.5 min-w-[80px]">
+              <div class="text-[var(--text)] text-2xl font-bold leading-none mb-1">{groupCount}</div>
+              <div class="text-[var(--muted-strong)] text-[9px] tracking-wider uppercase font-medium">{t("hero.groups")}</div>
+            </div>
+            <div class="bg-[color-mix(in_srgb,var(--green)_6%,transparent)] border border-[color-mix(in_srgb,var(--green)_18%,transparent)] rounded-xl px-4 py-2.5 min-w-[100px]">
+              <div class="text-[var(--green)] text-2xl font-bold leading-none mb-1">{countdownLabel}</div>
+              <div class="text-[var(--green)] opacity-70 text-[9px] tracking-wider uppercase font-medium">Para fechar</div>
+            </div>
+          </div>
         </div>
-        <div class="hero-command-row" aria-label="Resumo das partidas">
-          <span><strong>{matches.length}</strong> {t("hero.matches")}</span>
-          <span><strong>{groupCount}</strong> {t("hero.groups")}</span>
-          <span><strong>{countdownLabel}</strong> {t("hero.untilLock")}</span>
-        </div>
+
+        {nextMatch && (
+          <div class="w-full lg:w-[260px] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-4 flex-shrink-0">
+            <div class="flex justify-between items-center mb-4">
+              <span class="text-[var(--muted-strong)] text-[9px] tracking-wider font-semibold uppercase">{t("ticket.nextMatch")}</span>
+              <span class="bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_25%,transparent)] text-[var(--green)] text-[9px] font-bold px-2.5 py-1 rounded-full">{countdownLabel}</span>
+            </div>
+            
+            <div class="flex items-center justify-between mb-4 px-2">
+              <div class="text-center flex flex-col items-center">
+                {nextHomeFlag && <img src={nextHomeFlag} alt={nextMatch.homeCountry} class="w-8 h-auto mb-1.5 rounded-[2px]" />}
+                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[60px] truncate">{nextMatch.homeTeam}</div>
+              </div>
+              <div class="text-[var(--muted-strong)] text-xs font-bold px-2">VS</div>
+              <div class="text-center flex flex-col items-center">
+                {nextAwayFlag && <img src={nextAwayFlag} alt={nextMatch.awayCountry} class="w-8 h-auto mb-1.5 rounded-[2px]" />}
+                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[60px] truncate">{nextMatch.awayTeam}</div>
+              </div>
+            </div>
+
+            <div class="border-t border-[rgba(255,255,255,0.06)] pt-3">
+              <div class="text-[var(--muted-strong)] text-[10px] mb-0.5">{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : t("ticket.pending")}</div>
+              <div class="text-[var(--muted)] text-[10px] mb-3 truncate">{nextMatch.venue}</div>
+              
+              <div class="grid grid-cols-3 gap-1">
+                <div class="bg-[color-mix(in_srgb,#3b82f6_10%,transparent)] border border-[color-mix(in_srgb,#3b82f6_28%,transparent)] rounded-lg py-1.5 px-1 text-center">
+                  <div class="text-[#93c5fd] text-[9px] font-semibold truncate">{nextMatch.homeTeam}</div>
+                </div>
+                <div class="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] rounded-lg py-1.5 px-1 text-center">
+                  <div class="text-[var(--muted-strong)] text-[9px] truncate">{t("ticket.draw")}</div>
+                </div>
+                <div class="bg-[color-mix(in_srgb,#06b6d4_10%,transparent)] border border-[color-mix(in_srgb,#06b6d4_28%,transparent)] rounded-lg py-1.5 px-1 text-center">
+                  <div class="text-[#67e8f9] text-[9px] font-semibold truncate">{nextMatch.awayTeam}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <aside class="matchday-ticket" aria-label={t("ticket.nextMatch")}>
-        <div class="ticket-topbar">
-          <span>{t("ticket.nextMatch")}</span>
-          <strong>{countdownLabel}</strong>
-        </div>
-        {
-          nextMatch && (
-            <div class="ticket-fixture">
-              <div class="ticket-team">
-                {nextHomeFlag && (
-                  <img
-                    src={nextHomeFlag}
-                    alt=""
-                    aria-hidden="true"
-                    width="34"
-                    height="24"
-                    loading="eager"
-                    decoding="async"
-                    fetchpriority="high"
-                  />
-                )}
-                <strong>{nextMatch.homeTeam}</strong>
-                <span>{nextMatch.homeCountry}</span>
-              </div>
-              <span class="ticket-versus">vs</span>
-              <div class="ticket-team">
-                {nextAwayFlag && (
-                  <img
-                    src={nextAwayFlag}
-                    alt=""
-                    aria-hidden="true"
-                    width="34"
-                    height="24"
-                    loading="eager"
-                    decoding="async"
-                    fetchpriority="high"
-                  />
-                )}
-                <strong>{nextMatch.awayTeam}</strong>
-                <span>{nextMatch.awayCountry}</span>
-              </div>
-            </div>
-          )
-        }
-        <div class="ticket-meta-grid">
-          <span>
-            <small>{t("ticket.lock")}</small>
-            <strong>{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : t("ticket.pending")}</strong>
-          </span>
-          <span>
-            <small>{t("ticket.schedule")}</small>
-            <strong>{scheduleVerifiedLabel}</strong>
-          </span>
-        </div>
-        {
-          nextMatch && (
-            <div class="ticket-market-line" aria-hidden="true">
-              <span>{nextMatch.homeTeam}</span>
-              <span>{t("ticket.draw")}</span>
-              <span>{nextMatch.awayTeam}</span>
-            </div>
-          )
-        }
-      </aside>
+      <div class="h-1 bg-[var(--green)] w-full"></div>
     </div>
-  </section>
+  </div>
 
   <MatchRail matches={matchBoard} />
 </AppLayout>

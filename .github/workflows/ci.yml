@@ -63,3 +63,13 @@ jobs:
 
       - name: Test
         run: forge test -vvv
+
+      - name: Coverage
+        run: |
+          forge coverage --report summary
+          # Enforce basic 90% threshold for line coverage
+          LINE_COV=$(forge coverage --report summary | grep "Total" | grep -oP '\d+\.\d+(?=%)' | head -1)
+          if [ $(echo "$LINE_COV < 90.0" | bc) -eq 1 ]; then
+            echo "Coverage $LINE_COV% is below 90% threshold!"
+            exit 1
+          fi

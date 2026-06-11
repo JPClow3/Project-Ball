@@ -7,9 +7,9 @@ export const outcomeLabels: Record<Outcome, string> = {
 };
 
 export const outcomeColors: Record<Outcome, string> = {
-  HOME: "bg-[var(--green)]",
-  DRAW: "bg-[var(--gold)]",
-  AWAY: "bg-[var(--cyan)]"
+  HOME: "bg-[#2563eb]",
+  DRAW: "bg-[#7e22ce]",
+  AWAY: "bg-[#0891b2]"
 };
 
 export const outcomeOnchainCodes: Record<Outcome, number> = {

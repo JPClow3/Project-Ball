@@ -4,7 +4,7 @@ import { CELO_SEPOLIA } from "@project-ball/shared";
 test("mobile home renders match cards and local confirmation flow", async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await expect(page.getByRole("heading", { name: "Futebol sem enrolação." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Football without.*the fluff\./ })).toBeVisible();
   await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
   await expect
     .poll(() => page.evaluate(() => typeof (window as Window & { htmx?: { swap?: unknown } }).htmx?.swap))
@@ -12,19 +12,19 @@ test("mobile home renders match cards and local confirmation flow", async ({ pag
 
   const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
   await expect(firstCard).toContainText("México x África do Sul");
-  await expect(firstCard).toContainText("USDC padrão");
+  await expect(firstCard).toContainText("Valor USDC");
   await expect(firstCard.locator("[data-select-token]")).toHaveCount(0);
   await expect(firstCard.getByAltText("Bandeira: México")).toBeVisible();
   await expect(firstCard.getByAltText("Bandeira: África do Sul")).toBeVisible();
-  await expect(firstCard.getByRole("button", { name: "Confirmar palpite" })).toBeDisabled();
+  await expect(firstCard.locator("[data-place-bet]")).toBeDisabled();
   await firstCard.getByRole("radio", { name: "México vence" }).click();
   await expect(firstCard).not.toContainText("Palpite registrado");
-  await expect(firstCard.getByRole("button", { name: "Confirmar palpite" })).toBeEnabled();
+  await expect(firstCard.locator("[data-place-bet]")).toBeEnabled();
   const confirmationResponse = page.waitForResponse(
     (response) => response.url().includes("/api/confirm-bet") && response.status() === 200,
     { timeout: 60_000 }
   );
-  await firstCard.getByRole("button", { name: "Confirmar palpite" }).click();
+  await firstCard.locator("[data-place-bet]").click();
   await confirmationResponse;
   await expect(firstCard).toContainText("Palpite registrado", { timeout: 60_000 });
   await expect(firstCard).toContainText("México vence");
@@ -50,7 +50,7 @@ test("failed bet shows inline status and toast", async ({ page }) => {
 
   const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
   await firstCard.getByRole("radio", { name: "México vence" }).click();
-  await firstCard.getByRole("button", { name: "Confirmar palpite" }).click();
+  await firstCard.locator("[data-place-bet]").click();
 
   await expect(firstCard.locator("[data-bet-status]")).toContainText("Falha de rede");
   await expect(page.locator("[data-toast]").filter({ hasText: "Falha de rede" })).toBeVisible();
@@ -63,15 +63,15 @@ test("offline bet attempt shows a visible retry path", async ({ page }) => {
 
   const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
   await firstCard.getByRole("radio", { name: "México vence" }).click();
-  await expect(firstCard.getByRole("button", { name: "Confirmar palpite" })).toBeEnabled();
+  await expect(firstCard.locator("[data-place-bet]")).toBeEnabled();
 
   await page.context().setOffline(true);
   await page.evaluate(() => window.dispatchEvent(new Event("offline")));
-  await firstCard.getByRole("button", { name: "Confirmar palpite" }).click();
+  await firstCard.locator("[data-place-bet]").click();
 
   await expect(firstCard.locator("[data-bet-status]")).toContainText("Sem conexão");
   await expect(page.locator("[data-toast]").filter({ hasText: "Verifique a rede" })).toBeVisible();
-  await expect(firstCard.getByRole("button", { name: "Confirmar palpite" })).toBeEnabled();
+  await expect(firstCard.locator("[data-place-bet]")).toBeEnabled();
 
   await page.context().setOffline(false);
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
@@ -120,7 +120,7 @@ test("home and match cards render in both themes", async ({ page }) => {
     await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
 
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe(theme);
-    await expect(page.getByRole("heading", { name: "Futebol sem enrolação." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Football without.*the fluff\./ })).toBeVisible();
 
     const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
     await expect(firstCard).toBeVisible();

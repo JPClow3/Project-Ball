@@ -57,6 +57,7 @@ const outcomeCopy: Record<Outcome, { label: string; helper: string; flagCode?: s
           data-state={isSelected ? "selected" : "idle"}
           tabindex={isFocusable ? 0 : -1}
           disabled={disabled}
+          style="min-height: 48px; min-width: 48px;"
         >
           {
             copy.flagCode ? (

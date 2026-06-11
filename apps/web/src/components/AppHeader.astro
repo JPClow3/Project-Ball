@@ -13,69 +13,85 @@ const navItems = [
 const pathname = Astro.url.pathname;
 ---
 
-<header class="app-shell sticky top-0 z-40 pt-4" transition:name="app-header" transition:persist>
-  <div class="glass-panel nav-shell">
-    <a class="brand-link focus-ring" href="/" aria-label="Project Ball">
-      <span class="brand-mark" aria-hidden="true">J</span>
-      <div class="min-w-0">
-        <p class="text-[0.68rem] font-semibold uppercase text-[var(--gold)]">MiniPay</p>
-        <p class="font-display truncate text-base font-bold leading-none text-[var(--text)]">Project Ball</p>
+<header class="app-shell sticky top-0 z-40 pt-4" style="padding-top: max(1rem, env(safe-area-inset-top));" transition:name="app-header" transition:persist>
+  <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--line-strong)] bg-[var(--surface-glass)] backdrop-blur-md rounded-2xl mb-4">
+    <a class="flex items-center gap-2 focus-ring rounded-lg py-1.5" href="/" aria-label="Project Ball">
+      <svg viewBox="0 0 60 60" width="26" height="26" aria-hidden="true">
+        <circle cx="30" cy="30" r="24" fill="#00d084"/>
+        <polygon points="30,21 38.6,27.2 35.3,37.3 24.7,37.3 21.4,27.2" fill="#031a0d"/>
+        <line x1="30" y1="21" x2="30" y2="8" stroke="#031a0d" stroke-width="3" stroke-linecap="round"/>
+        <line x1="38.6" y1="27.2" x2="51" y2="23" stroke="#031a0d" stroke-width="3" stroke-linecap="round"/>
+        <line x1="35.3" y1="37.3" x2="43" y2="48" stroke="#031a0d" stroke-width="3" stroke-linecap="round"/>
+        <line x1="24.7" y1="37.3" x2="17" y2="48" stroke="#031a0d" stroke-width="3" stroke-linecap="round"/>
+        <line x1="21.4" y1="27.2" x2="9" y2="23" stroke="#031a0d" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div class="leading-tight">
+        <div class="text-[var(--text)] text-[13px] font-medium">Project Ball</div>
+        <div class="text-[var(--muted-strong)] text-[9px] tracking-wider uppercase">MiniPay</div>
       </div>
     </a>
 
-    <nav class="desktop-nav hide-scrollbar min-w-0 flex-1 justify-end gap-2 overflow-x-auto" aria-label="Principal">
-      {
-        navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <a
-              class="nav-link focus-ring"
-              href={item.href}
-              aria-current={isActive ? "page" : undefined}
-              data-nav-link
-            >
-              <i class={`${item.icon} ui-icon`} style="font-size: 16px;" aria-hidden="true"></i>
-              {item.label}
-            </a>
-          );
-        })
-      }
-    </nav>
-    <div class="flex shrink-0 items-center gap-2">
+    <div class="flex items-center gap-1">
+      <nav class="hidden md:flex items-center gap-1 mr-2" aria-label="Principal">
+        {
+          navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <a
+                class:list={[
+                  "text-[11px] px-2.5 py-1.5 focus-ring rounded-lg transition-colors",
+                  isActive ? "text-[var(--green)] border-b-2 border-[var(--green)]" : "text-[var(--muted)] hover:text-[var(--text)]"
+                ]}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                data-nav-link
+              >
+                {item.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+
       <button
-        class="icon-button focus-ring"
+        class="icon-button focus-ring !w-10 !h-10 hidden md:flex"
         type="button"
         aria-label="Usar modo claro"
         title="Usar modo claro"
         data-theme-toggle
       >
-        <i class="fa-solid fa-sun ui-icon" style="font-size: 16px;" aria-hidden="true" data-theme-icon="light"></i>
-        <i class="fa-solid fa-moon ui-icon" style="font-size: 16px;" aria-hidden="true" data-theme-icon="dark"></i>
+        <i class="fa-solid fa-sun ui-icon" style="font-size: 14px;" aria-hidden="true" data-theme-icon="light"></i>
+        <i class="fa-solid fa-moon ui-icon" style="font-size: 14px;" aria-hidden="true" data-theme-icon="dark"></i>
       </button>
-      <div class="flex items-center gap-2" data-auth-guest>
+
+      <div class="flex items-center" data-auth-guest>
         <a
-          class="btn-secondary focus-ring min-h-10 px-4 text-[var(--green)]"
+          class="ml-2 bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_30%,transparent)] rounded-lg px-3.5 py-2 min-h-[36px] text-[11px] font-semibold text-[var(--green)] focus-ring transition-colors hover:bg-[color-mix(in_srgb,var(--green)_15%,transparent)]"
           href="/login"
         >
-          <i class="fa-solid fa-right-to-bracket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
           {t("nav.login")}
         </a>
       </div>
+      
       <div class="flex items-center gap-2" data-auth-user hidden>
+        <!-- Balance Display -->
+        <div class="hidden items-center md:flex" data-balance-container>
+          <span class="text-xs font-bold text-[var(--text)] mr-1" data-balance-display>...</span>
+        </div>
+        
         <a
-          class="btn-secondary focus-ring min-h-10 max-w-32 px-4 text-[var(--green)]"
+          class="btn-secondary focus-ring !h-10 !px-3 !text-[11px]"
           href="/meus-palpites"
         >
-          <i class="fa-solid fa-circle-check ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          <span class="truncate" data-auth-address>{t("nav.wallet")}</span>
+          <span class="truncate max-w-20" data-auth-address>{t("nav.wallet")}</span>
         </a>
         <button
-          class="icon-button focus-ring"
+          class="icon-button focus-ring !w-10 !h-10"
           type="button"
           aria-label="Sair"
           data-auth-logout
         >
-          <i class="fa-solid fa-right-from-bracket ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+          <i class="fa-solid fa-right-from-bracket ui-icon" style="font-size: 14px;" aria-hidden="true"></i>
         </button>
       </div>
     </div>

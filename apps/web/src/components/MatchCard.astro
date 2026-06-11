@@ -1,7 +1,7 @@
 ---
-import { formatKickoff, formatUsd } from "../lib/format";
+import { formatUsd } from "../lib/format";
 import type { MatchViewModel } from "../data/matches";
-import { defaultStakeUsd, getOutcomePoolShares } from "../data/betting";
+import { getOutcomePoolShares } from "../data/betting";
 import { getDefaultStablecoin } from "../lib/tokens";
 import OutcomePicker from "./OutcomePicker.astro";
 import StakeStepper from "./StakeStepper.astro";
@@ -32,18 +32,6 @@ const displayedPoolShares = poolShares.map((item, index) => ({
 const isConfirmed = Boolean(match.userPick);
 const isLocked = match.status !== "open";
 const controlsDisabled = isLocked || isConfirmed;
-const statusLabel = isConfirmed
-  ? "Confirmado"
-  : match.status === "open"
-    ? "Aberto"
-    : match.status === "locked"
-      ? "Travado"
-      : match.status;
-const statusIconClass = isConfirmed
-  ? "fa-solid fa-circle-check"
-  : match.status === "open"
-    ? "fa-solid fa-circle-dot"
-    : "fa-solid fa-lock";
 const statusClass = match.status === "open" && !isConfirmed ? "status-pill--open" : "status-pill--locked";
 const homeFlagUrl = match.homeFlagCode ? `https://flagcdn.com/w80/${match.homeFlagCode}.png` : "";
 const awayFlagUrl = match.awayFlagCode ? `https://flagcdn.com/w80/${match.awayFlagCode}.png` : "";
@@ -58,6 +46,10 @@ const selectedResultText =
       : match.userPick === "AWAY"
         ? `${match.awayTeam} vence`
         : "";
+
+const kickoffDate = new Date(match.kickoffIso);
+const kickoffWeekday = new Intl.DateTimeFormat("pt-BR", { weekday: "short" }).format(kickoffDate);
+const kickoffTime = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(kickoffDate);
 ---
 
 <article
@@ -79,75 +71,67 @@ const selectedResultText =
   transition:name={`match-card-${match.id}`}
 >
   <div class="match-card-body">
-    <div class="match-topline">
-      <div class="min-w-0">
-        <p class="match-label">{match.groupLabel}</p>
-        <h2 id={`match-title-${match.id}`} class="sr-only">{cardTitle}</h2>
-        <p class="mt-2 truncate text-xs font-semibold uppercase text-[var(--muted)]">{defaultToken.label} padrão - {match.competition}</p>
+    <div class="flex items-center justify-between mb-4">
+      <div class="bg-[var(--surface-muted)] px-3 py-1 rounded-full text-xs font-bold text-[var(--muted-strong)] uppercase tracking-wider">
+        {match.groupLabel}
       </div>
       <span class:list={["status-pill", statusClass]}>
-        <i class={`${statusIconClass} ui-icon`} style="font-size: 16px;" aria-hidden="true"></i>
-        {statusLabel}
+        <i class="fa-solid fa-circle text-[var(--green)] ui-icon" style="font-size: 8px;" aria-hidden="true"></i>
+        Aberto
       </span>
     </div>
+    <h2 id={`match-title-${match.id}`} class="sr-only">{cardTitle}</h2>
 
     <div class="teams-line" role="group" aria-label={cardTitle}>
       <div class="team-block">
-        {homeFlagUrl && <img class="flag-img" src={homeFlagUrl} alt={`Bandeira: ${match.homeCountry}`} width="80" height="60" loading={loading} decoding="async" />}
+        {homeFlagUrl && <img class="flag-img" src={homeFlagUrl} alt={`Bandeira: ${match.homeCountry}`} width="48" height="36" loading={loading} decoding="async" />}
         <p class="team-name">{match.homeTeam}</p>
       </div>
-      <span class="versus-pill" aria-hidden="true">x</span>
+      
+      <div class="flex flex-col items-center justify-center -mt-2">
+        <span class="text-xs font-semibold text-[var(--muted)]">{kickoffWeekday}</span>
+        <span class="text-xl font-black text-[var(--text)] leading-none my-1">{kickoffTime}</span>
+        <span class="text-[10px] font-bold text-[var(--muted-strong)]">BRT</span>
+      </div>
+
       <div class="team-block team-block--away">
-        {awayFlagUrl && <img class="flag-img ml-auto" src={awayFlagUrl} alt={`Bandeira: ${match.awayCountry}`} width="80" height="60" loading={loading} decoding="async" />}
+        {awayFlagUrl && <img class="flag-img ml-auto" src={awayFlagUrl} alt={`Bandeira: ${match.awayCountry}`} width="48" height="36" loading={loading} decoding="async" />}
         <p class="team-name">{match.awayTeam}</p>
       </div>
     </div>
 
-    <p class="match-meta-row">
-      <span>
-        <i class="fa-solid fa-clock text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-        {formatKickoff(match.kickoffIso)}
-      </span>
-      <span class="min-w-0">
-        <i class="fa-solid fa-map-pin text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-        <span class="truncate">{match.venue}</span>
-      </span>
-    </p>
 
-    <div class="match-finance-row" role="group" aria-label="Resumo do pote">
-      <div class="finance-stat">
-        <p class="finance-label">
-          <i class="fa-solid fa-coins text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          Pote agora
-        </p>
-        <p class="finance-value text-[var(--green)]">{formatUsd(match.poolUsd)}</p>
-      </div>
-      <div class="finance-stat">
-        <p class="finance-label justify-end">
-          <i class="fa-solid fa-circle-dollar-to-slot text-[var(--cyan)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-          Valor padrão
-        </p>
-        <p class="finance-value">{formatUsd(defaultStakeUsd)}</p>
-      </div>
-    </div>
 
-    <div class="pool-stack">
-      <div class="pool-label-row">
-        <span>{match.supporterCount.toLocaleString("pt-BR")} palpites</span>
-        <span>Divisão do pote</span>
+    <div class="pool-stack mt-4">
+      <div class="flex items-end justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs font-semibold text-[var(--muted-strong)]">{Number(match.poolUsd) > 0 ? "Pote agora" : `${match.supporterCount.toLocaleString("pt-BR")} palpites`}</span>
+          {Number(match.poolUsd) > 0 && <span class="text-xl font-bold text-[var(--green)]">{formatUsd(match.poolUsd)}</span>}
+        </div>
+        <div class="flex flex-col items-end">
+          <span class="text-xs font-semibold text-[var(--muted-strong)]">{Number(match.poolUsd) > 0 ? "Valor padrão" : "Divisão do pote"}</span>
+          {Number(match.poolUsd) > 0 && <span class="text-xl font-bold text-[var(--text)]">{formatUsd(5)}</span>}
+        </div>
       </div>
-      <div class="pool-track" aria-hidden="true">
-        {displayedPoolShares.map((item) => <span class:list={["pool-fill", item.color]} style={`width: ${item.barShare}%`}></span>)}
-      </div>
-      <div class="pool-legend">
-        {
-          poolShares.map((item) => (
-            <p class="pool-legend-item">
-              <strong>{item.share}%</strong> {item.label}
-            </p>
-          ))
-        }
-      </div>
+      
+      {Number(match.poolUsd) > 0 && (
+        <>
+          <div class="pool-track mt-2" aria-hidden="true">
+            {displayedPoolShares.map((item) => <span class:list={["pool-fill", item.color]} style={`width: ${item.barShare}%`}></span>)}
+          </div>
+          <div class="pool-legend">
+            {poolShares.map((item) => {
+              const cssColor = item.color.match(/\[(.*?)\]/)?.[1] || "var(--text)";
+              const styleStr = cssColor.startsWith("--") ? `color: var(${cssColor})` : `color: ${cssColor}`;
+              return (
+                <p class="pool-legend-item">
+                  <strong style={styleStr}>{item.share}%</strong> <span style={styleStr}>{item.label}</span>
+                </p>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
 
     <form
@@ -157,10 +141,12 @@ const selectedResultText =
       <input type="hidden" name="matchId" value={match.id} />
 
       <div class="grid gap-2">
-        <div class="flex items-center justify-between gap-2">
-          <p class="text-sm font-semibold text-[var(--text)]">Seu palpite</p>
-          {isConfirmed && <p class="text-xs font-semibold uppercase text-[var(--green)]">Registrado</p>}
-        </div>
+        {isConfirmed ? (
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-semibold text-[var(--text)]">Seu palpite</p>
+            <p class="text-xs font-semibold uppercase text-[var(--green)]">Registrado</p>
+          </div>
+        ) : null}
         <OutcomePicker
           matchId={match.id}
           homeTeam={match.homeTeam}
@@ -177,8 +163,11 @@ const selectedResultText =
       {
         match.status === "open" && !isConfirmed ? (
           <>
-            <div class="grid gap-2">
-              <label class="text-sm font-semibold text-[var(--text)]" for={`custom-stake-${match.id}`}>Valor</label>
+            <div class="grid gap-2" data-stake-container hidden>
+              <div class="flex items-center justify-between">
+                <label class="text-sm font-semibold text-[var(--text)]" for={`custom-stake-${match.id}`}>Valor</label>
+                <span class="text-xs font-bold bg-[var(--surface-variant)] px-2 py-1 rounded-md text-[var(--text)]" data-preferred-token-badge>{defaultToken.symbol}</span>
+              </div>
               <StakeStepper id={`custom-stake-${match.id}`} />
             </div>
             <button
@@ -190,8 +179,7 @@ const selectedResultText =
               data-match-onchain-id={match.onchainId}
               data-outcome=""
             >
-              <i class="fa-solid fa-circle-dot text-[var(--muted)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-              Confirmar palpite
+              Escolha um palpite primeiro
             </button>
           </>
         ) : isConfirmed ? (
@@ -204,13 +192,31 @@ const selectedResultText =
               {selectedResultText}. A partida libera saque, reembolso ou liquidação quando o resultado for confirmado.
             </p>
           </div>
-        ) : (
+        ) : match.status === "locked" ? (
           <div class="locked-panel">
             <p class="flex items-center gap-2 text-sm font-bold text-[var(--text)]">
-              <i class="fa-solid fa-lock text-[var(--gold)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
-              Palpites encerrados
+              <i class="fa-solid fa-lock text-[var(--gold)] ui-icon fa-fade" style="font-size: 16px;" aria-hidden="true"></i>
+              Aguardando resultado
             </p>
             <p class="text-sm font-medium text-[var(--muted)]">Esta partida não aceita novos palpites neste momento.</p>
+          </div>
+        ) : (
+          <div class="locked-panel" style="border-left: 4px solid var(--green);">
+            <p class="flex items-center gap-2 text-sm font-bold text-[var(--text)]">
+              <i class="fa-solid fa-flag-checkered text-[var(--green)] ui-icon" style="font-size: 16px;" aria-hidden="true"></i>
+              Resultado confirmado
+            </p>
+            <p class="mt-2 text-sm font-medium text-[var(--text)]">
+              Você ganhou aprox. $0.00 (em dólares digitais mistos).
+            </p>
+            <div class="flex items-center gap-2 mt-2 mb-4">
+              <span class="text-xs bg-[var(--surface-variant)] px-2 py-1 rounded text-[var(--muted)]">USDm</span>
+              <span class="text-xs bg-[var(--surface-variant)] px-2 py-1 rounded text-[var(--muted)]">USDC</span>
+              <span class="text-xs bg-[var(--surface-variant)] px-2 py-1 rounded text-[var(--muted)]">USDT</span>
+            </div>
+            <button class="btn-primary focus-ring w-full" type="button" disabled>
+              Resgatar prêmio
+            </button>
           </div>
         )
       }
