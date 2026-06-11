@@ -61,3 +61,13 @@ sequenceDiagram
    Instead of performing swaps (which introduce oracle/slippage issues), winners claim a **proportional basket** of the actual tokens held in the pool:
    $$\text{payout}_{token} = \frac{\text{poolBalance}_{token} \times \text{userNormalized}}{\text{winnerNormalized}}$$
    This means that if a pool has $100$ USDC and $100$ USDT, and a winner owns $10\%$ of the winning shares, they claim $10$ USDC and $10$ USDT.
+
+---
+
+## 🏆 Leaderboard & Caching Architecture
+
+To prevent severe database bottlenecks and maintain fast page loads, the global leaderboard is decoupled from real-time individual user queries:
+
+1. **Denormalized Cache Table:** Ranks, bet counts, and scores are persisted in the `user_leaderboard` table.
+2. **O(1) Bulk Aggregation:** A secured backend endpoint (`POST /api/leaderboard/refresh`) performs a single bulk query of all bet confirmations and computes user accuracy and estimated winnings completely in-memory. This solves N+1 query limits on D1/PostgreSQL.
+3. **Whale Mitigation:** To prevent massive single-bet winners ("whales") from destroying the competitive ranking curve, total winnings are scaled logarithmically (`Math.log10(totalWonUsd + 1)`) before being normalized against the top earner. The final combined score is a weighted average of accuracy (60%) and the normalized log-winnings (40%).

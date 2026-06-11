@@ -37,16 +37,17 @@ const errorId = `${id}-error`;
 
     <input
       id={id}
-      class="form-control focus-ring w-20 text-center text-sm"
+      class="form-control focus-ring w-16 sm:w-20 md:w-24 text-center text-sm"
       type="number"
       min={String(minimumStakeUsd)}
       step={String(stakeStepUsd)}
       value={String(selectedStake)}
       inputmode="decimal"
+      placeholder={String(defaultStakeUsd)}
       aria-describedby={errorId}
       aria-invalid="false"
       data-custom-stake
     />
   </div>
-  <p id={errorId} class="field-error" data-stake-error hidden>Informe pelo menos ${minimumStakeUsd}.</p>
+  <p id={errorId} class="field-error" data-stake-error hidden>Mínimo: ${minimumStakeUsd}</p>
 </div>

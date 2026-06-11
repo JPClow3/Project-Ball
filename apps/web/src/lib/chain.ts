@@ -12,6 +12,12 @@ export type BetConfirmation = {
   readonly normalizedAmount?: string;
 };
 
+export type MatchResolution = {
+  readonly matchId: string;
+  readonly outcome: Outcome;
+  readonly txHash: string;
+};
+
 const outcomeById: Record<number, Outcome> = {
   1: "HOME",
   2: "DRAW",
@@ -62,5 +68,42 @@ export async function confirmBetTransaction(txHash: `0x${string}`): Promise<BetC
     token: betLog.args.token,
     amount: betLog.args.amount.toString(),
     normalizedAmount: betLog.args.normalizedAmount.toString()
+  };
+}
+
+export async function listenForMatchResolved(txHash: `0x${string}`): Promise<MatchResolution | null> {
+  if (!isContractConfigured()) {
+    return null;
+  }
+
+  const client = getPublicClient();
+  const receipt = await client.waitForTransactionReceipt({
+    hash: txHash,
+    timeout: 20_000 // 20 s
+  });
+
+  if (receipt.status !== "success") {
+    return null;
+  }
+
+  const logs = parseEventLogs({
+    abi: projectBallPoolsAbi,
+    logs: receipt.logs,
+    eventName: "MatchResolved"
+  });
+
+  const resolveLog = logs.find((log) => log.address.toLowerCase() === appConfig.poolsAddress.toLowerCase());
+
+  if (!resolveLog) {
+    return null;
+  }
+
+  const matchId = hexToString(resolveLog.args.matchId).replace(/\0+$/g, "");
+  const outcomeId = Number(resolveLog.args.result);
+
+  return {
+    matchId,
+    outcome: outcomeById[outcomeId],
+    txHash
   };
 }

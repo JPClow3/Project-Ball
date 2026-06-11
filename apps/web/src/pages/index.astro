@@ -23,8 +23,8 @@ const countdownLabel = hoursUntilNext >= 48
   : hoursUntilNext > 0
     ? `${hoursUntilNext} ${t("hero.hours")}`
     : t("hero.live");
-const nextHomeFlag = nextMatch?.homeFlagCode ? `https://flagcdn.com/w80/${nextMatch.homeFlagCode}.png` : "";
-const nextAwayFlag = nextMatch?.awayFlagCode ? `https://flagcdn.com/w80/${nextMatch.awayFlagCode}.png` : "";
+const nextHomeFlag = nextMatch?.homeFlagCode ? `https://flagcdn.com/w40/${nextMatch.homeFlagCode}.png` : "";
+const nextAwayFlag = nextMatch?.awayFlagCode ? `https://flagcdn.com/w40/${nextMatch.awayFlagCode}.png` : "";
 const heroFlags = [
   ...new Map(
     matches
@@ -70,45 +70,45 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
         <rect x="175" y="135" width="90" height="90" stroke="white" stroke-width="1" fill="none"/>
       </svg>
 
-      <div class="relative z-10 p-6 md:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
+      <div class="relative z-10 p-4 md:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
         <div class="flex-1">
           <div class="flex flex-wrap gap-2 mb-4">
             <span class="bg-[rgba(255,255,255,0.06)] text-[var(--muted)] text-[9px] px-2 py-1 rounded tracking-[0.6px] uppercase font-bold">Project Ball</span>
             <span class="bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_22%,transparent)] text-[var(--green)] text-[9px] px-2 py-1 rounded tracking-[0.6px] uppercase font-bold">{tournamentConfig.name}</span>
           </div>
 
-          <h1 class="text-3xl md:text-4xl lg:text-[42px] font-normal text-white leading-tight mb-3">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-normal text-white leading-tight mb-5">
             Football without <br class="hidden sm:block" /><span class="text-[var(--green)] font-semibold">the fluff.</span>
           </h1>
 
-          <p class="text-[var(--muted)] text-sm leading-relaxed mb-6 max-w-[340px]">
+          <p class="text-[var(--muted)] text-base lg:text-lg leading-relaxed mb-8 max-w-md lg:max-w-lg">
             {t("hero.subtitle")}
           </p>
 
-          <div class="flex flex-wrap gap-1.5 mb-6 text-xl">
-            {heroFlags.slice(0, 10).map((flag) => (
+          <div class="flex flex-wrap gap-2 mb-8 text-xl">
+            {heroFlags.slice(0, 10).map((flag, index) => (
               <img
-                src={`https://flagcdn.com/w80/${flag.code}.png`}
+                src={`https://flagcdn.com/w40/${flag.code}.png`}
                 alt={`Bandeira: ${flag.country}`}
                 class="w-6 h-auto rounded-[2px]"
-                loading="eager"
+                loading={index < 4 ? "eager" : "lazy"}
                 decoding="async"
               />
             ))}
           </div>
 
-          <div class="flex flex-wrap gap-2">
-            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-4 py-2.5 min-w-[80px]">
-              <div class="text-[var(--text)] text-2xl font-bold leading-none mb-1">{matches.length}</div>
-              <div class="text-[var(--muted-strong)] text-[9px] tracking-wider uppercase font-medium">{t("hero.matches")}</div>
+          <div class="flex flex-wrap gap-4">
+            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[100px] lg:min-w-[120px]">
+              <div class="text-[var(--text)] text-3xl lg:text-4xl font-bold leading-none mb-1">{matches.length}</div>
+              <div class="text-[var(--muted-strong)] text-[10px] tracking-wider uppercase font-medium">{t("hero.matches")}</div>
             </div>
-            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-4 py-2.5 min-w-[80px]">
-              <div class="text-[var(--text)] text-2xl font-bold leading-none mb-1">{groupCount}</div>
-              <div class="text-[var(--muted-strong)] text-[9px] tracking-wider uppercase font-medium">{t("hero.groups")}</div>
+            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[100px] lg:min-w-[120px]">
+              <div class="text-[var(--text)] text-3xl lg:text-4xl font-bold leading-none mb-1">{groupCount}</div>
+              <div class="text-[var(--muted-strong)] text-[10px] tracking-wider uppercase font-medium">{t("hero.groups")}</div>
             </div>
-            <div class="bg-[color-mix(in_srgb,var(--green)_6%,transparent)] border border-[color-mix(in_srgb,var(--green)_18%,transparent)] rounded-xl px-4 py-2.5 min-w-[100px]">
-              <div class="text-[var(--green)] text-2xl font-bold leading-none mb-1">{countdownLabel}</div>
-              <div class="text-[var(--green)] opacity-70 text-[9px] tracking-wider uppercase font-medium">Para fechar</div>
+            <div class="bg-[color-mix(in_srgb,var(--green)_6%,transparent)] border border-[color-mix(in_srgb,var(--green)_18%,transparent)] rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[120px] lg:min-w-[140px]">
+              <div class="text-[var(--green)] text-3xl lg:text-4xl font-bold leading-none mb-1">{countdownLabel}</div>
+              <div class="text-[var(--green)] opacity-70 text-[10px] tracking-wider uppercase font-medium">Para fechar</div>
             </div>
           </div>
         </div>
@@ -123,12 +123,12 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
             <div class="flex items-center justify-between mb-4 px-2">
               <div class="text-center flex flex-col items-center">
                 {nextHomeFlag && <img src={nextHomeFlag} alt={nextMatch.homeCountry} class="w-8 h-auto mb-1.5 rounded-[2px]" />}
-                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[60px] truncate">{nextMatch.homeTeam}</div>
+                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[80px] truncate">{nextMatch.homeTeam}</div>
               </div>
-              <div class="text-[var(--muted-strong)] text-xs font-bold px-2">VS</div>
+              <div class="bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.15)] text-[var(--muted-strong)] text-xs font-bold px-3 py-1 rounded-full">VS</div>
               <div class="text-center flex flex-col items-center">
                 {nextAwayFlag && <img src={nextAwayFlag} alt={nextMatch.awayCountry} class="w-8 h-auto mb-1.5 rounded-[2px]" />}
-                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[60px] truncate">{nextMatch.awayTeam}</div>
+                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[80px] truncate">{nextMatch.awayTeam}</div>
               </div>
             </div>
 

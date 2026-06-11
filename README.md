@@ -19,6 +19,7 @@ The application is designed to behave like a fast, casual mobile web game rather
 - **Multi-Stablecoin Support:** Place picks using **USDm**, **USDC**, or **USDT** (calculated 1:1 on-chain).
 - **Fast Card Updates:** Built using Astro and [htmx](https://htmx.org/) to perform smooth, partial-page swaps of match card markup after checking transactions via server-side verification.
 - **Proportional Claims:** Winners receive their payout dynamically distributed as a proportional basket of the actual stablecoins staked in the match pool, minus a small protocol/burn fee.
+- **Competitive Leaderboard:** Ranks users based on prediction accuracy and logarithmically-scaled winnings, powered by a highly optimized, O(1) bulk-computed caching layer to prevent database bottlenecks.
 
 ---
 

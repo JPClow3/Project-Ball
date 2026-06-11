@@ -14,6 +14,7 @@ This document lists the feature set, structural limitations, and criteria for th
 * **Proportional Claims:** Payouts to winners are calculated proportionally and distributed as a basket of the remaining pool assets.
 * **Void & Refund Support:** Automated refund processing for voided games or pools where no correct outcome was selected.
 * **Dynamic Card State Swaps:** Fast `htmx` interface updates post-transaction confirmation.
+* **Leaderboard & Ranking:** A competitive system ranking users on prediction accuracy (60%) and normalized log-scaled winnings (40%), optimized to avoid N+1 query limits.
 * **Analytics & Compliance:** Public stats, support info, privacy policy, and terms of service.
 
 ---

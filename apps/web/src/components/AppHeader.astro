@@ -6,6 +6,7 @@ const t = useTranslations(Astro.locals.lang);
 const navItems = [
   { href: "/", label: t("nav.matches"), icon: "fa-solid fa-futbol" },
   { href: "/meus-palpites", label: t("nav.picks"), icon: "fa-solid fa-ticket" },
+  { href: "/ranking", label: t("nav.ranking"), icon: "fa-solid fa-trophy" },
   { href: "/about", label: t("nav.about"), icon: "fa-solid fa-circle-question" },
   { href: "/support", label: t("nav.support"), icon: "fa-solid fa-headset" }
 ] as const;
@@ -14,7 +15,7 @@ const pathname = Astro.url.pathname;
 ---
 
 <header class="app-shell sticky top-0 z-40 pt-4" style="padding-top: max(1rem, env(safe-area-inset-top));" transition:name="app-header" transition:persist>
-  <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--line-strong)] bg-[var(--surface-glass)] backdrop-blur-md rounded-2xl mb-4">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--line-strong)] bg-[var(--surface-glass)] backdrop-blur-md rounded-2xl mb-6">
     <a class="flex items-center gap-2 focus-ring rounded-lg py-1.5" href="/" aria-label="Project Ball">
       <svg viewBox="0 0 60 60" width="26" height="26" aria-hidden="true">
         <circle cx="30" cy="30" r="24" fill="#00d084"/>
@@ -32,7 +33,7 @@ const pathname = Astro.url.pathname;
     </a>
 
     <div class="flex items-center gap-1">
-      <nav class="hidden md:flex items-center gap-1 mr-2" aria-label="Principal">
+      <nav class="hidden md:flex items-center gap-2 mr-3" aria-label="Principal">
         {
           navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -75,15 +76,15 @@ const pathname = Astro.url.pathname;
       
       <div class="flex items-center gap-2" data-auth-user hidden>
         <!-- Balance Display -->
-        <div class="hidden items-center md:flex" data-balance-container>
+        <div class="hidden sm:flex items-center" data-balance-container>
           <span class="text-xs font-bold text-[var(--text)] mr-1" data-balance-display>...</span>
         </div>
         
         <a
-          class="btn-secondary focus-ring !h-10 !px-3 !text-[11px]"
+          class="btn-secondary focus-ring !h-10 !px-4 !text-[11px]"
           href="/meus-palpites"
         >
-          <span class="truncate max-w-20" data-auth-address>{t("nav.wallet")}</span>
+          <span class="truncate max-w-32 md:max-w-40" data-auth-address>{t("nav.wallet")}</span>
         </a>
         <button
           class="icon-button focus-ring !w-10 !h-10"

@@ -274,7 +274,10 @@ function iconSvg(name: string): string {
 }
 
 function setButtonHtml(button: HTMLElement, icon: string, label: string): void {
-  button.innerHTML = `${iconSvg(icon)}${label}`;
+  button.innerHTML = iconSvg(icon);
+  const labelSpan = document.createElement("span");
+  labelSpan.textContent = label;
+  button.appendChild(labelSpan);
 }
 
 function delay(ms: number): Promise<void> {
