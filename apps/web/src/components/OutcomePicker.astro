@@ -1,5 +1,8 @@
 ---
 import type { Outcome } from "@project-ball/shared";
+import { useTranslations } from "../i18n";
+
+const t = useTranslations(Astro.locals.lang);
 
 type Props = {
   matchId: string;
@@ -16,20 +19,20 @@ const outcomes: readonly Outcome[] = ["HOME", "DRAW", "AWAY"];
 const outcomeCopy: Record<Outcome, { label: string; helper: string; flagCode?: string; ariaLabel: string }> = {
   HOME: {
     label: homeTeam,
-    helper: "vence",
+    helper: t("outcome.wins"),
     flagCode: homeFlagCode,
-    ariaLabel: `${homeTeam} vence`
+    ariaLabel: `${homeTeam} ${t("outcome.wins")}`
   },
   DRAW: {
-    label: "Empate",
-    helper: "sem vencedor",
-    ariaLabel: "Empate"
+    label: t("outcome.draw"),
+    helper: t("outcome.noWinner"),
+    ariaLabel: t("outcome.draw")
   },
   AWAY: {
     label: awayTeam,
-    helper: "vence",
+    helper: t("outcome.wins"),
     flagCode: awayFlagCode,
-    ariaLabel: `${awayTeam} vence`
+    ariaLabel: `${awayTeam} ${t("outcome.wins")}`
   }
 };
 ---
@@ -74,7 +77,7 @@ const outcomeCopy: Record<Outcome, { label: string; helper: string; flagCode?: s
               <span class="draw-mark" aria-hidden="true">=</span>
             )
           }
-          <span class="team-pick-name">{copy.label}</span>
+          <span class="team-pick-name text-balance max-w-full truncate">{copy.label}</span>
           <span class="team-pick-helper">{copy.helper}</span>
         </button>
       );

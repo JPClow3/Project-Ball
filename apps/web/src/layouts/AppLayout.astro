@@ -57,6 +57,36 @@ const title = pageTitle ? `${pageTitle} | Project Ball` : "Project Ball";
           setTimeout(() => toast.remove(), 300);
         }, 3500);
       }
-    }
+    };
+
+    window.addEventListener('error', (event) => {
+      console.error('Global error caught:', event.error);
+      if (window.showToast && event.message) {
+        // Prevent showing toast for ResizeObserver loop errors which are benign
+        if (event.message.includes('ResizeObserver')) return;
+        window.showToast('Ocorreu um erro inesperado.', 'error');
+      }
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled rejection caught:', event.reason);
+      if (window.showToast) {
+        window.showToast('Falha na operação. Tente novamente.', 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.addEventListener('htmx:responseError', (event) => {
+        if (window.showToast) {
+          window.showToast('Falha na requisição. Tente novamente mais tarde.', 'error');
+        }
+      });
+      
+      document.body.addEventListener('htmx:sendError', (event) => {
+        if (window.showToast) {
+          window.showToast('Sem conexão. Verifique sua rede e tente novamente.', 'error');
+        }
+      });
+    });
   </script>
 </BaseLayout>

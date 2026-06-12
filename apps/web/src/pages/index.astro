@@ -62,13 +62,8 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
 <AppLayout title={t("nav.picks")} isFluid={true}>
   <div class="app-shell mb-6">
     <div class="relative overflow-hidden bg-[#0c1523] border border-[var(--glass-border,rgba(255,255,255,0.07))] rounded-2xl md:rounded-[24px]">
-      <svg class="absolute -right-[110px] -top-[90px] opacity-[0.055] pointer-events-none" width="440" height="380" viewBox="0 0 440 380" aria-hidden="true">
-        <circle cx="220" cy="180" r="170" stroke="white" stroke-width="1.5" fill="none"/>
-        <circle cx="220" cy="180" r="12" stroke="white" stroke-width="1.5" fill="none"/>
-        <line x1="50" y1="180" x2="390" y2="180" stroke="white" stroke-width="1"/>
-        <rect x="150" y="110" width="140" height="140" stroke="white" stroke-width="1" fill="none"/>
-        <rect x="175" y="135" width="90" height="90" stroke="white" stroke-width="1" fill="none"/>
-      </svg>
+      <div class="absolute -right-[100px] -top-[100px] w-[400px] h-[400px] bg-[var(--color-primary)] opacity-20 blur-[100px] pointer-events-none rounded-full" aria-hidden="true"></div>
+      <div class="absolute -left-[50px] -bottom-[50px] w-[300px] h-[300px] bg-[var(--color-accent)] opacity-10 blur-[80px] pointer-events-none rounded-full" aria-hidden="true"></div>
 
       <div class="relative z-10 p-4 md:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
         <div class="flex-1">
@@ -98,53 +93,53 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
           </div>
 
           <div class="flex flex-wrap gap-4">
-            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[100px] lg:min-w-[120px]">
+            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.03)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[100px] lg:min-w-[120px]">
               <div class="text-[var(--text)] text-3xl lg:text-4xl font-bold leading-none mb-1">{matches.length}</div>
               <div class="text-[var(--muted-strong)] text-[10px] tracking-wider uppercase font-medium">{t("hero.matches")}</div>
             </div>
-            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[100px] lg:min-w-[120px]">
+            <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.03)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[100px] lg:min-w-[120px]">
               <div class="text-[var(--text)] text-3xl lg:text-4xl font-bold leading-none mb-1">{groupCount}</div>
               <div class="text-[var(--muted-strong)] text-[10px] tracking-wider uppercase font-medium">{t("hero.groups")}</div>
             </div>
-            <div class="bg-[color-mix(in_srgb,var(--green)_6%,transparent)] border border-[color-mix(in_srgb,var(--green)_18%,transparent)] rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[120px] lg:min-w-[140px]">
+            <div class="bg-[color-mix(in_srgb,var(--green)_6%,transparent)] border border-[color-mix(in_srgb,var(--green)_10%,transparent)] shadow-[inset_0_1px_0_color-mix(in_srgb,var(--green)_15%,transparent)] backdrop-blur-md rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[120px] lg:min-w-[140px]">
               <div class="text-[var(--green)] text-3xl lg:text-4xl font-bold leading-none mb-1">{countdownLabel}</div>
-              <div class="text-[var(--green)] opacity-70 text-[10px] tracking-wider uppercase font-medium">Para fechar</div>
+              <div class="text-[var(--green)] opacity-70 text-[10px] tracking-wider uppercase font-medium">{t("hero.closingIn")}</div>
             </div>
           </div>
         </div>
 
         {nextMatch && (
-          <div class="w-full lg:w-[260px] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-4 flex-shrink-0">
-            <div class="flex justify-between items-center mb-4">
-              <span class="text-[var(--muted-strong)] text-[9px] tracking-wider font-semibold uppercase">{t("ticket.nextMatch")}</span>
-              <span class="bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_25%,transparent)] text-[var(--green)] text-[9px] font-bold px-2.5 py-1 rounded-full">{countdownLabel}</span>
+          <div class="w-full lg:w-[320px] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.03)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md rounded-[20px] p-5 sm:p-6 flex-shrink-0">
+            <div class="flex justify-between items-center mb-5">
+              <span class="text-[var(--muted-strong)] text-[11px] tracking-wider font-semibold uppercase">{t("ticket.nextMatch")}</span>
+              <span class="bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_25%,transparent)] text-[var(--green)] text-[11px] font-bold px-3 py-1.5 rounded-full">{countdownLabel}</span>
             </div>
             
-            <div class="flex items-center justify-between mb-4 px-2">
+            <div class="flex items-center justify-between mb-5 px-2">
               <div class="text-center flex flex-col items-center">
-                {nextHomeFlag && <img src={nextHomeFlag} alt={nextMatch.homeCountry} class="w-8 h-auto mb-1.5 rounded-[2px]" />}
-                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[80px] truncate">{nextMatch.homeTeam}</div>
+                {nextHomeFlag && <img src={nextHomeFlag} alt={nextMatch.homeCountry} class="w-10 h-auto mb-2 rounded-[3px]" />}
+                <div class="text-[var(--text)] text-xs font-semibold leading-tight w-[100px] text-balance">{nextMatch.homeTeam}</div>
               </div>
-              <div class="bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.15)] text-[var(--muted-strong)] text-xs font-bold px-3 py-1 rounded-full">VS</div>
+              <div class="bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.15)] text-[var(--muted-strong)] text-sm font-bold px-3 py-1 rounded-full">VS</div>
               <div class="text-center flex flex-col items-center">
-                {nextAwayFlag && <img src={nextAwayFlag} alt={nextMatch.awayCountry} class="w-8 h-auto mb-1.5 rounded-[2px]" />}
-                <div class="text-[var(--text)] text-[10px] font-medium leading-tight max-w-[80px] truncate">{nextMatch.awayTeam}</div>
+                {nextAwayFlag && <img src={nextAwayFlag} alt={nextMatch.awayCountry} class="w-10 h-auto mb-2 rounded-[3px]" />}
+                <div class="text-[var(--text)] text-xs font-semibold leading-tight w-[100px] text-balance">{nextMatch.awayTeam}</div>
               </div>
             </div>
 
-            <div class="border-t border-[rgba(255,255,255,0.06)] pt-3">
-              <div class="text-[var(--muted-strong)] text-[10px] mb-0.5">{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : t("ticket.pending")}</div>
-              <div class="text-[var(--muted)] text-[10px] mb-3 truncate">{nextMatch.venue}</div>
+            <div class="border-t border-[rgba(255,255,255,0.06)] pt-4">
+              <div class="text-[var(--muted-strong)] text-xs mb-1 font-medium">{nextMatch ? formatKickoffFull(nextMatch.kickoffIso) : t("ticket.pending")}</div>
+              <div class="text-[var(--muted)] text-xs mb-4 truncate">{nextMatch.venue}</div>
               
-              <div class="grid grid-cols-3 gap-1">
-                <div class="bg-[color-mix(in_srgb,#3b82f6_10%,transparent)] border border-[color-mix(in_srgb,#3b82f6_28%,transparent)] rounded-lg py-1.5 px-1 text-center">
-                  <div class="text-[#93c5fd] text-[9px] font-semibold truncate">{nextMatch.homeTeam}</div>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="bg-[color-mix(in_srgb,#3b82f6_10%,transparent)] border border-[color-mix(in_srgb,#3b82f6_28%,transparent)] rounded-lg py-2 px-1 text-center flex items-center justify-center">
+                  <div class="text-[#93c5fd] text-[10px] sm:text-[11px] font-bold leading-tight line-clamp-2">{nextMatch.homeTeam}</div>
                 </div>
-                <div class="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] rounded-lg py-1.5 px-1 text-center">
-                  <div class="text-[var(--muted-strong)] text-[9px] truncate">{t("ticket.draw")}</div>
+                <div class="bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] rounded-lg py-2 px-1 text-center flex items-center justify-center">
+                  <div class="text-[var(--muted-strong)] text-[10px] sm:text-[11px] font-bold">{t("ticket.draw")}</div>
                 </div>
-                <div class="bg-[color-mix(in_srgb,#06b6d4_10%,transparent)] border border-[color-mix(in_srgb,#06b6d4_28%,transparent)] rounded-lg py-1.5 px-1 text-center">
-                  <div class="text-[#67e8f9] text-[9px] font-semibold truncate">{nextMatch.awayTeam}</div>
+                <div class="bg-[color-mix(in_srgb,#06b6d4_10%,transparent)] border border-[color-mix(in_srgb,#06b6d4_28%,transparent)] rounded-lg py-2 px-1 text-center flex items-center justify-center">
+                  <div class="text-[#67e8f9] text-[10px] sm:text-[11px] font-bold leading-tight line-clamp-2">{nextMatch.awayTeam}</div>
                 </div>
               </div>
             </div>

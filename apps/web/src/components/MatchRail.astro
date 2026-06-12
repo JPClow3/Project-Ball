@@ -117,17 +117,17 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
               <div>
                 <p class="text-xs font-semibold uppercase text-[var(--gold)]">{group.label}</p>
                 <p class="mt-2 text-sm font-semibold text-[var(--muted)]">
-                  Primeiro jogo: {featuredMatch ? formatKickoff(featuredMatch.kickoffIso) : "Calendário pendente"}
+                  {t("rail.firstMatch")} {featuredMatch ? formatKickoff(featuredMatch.kickoffIso) : t("ticket.pending")}
                 </p>
               </div>
-              <div class="grid grid-cols-2 gap-2 text-right sm:w-72">
+              <div class="grid grid-cols-2 gap-4 text-right sm:w-80">
                 <div>
-                  <p class="text-xs font-bold text-[var(--muted)]">Pote do grupo</p>
+                  <p class="text-xs font-bold text-[var(--muted)]">{t("rail.groupPool")}</p>
                   <p class="font-display text-lg font-bold text-[var(--text)]">{formatUsd(group.poolUsd)}</p>
                 </div>
                 <div>
-                  <p class="text-xs font-bold text-[var(--muted)]">Palpites</p>
-                  <p class="font-display text-lg font-bold text-[var(--text)]">{group.supporters.toLocaleString("pt-BR")}</p>
+                  <p class="text-xs font-bold text-[var(--muted)]">{t("match.palpites")}</p>
+                  <p class="font-display text-xl font-bold text-[var(--text)]">{group.supporters.toLocaleString("pt-BR")}</p>
                 </div>
               </div>
             </div>
@@ -139,11 +139,11 @@ const activeGroup = firstUpcomingGroup ?? groups[0];
             <div class="filter-empty mt-4" data-filter-empty hidden>
               <i class="fa-solid fa-futbol ui-icon text-[var(--gold)]" style="font-size: 24px;" aria-hidden="true"></i>
               <div>
-                <h3 class="font-display text-xl font-bold text-[var(--text)]">Próximas partidas chegam em breve ⚽</h3>
-                <p class="mt-2 text-sm font-medium text-[var(--muted)]">Não há partidas abertas correspondentes no momento.</p>
+                <h3 class="font-display text-xl font-bold text-[var(--text)]">{t("rail.emptyTitle")}</h3>
+                <p class="mt-2 text-sm font-medium text-[var(--muted)]">{t("rail.emptyDesc")}</p>
               </div>
-              <button class="btn-secondary focus-ring w-fit" type="button" data-filter-reset>
-                Ver todas as partidas
+              <button class="btn-secondary focus-ring w-fit px-5 py-2 font-semibold" type="button" data-filter-reset>
+                {t("rail.viewAll")}
               </button>
             </div>
           </section>

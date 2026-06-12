@@ -1,5 +1,8 @@
 ---
 import { defaultStakeUsd, minimumStakeUsd, stakeOptionsUsd, stakeStepUsd } from "../data/betting";
+import { useTranslations } from "../i18n";
+
+const t = useTranslations(Astro.locals.lang);
 
 type Props = {
   id?: string;
@@ -37,7 +40,7 @@ const errorId = `${id}-error`;
 
     <input
       id={id}
-      class="form-control focus-ring w-16 sm:w-20 md:w-24 text-center text-sm"
+      class="form-control focus-ring w-20 sm:w-24 md:w-28 text-center text-base font-bold"
       type="number"
       min={String(minimumStakeUsd)}
       step={String(stakeStepUsd)}
@@ -49,5 +52,5 @@ const errorId = `${id}-error`;
       data-custom-stake
     />
   </div>
-  <p id={errorId} class="field-error" data-stake-error hidden>Mínimo: ${minimumStakeUsd}</p>
+  <p id={errorId} class="field-error" data-stake-error hidden>{t("match.minimum")}: ${minimumStakeUsd}</p>
 </div>
