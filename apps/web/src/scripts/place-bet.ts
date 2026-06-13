@@ -7,6 +7,7 @@ import {
   type Outcome,
   type StablecoinSymbol
 } from "@project-ball/shared";
+import confetti from "canvas-confetti";
 import htmx from "htmx.org";
 import { defaultStakeUsd, minimumStakeUsd, outcomeOnchainCodes } from "../data/betting";
 import { getAvailableStablecoins, getDefaultStablecoin } from "../lib/tokens";
@@ -55,6 +56,7 @@ declare global {
 }
 
 const chainId = Number(import.meta.env.PUBLIC_CHAIN_ID ?? CELO_SEPOLIA.id);
+const isProductionClient = import.meta.env.PROD || import.meta.env.PUBLIC_APP_MODE === "production";
 const targetChainHex = `0x${chainId.toString(16)}` as `0x${string}`;
 const emptyContractAddress = "0x0000000000000000000000000000000000000000";
 const poolsAddress = (import.meta.env.PUBLIC_PROJECT_BALL_POOLS_ADDRESS ??
@@ -104,6 +106,19 @@ const erc20SpendingAbi = [
 ] as const;
 
 window.htmx ??= htmx;
+void import("htmx-ext-sse").then(() => {
+  if (document.body) {
+    processHtmx(document.body);
+  }
+}).catch(() => undefined);
+
+function processHtmx(target: Element): void {
+  try {
+    (window.htmx ?? htmx).process(target);
+  } catch {
+    // Optional htmx extensions can be unavailable during dev-server optimize refreshes.
+  }
+}
 
 function getProvider(): EthereumProvider | undefined {
   return window.ethereum ?? window.provider;
@@ -520,10 +535,7 @@ function syncBetForm(card: HTMLElement): void {
   const outcomeButton = card.querySelector<HTMLElement>('[data-select-outcome][aria-checked="true"]');
   const stakeContainer = card.querySelector<HTMLElement>("[data-stake-container]");
   if (stakeContainer) {
-    stakeContainer.style.opacity = outcomeButton ? "1" : "0.55";
-    stakeContainer.style.pointerEvents = outcomeButton ? "auto" : "none";
-    stakeContainer.style.transition = "opacity 160ms ease";
-    stakeContainer.hidden = false;
+    stakeContainer.hidden = !outcomeButton;
   }
   const stake = selectedStakeValue(card);
   const submitButton = card.querySelector<HTMLButtonElement>("[data-place-bet]");
@@ -539,6 +551,7 @@ function syncBetForm(card: HTMLElement): void {
   }
 
   submitButton.disabled = !isValid;
+  submitButton.hidden = !outcomeButton;
   submitButton.dataset.outcome = outcome ?? "";
   submitButton.innerHTML = isValid
     ? "Confirmar palpite"
@@ -808,41 +821,6 @@ function betErrorMessage(error: unknown): string {
   return message;
 }
 
-async function postMiniPayAuth(address: `0x${string}`, displayName?: string): Promise<AuthSessionResponse> {
-  const response = await fetch("/api/auth/minipay", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      accept: "application/json"
-    },
-    body: JSON.stringify({ address, displayName })
-  });
-  const payload = (await response.json().catch(() => ({}))) as AuthSessionResponse & { error?: string };
-
-  if (!response.ok) {
-    throw new Error(payload.error ?? "Não foi possível iniciar a sessão MiniPay");
-  }
-
-  return payload;
-}
-
-async function ensureMiniPaySession(address: `0x${string}`): Promise<AuthenticatedSession> {
-  const current = await refreshAuthSession().catch(() => ({ authenticated: false }) as AuthSessionResponse);
-
-  if (current.authenticated && current.user.walletAddress.toLowerCase() === address.toLowerCase()) {
-    return current;
-  }
-
-  const session = await postMiniPayAuth(address);
-  applyAuthSession(session);
-
-  if (!session.authenticated) {
-    throw new Error("Não foi possível iniciar a sessão MiniPay");
-  }
-
-  return session;
-}
-
 async function authenticateWithWallet(button: HTMLElement): Promise<void> {
   const intent = button.dataset.authIntent as AuthIntent | undefined;
   const provider = getProvider();
@@ -861,42 +839,6 @@ async function authenticateWithWallet(button: HTMLElement): Promise<void> {
   if (!provider) {
     setAuthStatus(button, "Carteira não encontrada. Abra no MiniPay ou instale MetaMask.", true);
     showToast("Carteira não encontrada. Abra no MiniPay ou instale MetaMask.", "error");
-    return;
-  }
-
-  if (provider.isMiniPay) {
-    const originalHtml = button.dataset.originalHtml ?? button.innerHTML;
-    button.dataset.originalHtml = originalHtml;
-    button.setAttribute("disabled", "true");
-    setAuthLoading(button, true);
-    setButtonHtml(button, "loader-circle", "Abrindo MiniPay");
-    setAuthStatus(button, "Conecte a carteira MiniPay para entrar sem assinatura.");
-
-    try {
-      await ensureCeloNetwork(provider);
-      const address = await requestAccount(provider);
-      const session = await postMiniPayAuth(address, getDisplayName(button));
-
-      applyAuthSession(session);
-      setAuthStatus(button, "MiniPay conectado. Abrindo destino.");
-      setButtonHtml(button, "badge-check", "Conectado");
-      window.location.assign(authRedirect(button.dataset.authRedirect));
-    } catch (error) {
-      const code = providerErrorCode(error);
-      let message = errorMessage(error, "Não foi possível conectar o MiniPay");
-      const normalized = message.toLowerCase();
-
-      if (code === 4001 || code === "4001" || /rejeitad|recusad|denied|rejected|user rejected/.test(normalized)) {
-        message = "Autenticação cancelada na carteira.";
-      }
-
-      setAuthStatus(button, message, true);
-      showToast(message, "error");
-      button.innerHTML = originalHtml;
-    } finally {
-      setAuthLoading(button, false);
-      button.removeAttribute("disabled");
-    }
     return;
   }
 
@@ -1060,10 +1002,8 @@ async function placeBet(options: {
   const provider = getProvider();
   const { matchId, onchainMatchId, outcome, tokenSymbol, stakeUsd, onTxSent } = options;
 
-  if (provider?.isMiniPay && poolsAddress === emptyContractAddress) {
-    await ensureCeloNetwork(provider);
-    const account = await requestAccount(provider);
-    await ensureMiniPaySession(account);
+  if (poolsAddress === emptyContractAddress && isProductionClient) {
+    throw new Error("Contrato Celo não configurado para produção");
   }
 
   if (!provider || poolsAddress === emptyContractAddress) {
@@ -1071,13 +1011,9 @@ async function placeBet(options: {
     return submitLocalConfirmation(matchId, outcome);
   }
 
-  let session: AuthenticatedSession | null = provider.isMiniPay ? null : await requireAuthSession();
+  const session = await requireAuthSession();
   await ensureCeloNetwork(provider);
   const account = await requestAccount(provider);
-
-  if (provider.isMiniPay) {
-    session = await ensureMiniPaySession(account);
-  }
 
   if (session && session.user.walletAddress.toLowerCase() !== account.toLowerCase()) {
     throw new Error("Use a mesma carteira do login para confirmar o palpite");
@@ -1224,7 +1160,7 @@ function replaceMatchCard(button: HTMLElement, html: string): void {
     replacement.classList.add("match-card-featured");
   }
 
-  runtime.process(replacement);
+  processHtmx(replacement);
   syncBetForm(replacement);
   applyMatchFilter(activeFilter);
 
@@ -1235,8 +1171,8 @@ function replaceMatchCard(button: HTMLElement, html: string): void {
   replacement.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
 
   // Micro-animation: Celebrate with confetti if the card indicates a confirmed bet
-  if (replacement.dataset.confirmed === "true" && typeof (window as any).confetti === "function") {
-    (window as any).confetti({
+  if (replacement.dataset.confirmed === "true") {
+    confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 }
@@ -1548,10 +1484,7 @@ async function handleDocumentClick(event: MouseEvent): Promise<void> {
         setButtonHtml(connectButton, "loader-circle", "Conectando");
         connectButton.setAttribute("disabled", "true");
         await ensureCeloNetwork(provider);
-        const address = await requestAccount(provider);
-        if (provider.isMiniPay) {
-          await ensureMiniPaySession(address);
-        }
+        await requestAccount(provider);
         setButtonHtml(connectButton, "badge-check", "Conectado");
         showToast("Carteira conectada com sucesso.", "success");
       } catch (error) {
@@ -1708,7 +1641,7 @@ function bindGlobalListeners(): void {
 }
 
 function initPage(): void {
-  (window.htmx ?? htmx).process(document.body);
+  processHtmx(document.body);
   initTheme();
   updateNavigationState();
   initGroupTabs();

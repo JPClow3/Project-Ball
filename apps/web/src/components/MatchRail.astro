@@ -1,5 +1,5 @@
 ---
-import { matches as defaultMatches, type MatchViewModel } from "../data/matches";
+import { getMatches, type MatchViewModel } from "../data/matches";
 import { formatKickoff, formatUsd } from "../lib/format";
 
 import MatchCard from "./MatchCard.astro";
@@ -11,7 +11,7 @@ type Props = {
   matches?: readonly MatchViewModel[];
 };
 
-const { matches = defaultMatches } = Astro.props;
+const { matches = getMatches() } = Astro.props;
 
 function groupId(label: string): string {
   return label.toLowerCase().replace(/\s+/g, "-");

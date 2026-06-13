@@ -1,14 +1,16 @@
 import type { Match, Outcome, StatsSnapshot } from "@project-ball/shared";
 import type { MatchViewModel } from "../data/matches";
-import { matches } from "../data/matches";
+import { getMatches } from "../data/matches";
 import { statsSnapshot } from "../data/stats";
-
-const demoMatches = matches;
 
 const demoStats: StatsSnapshot = statsSnapshot;
 
-export function getMatch(matchId: string): MatchViewModel | undefined {
-  return demoMatches.find((match) => match.id === matchId || match.onchainId === matchId);
+export function listMatches(now = new Date()): readonly MatchViewModel[] {
+  return getMatches(now);
+}
+
+export function getMatch(matchId: string, now = new Date()): MatchViewModel | undefined {
+  return listMatches(now).find((match) => match.id === matchId || match.onchainId === matchId);
 }
 
 export function withUserPick<T extends Match>(match: T, outcome?: Outcome): T {

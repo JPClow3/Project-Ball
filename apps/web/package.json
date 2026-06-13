@@ -17,11 +17,13 @@
     "test:lighthouse": "playwright test lighthouse-simulation.spec.ts"
   },
   "dependencies": {
-    "@astrojs/node": "10.0.4",
+    "@astrojs/node": "10.0.5",
     "@project-ball/shared": "workspace:*",
     "@upstash/redis": "^1.30.0",
     "astro": "6.4.2",
+    "canvas-confetti": "1.9.3",
     "dotenv": "^16.4.5",
+    "htmx-ext-sse": "^2.2.4",
     "htmx.org": "2.0.10",
     "pg": "8.16.3",
     "viem": "2.52.0",
@@ -31,6 +33,7 @@
     "@astrojs/check": "0.9.9",
     "@playwright/test": "1.60.0",
     "@tailwindcss/vite": "4.3.0",
+    "@types/canvas-confetti": "1.9.0",
     "@types/node": "25.9.1",
     "@types/pg": "8.15.5",
     "tailwindcss": "4.3.0",

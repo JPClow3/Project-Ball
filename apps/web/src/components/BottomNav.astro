@@ -7,8 +7,7 @@ const items = [
   { href: "/", label: t("nav.matches"), icon: "fa-solid fa-futbol" },
   { href: "/meus-palpites", label: t("nav.picks"), icon: "fa-solid fa-ticket" },
   { href: "/ranking", label: t("nav.ranking"), icon: "fa-solid fa-trophy" },
-  { href: "/about", label: t("nav.about"), icon: "fa-solid fa-circle-question" },
-  { href: "/support", label: t("nav.support"), icon: "fa-solid fa-headset" }
+  { href: "/about", label: t("nav.about"), icon: "fa-solid fa-circle-question" }
 ] as const;
 const current = Astro.url.pathname;
 ---
@@ -24,11 +23,22 @@ const current = Astro.url.pathname;
             aria-current={current === item.href ? "page" : undefined}
             data-nav-link
           >
-            <i class={`${item.icon} ui-icon`} style="font-size: 20px;" aria-hidden="true"></i>
+            <i class={`${item.icon} ui-icon`} aria-hidden="true"></i>
             {item.label}
           </a>
         );
       })
     }
+    <button
+      class="mobile-nav-link focus-ring"
+      type="button"
+      aria-label="Usar modo claro"
+      title="Usar modo claro"
+      data-theme-toggle
+    >
+      <i class="fa-solid fa-sun ui-icon" aria-hidden="true" data-theme-icon="light"></i>
+      <i class="fa-solid fa-moon ui-icon" aria-hidden="true" data-theme-icon="dark"></i>
+      <span>Tema</span>
+    </button>
   </div>
 </nav>

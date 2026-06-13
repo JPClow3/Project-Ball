@@ -1,5 +1,5 @@
 import { getAddress, isAddress, verifyMessage } from "viem";
-import { appConfig } from "./config";
+import { appConfig, isProductionMode } from "./config";
 
 export type AuthIntent = "login" | "register";
 
@@ -94,6 +94,20 @@ function isMissingAuthTable(error: unknown): boolean {
   return KNOWN_AUTH_TABLES.some(
     (table) => message.includes(`no such table: ${table}`) || message.includes(`relation "${table}" does not exist`)
   );
+}
+
+function assertAuthStorageFallbackAllowed(db: D1, error?: unknown): void {
+  if (!isProductionMode()) {
+    return;
+  }
+
+  if (!db) {
+    throw new Error("Auth database is required when APP_MODE=production");
+  }
+
+  if (error) {
+    throw error;
+  }
 }
 
 function toUser(row: UserRow): AuthUser {
@@ -214,9 +228,11 @@ export async function createAuthChallenge(
       if (!isMissingAuthTable(error)) {
         throw error;
       }
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   getMemoryStore().challenges.set(challengeWithMessage.nonce, challengeWithMessage);
   return challengeWithMessage;
 }
@@ -255,9 +271,11 @@ async function consumeChallenge(
       if (!isMissingAuthTable(error)) {
         throw error;
       }
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   const store = getMemoryStore();
   const challenge = store.challenges.get(nonce) ?? null;
 
@@ -292,9 +310,11 @@ async function findUser(db: D1, walletAddress: `0x${string}`): Promise<AuthUser 
       if (!isMissingAuthTable(error)) {
         throw error;
       }
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   return getMemoryStore().users.get(walletAddress.toLowerCase()) ?? null;
 }
 
@@ -332,10 +352,11 @@ async function upsertUser(
       if (!isMissingAuthTable(error)) {
         throw error;
       }
-      // fall through to memory store below
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   const store = getMemoryStore();
   const key = walletAddress.toLowerCase();
   const existing = store.users.get(key);
@@ -366,9 +387,11 @@ async function touchLogin(db: D1, user: AuthUser): Promise<AuthUser> {
       if (!isMissingAuthTable(error)) {
         throw error;
       }
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   const updated = { ...user, lastLoginAt: loginAt };
   getMemoryStore().users.set(user.walletAddress.toLowerCase(), updated);
   return updated;
@@ -395,9 +418,11 @@ async function createSession(db: D1, user: AuthUser): Promise<AuthSession> {
       if (!isMissingAuthTable(error)) {
         throw error;
       }
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   getMemoryStore().sessions.set(session.id, session);
   return session;
 }
@@ -476,15 +501,6 @@ export async function loginWithWallet(options: {
   return createSession(options.db, await touchLogin(options.db, user));
 }
 
-export async function createMiniPaySession(options: {
-  readonly db: D1;
-  readonly walletAddress: `0x${string}`;
-  readonly displayName: string | null;
-}): Promise<AuthSession> {
-  const user = await upsertUser(options.db, options.walletAddress, options.displayName);
-  return createSession(options.db, user);
-}
-
 export function readSessionId(request: Request): string | null {
   const cookie = request.headers.get("cookie");
 
@@ -550,9 +566,11 @@ export async function getSession(db: D1, request: Request): Promise<AuthSession 
       if (!isMissingAuthTable(error)) {
         throw error;
       }
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   const session = getMemoryStore().sessions.get(sessionId) ?? null;
 
   if (!session || session.expiresAt <= currentTime) {
@@ -580,9 +598,11 @@ export async function revokeSession(db: D1, request: Request): Promise<void> {
       if (!isMissingAuthTable(error)) {
         throw error;
       }
+      assertAuthStorageFallbackAllowed(db, error);
     }
   }
 
+  assertAuthStorageFallbackAllowed(db);
   getMemoryStore().sessions.delete(sessionId);
 }
 

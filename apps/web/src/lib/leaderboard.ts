@@ -30,6 +30,9 @@ type WalletUserRow = {
   readonly display_name: string | null;
 };
 
+const defaultTotalFeeBps = 500n;
+const bpsDenominator = 10_000n;
+
 function toBigIntAmount(value: string | null | undefined): bigint {
   if (!value) {
     return 0n;
@@ -40,6 +43,19 @@ function toBigIntAmount(value: string | null | undefined): bigint {
   } catch {
     return 0n;
   }
+}
+
+function payoutForStake(options: {
+  readonly stakeNormalized: bigint;
+  readonly matchTotalNormalized: bigint;
+  readonly winnerNormalized: bigint;
+}): bigint {
+  if (options.stakeNormalized <= 0n || options.matchTotalNormalized <= 0n || options.winnerNormalized <= 0n) {
+    return 0n;
+  }
+
+  const distributable = (options.matchTotalNormalized * (bpsDenominator - defaultTotalFeeBps)) / bpsDenominator;
+  return (distributable * options.stakeNormalized) / options.winnerNormalized;
 }
 
 function formatNormalizedUsd(amount: bigint): number {
@@ -138,15 +154,28 @@ export async function refreshLeaderboardCache(db: D1): Promise<void> {
     // Fetch all bets with outcomes in a single query (fixes N+1 issue)
     const betsResult = await db
       .prepare(
-        `SELECT lower(bettor) as bettor, match_id, outcome, amount
+        `SELECT lower(bettor) as bettor, match_id, outcome, amount, COALESCE(normalized_amount, amount) AS normalized_amount
          FROM bet_confirmations
          WHERE bettor IS NOT NULL
            AND outcome IN ('HOME', 'DRAW', 'AWAY')`
       )
-      .all<{ bettor: string; match_id: string; outcome: string; amount: string | null }>();
+      .all<{ bettor: string; match_id: string; outcome: string; amount: string | null; normalized_amount: string | null }>();
+
+    const bets = betsResult.results ?? [];
+    const poolStats = new Map<string, { totalNormalized: bigint; winnerNormalized: bigint }>();
+    for (const bet of bets) {
+      const matchResult = matchResultMap.get(bet.match_id);
+      const stakeNormalized = toBigIntAmount(bet.normalized_amount ?? bet.amount);
+      const pool = poolStats.get(bet.match_id) ?? { totalNormalized: 0n, winnerNormalized: 0n };
+      pool.totalNormalized += stakeNormalized;
+      if (matchResult && matchResult.outcome === bet.outcome) {
+        pool.winnerNormalized += stakeNormalized;
+      }
+      poolStats.set(bet.match_id, pool);
+    }
 
     // Process all bets in memory
-    for (const bet of betsResult.results ?? []) {
+    for (const bet of bets) {
       const stats = userStats.get(bet.bettor);
       if (!stats) continue;
 
@@ -155,8 +184,14 @@ export async function refreshLeaderboardCache(db: D1): Promise<void> {
 
       if (matchResult && matchResult.outcome === bet.outcome) {
         stats.correctBets++;
-        const stakeUsd = formatNormalizedUsd(toBigIntAmount(bet.amount));
-        stats.totalWonUsd += stakeUsd * 1.5; // 50% profit on winning bets
+        const pool = poolStats.get(bet.match_id);
+        stats.totalWonUsd += formatNormalizedUsd(
+          payoutForStake({
+            stakeNormalized: toBigIntAmount(bet.normalized_amount ?? bet.amount),
+            matchTotalNormalized: pool?.totalNormalized ?? 0n,
+            winnerNormalized: pool?.winnerNormalized ?? 0n
+          })
+        );
       }
     }
 

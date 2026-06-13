@@ -12,7 +12,7 @@ export type BetConfirmation = {
   readonly normalizedAmount?: string;
 };
 
-type MatchResolution = {
+export type MatchResolution = {
   readonly matchId: string;
   readonly outcome: Outcome;
   readonly txHash: string;
@@ -71,7 +71,7 @@ export async function confirmBetTransaction(txHash: `0x${string}`): Promise<BetC
   };
 }
 
-async function listenForMatchResolved(txHash: `0x${string}`): Promise<MatchResolution | null> {
+export async function confirmMatchResolvedTransaction(txHash: `0x${string}`): Promise<MatchResolution | null> {
   if (!isContractConfigured()) {
     return null;
   }

@@ -4,6 +4,17 @@ async function waitForProjectBall(page: Page) {
   await page.waitForFunction(() => Boolean((window as Window & { projectBallReady?: boolean }).projectBallReady));
 }
 
+function firstOpenCard(page: Page) {
+  return page.locator('[data-match-card][data-match-status="open"]:visible').first();
+}
+
+async function stableFirstOpenCard(page: Page) {
+  const firstOpen = firstOpenCard(page);
+  const matchId = await firstOpen.getAttribute("data-match-id");
+  expect(matchId).toBeTruthy();
+  return page.locator(`[data-match-card][data-match-id="${matchId}"]`);
+}
+
 test.describe("user journeys and edge cases", () => {
   test("protected wallet pages redirect to login with a safe next path", async ({ page }) => {
     await page.goto("/meus-palpites", { waitUntil: "domcontentloaded" });
@@ -21,11 +32,11 @@ test.describe("user journeys and edge cases", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForProjectBall(page);
 
-    const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
+    const firstCard = await stableFirstOpenCard(page);
     const confirmButton = firstCard.locator("[data-place-bet]");
     const customStake = firstCard.getByRole("spinbutton", { name: "Valor" });
 
-    await firstCard.getByRole("radio", { name: "México vence" }).click();
+    await firstCard.locator('[data-select-outcome][data-outcome="HOME"]').click();
     await expect(confirmButton).toBeEnabled();
 
     await customStake.fill("1");
@@ -59,17 +70,19 @@ test.describe("user journeys and edge cases", () => {
     await page.route("**/api/confirm-bet", async (route) => {
       markConfirmationStarted();
       await confirmationGate;
+      const data = route.request().postDataJSON() as { matchId?: string };
+      const matchId = data.matchId ?? "unknown-match";
       await route.fulfill({
         status: 200,
         contentType: "text/html",
-        body: '<article data-match-card data-match-id="wc26-400021443">Palpite registrado</article>'
+        body: `<article data-match-card data-match-id="${matchId}">Palpite registrado</article>`
       });
     });
 
-    const firstCard = page.locator('[data-match-card][data-match-id="wc26-400021443"]');
+    const firstCard = await stableFirstOpenCard(page);
     const confirmButton = firstCard.locator("[data-place-bet]");
 
-    await firstCard.getByRole("radio", { name: "México vence" }).click();
+    await firstCard.locator('[data-select-outcome][data-outcome="HOME"]').click();
     await expect(confirmButton).toBeEnabled();
 
     await confirmButton.click();

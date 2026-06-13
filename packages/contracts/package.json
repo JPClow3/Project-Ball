@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "forge build || echo 'forge not found, skipping contracts build'",
-    "check": "forge build || echo 'forge not found, skipping contracts check'",
-    "format": "forge fmt --check || echo 'forge not found, skipping contracts format check'",
-    "lint": "forge fmt --check || echo 'forge not found, skipping contracts lint'",
-    "test": "forge test || echo 'forge not found, skipping contracts test'"
+    "build": "forge build",
+    "check": "forge build",
+    "format": "forge fmt --check",
+    "lint": "forge fmt --check",
+    "test": "forge test"
   }
 }

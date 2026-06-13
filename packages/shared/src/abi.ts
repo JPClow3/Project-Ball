@@ -40,6 +40,60 @@ export const projectBallPoolsAbi = [
   },
   {
     type: "function",
+    name: "getMatch",
+    stateMutability: "view",
+    inputs: [{ name: "matchId", type: "bytes32" }],
+    outputs: [
+      { name: "lockTime", type: "uint64" },
+      { name: "status", type: "uint8" },
+      { name: "result", type: "uint8" },
+      { name: "totalNormalized", type: "uint256" },
+      { name: "winnerNormalized", type: "uint256" }
+    ]
+  },
+  {
+    type: "function",
+    name: "getOutcomeTotal",
+    stateMutability: "view",
+    inputs: [
+      { name: "matchId", type: "bytes32" },
+      { name: "outcome", type: "uint8" }
+    ],
+    outputs: [{ name: "", type: "uint256" }]
+  },
+  {
+    type: "function",
+    name: "getTokenBalance",
+    stateMutability: "view",
+    inputs: [
+      { name: "matchId", type: "bytes32" },
+      { name: "token", type: "address" }
+    ],
+    outputs: [{ name: "", type: "uint256" }]
+  },
+  {
+    type: "function",
+    name: "getPoolTokens",
+    stateMutability: "view",
+    inputs: [{ name: "matchId", type: "bytes32" }],
+    outputs: [{ name: "", type: "address[]" }]
+  },
+  {
+    type: "function",
+    name: "treasuryFeeBps",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint16" }]
+  },
+  {
+    type: "function",
+    name: "burnFeeBps",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint16" }]
+  },
+  {
+    type: "function",
     name: "claim",
     stateMutability: "nonpayable",
     inputs: [{ name: "matchId", type: "bytes32" }],
