@@ -3,3 +3,12 @@ packages:
   - packages/*
 
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - esbuild
+
+overrides:
+  yaml: 2.8.3
+  esbuild: 0.28.1
+
+patchedDependencies:
+  astro@6.4.2: patches/astro@6.4.2.patch

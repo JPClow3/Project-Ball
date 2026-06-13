@@ -1,15 +1,18 @@
 import type { APIRoute } from "astro";
 import { getRuntimeEnv } from "@/lib/runtime";
 import { refreshLeaderboardCache } from "@/lib/leaderboard";
+import { isProductionMode } from "@/lib/config";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const env = getRuntimeEnv();
     const authHeader = request.headers.get("Authorization");
-    
-    // Simple admin token check (in a real app, use a strong secret from env)
-    // For now, we check if they have the ADMIN_SECRET if configured, 
-    const adminSecret = (env as any).ADMIN_SECRET || import.meta.env.ADMIN_SECRET;
+
+    const adminSecret = process.env.ADMIN_SECRET ?? env.ADMIN_SECRET;
+    if (isProductionMode() && !adminSecret) {
+      return new Response(JSON.stringify({ error: "ADMIN_SECRET is required" }), { status: 500 });
+    }
+
     if (!adminSecret || authHeader !== `Bearer ${adminSecret}`) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }

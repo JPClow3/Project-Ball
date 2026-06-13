@@ -1,4 +1,5 @@
 import type { Outcome } from "@project-ball/shared";
+import { isProductionMode } from "./config";
 
 type D1 = RuntimeEnv["PROJECT_BALL_DB"];
 
@@ -9,6 +10,7 @@ export type BetConfirmationRecord = {
   readonly outcome: Outcome | null;
   readonly token: `0x${string}` | null;
   readonly amount: string | null;
+  readonly normalizedAmount?: string | null;
 };
 
 export type ConfirmedPick = {
@@ -51,7 +53,26 @@ function nowIso(): string {
 
 function isMissingBetTable(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return message.includes("no such table: bet_confirmations") || message.includes('relation "bet_confirmations" does not exist');
+  return (
+    message.includes("no such table: bet_confirmations") ||
+    message.includes('relation "bet_confirmations" does not exist') ||
+    message.includes("no column named normalized_amount") ||
+    message.includes('column "normalized_amount" of relation "bet_confirmations" does not exist')
+  );
+}
+
+function assertBetStorageFallbackAllowed(db: D1, error?: unknown): void {
+  if (!isProductionMode()) {
+    return;
+  }
+
+  if (!db) {
+    throw new Error("Bet confirmation database is required when APP_MODE=production");
+  }
+
+  if (error) {
+    throw error;
+  }
 }
 
 function isOutcome(value: unknown): value is Outcome {
@@ -76,8 +97,8 @@ export async function recordBetConfirmation(db: D1, confirmation: BetConfirmatio
     try {
       await db
         .prepare(
-          `INSERT INTO bet_confirmations (tx_hash, match_id, bettor, outcome, token, amount)
-           VALUES (?, ?, ?, ?, ?, ?)
+          `INSERT INTO bet_confirmations (tx_hash, match_id, bettor, outcome, token, amount, normalized_amount)
+           VALUES (?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT (tx_hash) DO NOTHING`
         )
         .bind(
@@ -86,7 +107,8 @@ export async function recordBetConfirmation(db: D1, confirmation: BetConfirmatio
           confirmation.bettor,
           confirmation.outcome,
           confirmation.token,
-          confirmation.amount
+          confirmation.amount,
+          confirmation.normalizedAmount ?? confirmation.amount
         )
         .run();
       return;
@@ -94,9 +116,11 @@ export async function recordBetConfirmation(db: D1, confirmation: BetConfirmatio
       if (!isMissingBetTable(error)) {
         throw error;
       }
+      assertBetStorageFallbackAllowed(db, error);
     }
   }
 
+  assertBetStorageFallbackAllowed(db);
   getMemoryStore().confirmations.set(confirmation.txHash, {
     ...confirmation,
     createdAt: nowIso()
@@ -129,9 +153,11 @@ export async function getUserConfirmedPicks(
       if (!isMissingBetTable(error)) {
         throw error;
       }
+      assertBetStorageFallbackAllowed(db, error);
     }
   }
 
+  assertBetStorageFallbackAllowed(db);
   return [...getMemoryStore().confirmations.values()]
     .filter(
       (confirmation) =>

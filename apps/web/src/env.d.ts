@@ -14,6 +14,8 @@ interface D1Database {
 }
 
 interface RuntimeEnv {
+  APP_MODE: string;
+  PUBLIC_APP_MODE: string;
   PUBLIC_APP_NAME: string;
   PUBLIC_APP_URL: string;
   PUBLIC_SUPPORT_URL: string;
@@ -21,6 +23,7 @@ interface RuntimeEnv {
   PUBLIC_CELO_RPC_URL: string;
   PUBLIC_CELO_EXPLORER_URL: string;
   PUBLIC_PROJECT_BALL_POOLS_ADDRESS: string;
+  ADMIN_SECRET: string;
   PROJECT_BALL_DB?: D1Database;
 }
 

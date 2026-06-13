@@ -19,13 +19,5 @@
     "@changesets/cli": "2.29.7",
     "@vitest/coverage-v8": "4.1.8",
     "typescript": "6.0.3"
-  },
-  "pnpm": {
-    "overrides": {
-      "yaml": "2.8.3"
-    },
-    "patchedDependencies": {
-      "astro@6.4.2": "patches/astro@6.4.2.patch"
-    }
   }
 }

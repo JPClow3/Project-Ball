@@ -1,6 +1,6 @@
-import type { Match } from "@project-ball/shared";
+import type { Match, MatchStatus } from "@project-ball/shared";
 import type { OutcomeTotalsUsd } from "./betting";
-import { getMatchPoolSnapshot, outcomeLabels } from "./betting";
+import { getMatchPoolSnapshot } from "./betting";
 import { tournamentConfig } from "./tournament";
 
 export type MatchViewModel = Match & {
@@ -11,6 +11,8 @@ export type MatchViewModel = Match & {
   readonly awayFlagCode: string;
   readonly homeCountry: string;
   readonly awayCountry: string;
+  readonly providerHomeTeam?: string;
+  readonly providerAwayTeam?: string;
   readonly homeForm: readonly string[];
   readonly awayForm: readonly string[];
   readonly outcomeTotalsUsd: OutcomeTotalsUsd;
@@ -197,7 +199,11 @@ function toBytes32Hex(value: string): `0x${string}` {
   return `0x${hex.padEnd(bytes32HexLength, "0").slice(0, bytes32HexLength)}`;
 }
 
-function toMatchViewModel(fixture: FixtureSeed): MatchViewModel {
+export function deriveMatchStatus(kickoffIso: string, now = new Date()): MatchStatus {
+  return now.getTime() >= new Date(kickoffIso).getTime() ? "locked" : "open";
+}
+
+function toMatchViewModel(fixture: FixtureSeed, now = new Date()): MatchViewModel {
   const [
     fifaId,
     group,
@@ -218,7 +224,7 @@ function toMatchViewModel(fixture: FixtureSeed): MatchViewModel {
     homeTeam: homeTeamLabel,
     awayTeam: awayTeamLabel,
     kickoffIso,
-    status: "open",
+    status: deriveMatchStatus(kickoffIso, now),
     poolUsd: poolSnapshot.poolUsd,
     competition: `${tournamentConfig.name} - ${group}`,
     groupLabel: group,
@@ -227,6 +233,8 @@ function toMatchViewModel(fixture: FixtureSeed): MatchViewModel {
     awayFlagCode,
     homeCountry: homeTeamLabel,
     awayCountry: awayTeamLabel,
+    providerHomeTeam: homeTeam,
+    providerAwayTeam: awayTeam,
     homeForm: [],
     awayForm: [],
     outcomeTotalsUsd: poolSnapshot.outcomeTotalsUsd,
@@ -234,6 +242,10 @@ function toMatchViewModel(fixture: FixtureSeed): MatchViewModel {
   };
 }
 
-export const matches: readonly MatchViewModel[] = [...worldCup2026GroupFixtures]
-  .sort(([, , leftKickoffIso], [, , rightKickoffIso]) => new Date(leftKickoffIso).getTime() - new Date(rightKickoffIso).getTime())
-  .map(toMatchViewModel);
+export function getMatches(now = new Date()): readonly MatchViewModel[] {
+  return [...worldCup2026GroupFixtures]
+    .sort(([, , leftKickoffIso], [, , rightKickoffIso]) => new Date(leftKickoffIso).getTime() - new Date(rightKickoffIso).getTime())
+    .map((fixture) => toMatchViewModel(fixture, now));
+}
+
+export const matches: readonly MatchViewModel[] = getMatches();

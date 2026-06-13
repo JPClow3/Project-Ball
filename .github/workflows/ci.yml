@@ -66,9 +66,14 @@ jobs:
 
       - name: Coverage
         run: |
-          forge coverage --report summary
-          # Enforce basic 90% threshold for line coverage
-          LINE_COV=$(forge coverage --report summary | grep "Total" | grep -oP '\d+\.\d+(?=%)' | head -1)
+          COVERAGE_OUTPUT=$(forge coverage --report summary --exclude-tests --skip script)
+          echo "$COVERAGE_OUTPUT"
+          # Enforce 90% line coverage for production contracts.
+          LINE_COV=$(echo "$COVERAGE_OUTPUT" | grep "Total" | grep -oP '\d+\.\d+(?=%)' | head -1)
+          if [ -z "$LINE_COV" ]; then
+            echo "Could not parse line coverage from forge coverage output."
+            exit 1
+          fi
           if [ $(echo "$LINE_COV < 90.0" | bc) -eq 1 ]; then
             echo "Coverage $LINE_COV% is below 90% threshold!"
             exit 1

@@ -84,7 +84,7 @@ test.describe("security and penetration probes", () => {
         address: "not-a-wallet"
       }
     });
-    expect(invalidMiniPay.status()).toBe(400);
+    expect(invalidMiniPay.status()).toBe(410);
     expect(invalidMiniPay.headers()["set-cookie"]).toBeUndefined();
 
     const validMiniPay = await request.post("/api/auth/minipay", {
@@ -92,8 +92,9 @@ test.describe("security and penetration probes", () => {
         address: validAddress
       }
     });
-    expect(validMiniPay.status()).toBe(200);
-    expect(validMiniPay.headers()["set-cookie"]).toContain("project_ball_session=");
+    expect(validMiniPay.status()).toBe(410);
+    expect(validMiniPay.headers()["set-cookie"]).toBeUndefined();
+    await expect(validMiniPay.json()).resolves.toMatchObject({ code: "signed_auth_required" });
   });
 
   test("allows local-only fake confirmation only for valid known match payloads", async ({ request }) => {
@@ -109,7 +110,7 @@ test.describe("security and penetration probes", () => {
     const knownMatch = await request.post("/api/confirm-bet", {
       data: {
         txHash: validTxHash,
-        matchId: "wc26-400021443",
+        matchId: "wc26-400021500",
         outcome: "DRAW"
       }
     });

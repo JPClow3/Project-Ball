@@ -1,8 +1,16 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const adminSecret = process.env.ADMIN_SECRET || "default_secret";
+const adminSecret = process.env.ADMIN_SECRET;
 const url = process.env.PUBLIC_APP_URL || "http://localhost:4321";
+
+if (!adminSecret) {
+  console.error("[Cron] ADMIN_SECRET is required; leaderboard refresh cron is disabled.");
+  if (process.env.APP_MODE === "production" || process.env.NODE_ENV === "production") {
+    process.exit(1);
+  }
+  process.exit(0);
+}
 
 async function runCron() {
   console.log(`[Cron] Running leaderboard refresh at ${new Date().toISOString()}`);
@@ -10,7 +18,7 @@ async function runCron() {
     const res = await fetch(`${url}/api/leaderboard/refresh`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${adminSecret}`
+        Authorization: `Bearer ${adminSecret ?? ""}`
       }
     });
     if (res.ok) {

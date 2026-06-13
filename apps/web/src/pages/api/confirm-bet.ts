@@ -3,7 +3,7 @@ import type { Outcome } from "@project-ball/shared";
 import { getRuntimeEnv } from "../../lib/runtime";
 import { getSession } from "../../lib/auth";
 import { recordBetConfirmation } from "../../lib/bets";
-import { isContractConfigured } from "../../lib/config";
+import { isContractConfigured, isProductionMode } from "../../lib/config";
 import { getMatch, withUserPick } from "../../lib/matches";
 import { renderMatchCard } from "../../lib/render";
 
@@ -24,6 +24,10 @@ function isTxHash(value: unknown): value is `0x${string}` {
 function isLocalRequest(request: Request): boolean {
   const hostname = new URL(request.url).hostname;
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+}
+
+function isMatchOpen(match: ReturnType<typeof getMatch>): boolean {
+  return Boolean(match && match.status === "open");
 }
 
 function parseConfirmBetPayload(payload: unknown): ConfirmBetPayload | null {
@@ -75,7 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
     const contractConfigured = isContractConfigured();
 
     if (!contractConfigured) {
-      if (!isLocalRequest(request)) {
+      if (!isLocalRequest(request) || isProductionMode()) {
         return new Response("Contrato Celo não configurado", { status: 503 });
       }
 
@@ -83,6 +87,9 @@ export const POST: APIRoute = async ({ request }) => {
 
       if (!match) {
         return new Response("Partida não encontrada", { status: 404 });
+      }
+      if (!isMatchOpen(match)) {
+        return new Response("Partida bloqueada para novos palpites", { status: 409 });
       }
 
       const session = await getSession(env.PROJECT_BALL_DB, request);
@@ -92,7 +99,8 @@ export const POST: APIRoute = async ({ request }) => {
         bettor: session?.user.walletAddress ?? null,
         outcome: parsed.outcome,
         token: null,
-        amount: null
+        amount: null,
+        normalizedAmount: null
       });
 
       const html = renderMatchCard(withUserPick(match, parsed.outcome));
@@ -132,7 +140,8 @@ export const POST: APIRoute = async ({ request }) => {
       bettor: confirmation.bettor,
       outcome,
       token: confirmation.token ?? null,
-      amount: confirmation.normalizedAmount ?? confirmation.amount ?? null
+      amount: confirmation.amount ?? null,
+      normalizedAmount: confirmation.normalizedAmount ?? confirmation.amount ?? null
     });
 
     const html = renderMatchCard(withUserPick(match, outcome));

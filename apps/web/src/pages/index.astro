@@ -1,6 +1,6 @@
 ---
 import MatchRail from "../components/MatchRail.astro";
-import { matches } from "../data/matches";
+import { getMatches } from "../data/matches";
 import { tournamentConfig } from "../data/tournament";
 import { getSession } from "../lib/auth";
 import { getUserConfirmedPicks } from "../lib/bets";
@@ -12,6 +12,7 @@ import { useTranslations } from "../i18n";
 
 const env = getRuntimeEnv();
 const t = useTranslations(Astro.locals.lang);
+const matches = getMatches();
 
 const groupCount = new Set(matches.map((match) => match.groupLabel)).size;
 const now = Date.now();
@@ -60,27 +61,28 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
 />
 
 <AppLayout title={t("nav.picks")} isFluid={true}>
-  <div class="app-shell mb-6">
-    <div class="relative overflow-hidden bg-[#0c1523] border border-[var(--glass-border,rgba(255,255,255,0.07))] rounded-2xl md:rounded-[24px]">
+  <div class="home-page flex flex-col">
+  <div class="home-hero-shell app-shell mb-6 order-2 md:order-1" data-home-hero>
+    <div class="home-hero-panel relative overflow-hidden bg-[#0c1523] border border-[var(--glass-border,rgba(255,255,255,0.07))] rounded-2xl md:rounded-[24px]">
       <div class="absolute -right-[100px] -top-[100px] w-[400px] h-[400px] bg-[var(--color-primary)] opacity-20 blur-[100px] pointer-events-none rounded-full" aria-hidden="true"></div>
       <div class="absolute -left-[50px] -bottom-[50px] w-[300px] h-[300px] bg-[var(--color-accent)] opacity-10 blur-[80px] pointer-events-none rounded-full" aria-hidden="true"></div>
 
-      <div class="relative z-10 p-4 md:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
-        <div class="flex-1">
+      <div class="home-hero-content relative z-10 p-4 md:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
+        <div class="home-hero-copy flex-1">
           <div class="flex flex-wrap gap-2 mb-4">
             <span class="bg-[rgba(255,255,255,0.06)] text-[var(--muted)] text-[9px] px-2 py-1 rounded tracking-[0.6px] uppercase font-bold">Project Ball</span>
             <span class="bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_22%,transparent)] text-[var(--green)] text-[9px] px-2 py-1 rounded tracking-[0.6px] uppercase font-bold">{tournamentConfig.name}</span>
           </div>
 
           <h1 class="text-4xl md:text-5xl lg:text-6xl font-normal text-white leading-tight mb-5">
-            Football without <br class="hidden sm:block" /><span class="text-[var(--green)] font-semibold">the fluff.</span>
+            {t("hero.title")}
           </h1>
 
           <p class="text-[var(--muted)] text-base lg:text-lg leading-relaxed mb-8 max-w-md lg:max-w-lg">
             {t("hero.subtitle")}
           </p>
 
-          <div class="flex flex-wrap gap-2 mb-8 text-xl">
+          <div class="home-hero-flags flex flex-wrap gap-2 mb-8 text-xl">
             {heroFlags.slice(0, 10).map((flag, index) => (
               <img
                 src={`https://flagcdn.com/w40/${flag.code}.png`}
@@ -92,7 +94,7 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
             ))}
           </div>
 
-          <div class="flex flex-wrap gap-4">
+          <div class="home-hero-metrics flex flex-wrap gap-4">
             <div class="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.03)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md rounded-xl px-5 py-3.5 lg:px-6 lg:py-4 min-w-[100px] lg:min-w-[120px]">
               <div class="text-[var(--text)] text-3xl lg:text-4xl font-bold leading-none mb-1">{matches.length}</div>
               <div class="text-[var(--muted-strong)] text-[10px] tracking-wider uppercase font-medium">{t("hero.matches")}</div>
@@ -109,7 +111,7 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
         </div>
 
         {nextMatch && (
-          <div class="w-full lg:w-[320px] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.03)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md rounded-[20px] p-5 sm:p-6 flex-shrink-0">
+          <div class="home-hero-next-match w-full lg:w-[320px] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.03)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md rounded-[20px] p-5 sm:p-6 flex-shrink-0">
             <div class="flex justify-between items-center mb-5">
               <span class="text-[var(--muted-strong)] text-[11px] tracking-wider font-semibold uppercase">{t("ticket.nextMatch")}</span>
               <span class="bg-[color-mix(in_srgb,var(--green)_10%,transparent)] border border-[color-mix(in_srgb,var(--green)_25%,transparent)] text-[var(--green)] text-[11px] font-bold px-3 py-1.5 rounded-full">{countdownLabel}</span>
@@ -151,5 +153,8 @@ const matchBoard = matches.map((match) => withUserPick(match, confirmedPickByMat
     </div>
   </div>
 
-  <MatchRail matches={matchBoard} />
+  <div class="home-board order-1 md:order-2">
+    <MatchRail matches={matchBoard} />
+  </div>
+  </div>
 </AppLayout>

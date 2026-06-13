@@ -27,7 +27,8 @@ describe("renderMatchCard", () => {
     expect(html).not.toContain("data-select-token");
     expect(html).toContain("México vence");
     expect(html).toContain("Confirmar palpite");
-    expect(html).toContain("disabled data-place-bet");
+    expect(html).toContain("data-stake-container hidden");
+    expect(html).toContain("disabled hidden data-place-bet");
     expect(html).toContain("data-bet-status");
     expect(html).toContain("data-stake-error");
     expect(html).toContain('aria-invalid="false"');

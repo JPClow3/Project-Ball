@@ -33,7 +33,7 @@ contract ProjectBallBadges {
         if (to == address(0)) revert InvalidRecipient();
 
         uint256 tokenId = ++_nextTokenId;
-        
+
         _owners[tokenId] = to;
         _balances[to] += 1;
         _tokenURIs[tokenId] = uri;

@@ -6,6 +6,7 @@ type BetRow = {
   readonly bettor: string;
   readonly token: string;
   readonly amount: string;
+  readonly normalized_amount?: string | null;
   readonly created_at: string;
 };
 
@@ -66,5 +67,36 @@ describe("stats reads", () => {
     });
     expect(usdmVolume).toMatchObject({ amountUsd: "2.00", share: 33 });
     expect(usdcVolume).toMatchObject({ amountUsd: "4.00", share: 66 });
+  });
+
+  it("uses normalized stake amounts when raw token amounts use fewer decimals", async () => {
+    const usdm = STABLECOINS.find((token) => token.symbol === "USDm");
+    const usdc = STABLECOINS.find((token) => token.symbol === "USDC");
+    const now = new Date().toISOString();
+    const env = makeEnv([
+      {
+        bettor: "0x1111111111111111111111111111111111111111",
+        token: usdc?.mainnetAddress ?? "",
+        amount: "1000000",
+        normalized_amount: "1000000000000000000",
+        created_at: now
+      },
+      {
+        bettor: "0x2222222222222222222222222222222222222222",
+        token: usdm?.mainnetAddress ?? "",
+        amount: "2000000000000000000",
+        normalized_amount: "2000000000000000000",
+        created_at: now
+      }
+    ]);
+
+    const stats = await getStats(env);
+    const tokenVolumes = await getTokenVolumes(env);
+    const usdmVolume = tokenVolumes.find((token) => token.symbol === "USDm");
+    const usdcVolume = tokenVolumes.find((token) => token.symbol === "USDC");
+
+    expect(stats.volumeUsd).toBe("3.00");
+    expect(usdmVolume).toMatchObject({ amountUsd: "2.00", share: 66 });
+    expect(usdcVolume).toMatchObject({ amountUsd: "1.00", share: 33 });
   });
 });
