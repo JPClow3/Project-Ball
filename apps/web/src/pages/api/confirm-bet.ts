@@ -133,9 +133,6 @@ export const POST: APIRoute = async ({ request }) => {
     if (!match) {
       return new Response("Partida não encontrada", { status: 404 });
     }
-    if (!isMatchOpen(match)) {
-      return new Response("Partida bloqueada para novos palpites", { status: 409 });
-    }
 
     await recordBetConfirmation(env.PROJECT_BALL_DB, {
       txHash: parsed.txHash,

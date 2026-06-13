@@ -142,7 +142,7 @@ contract ProjectBallPoolsTest is Test {
 
         vm.prank(alice);
         pools.claim(MATCH_ID);
-        
+
         // Assert they got their stake back minus fees
         assertTrue(usdm.balanceOf(alice) > 0);
     }

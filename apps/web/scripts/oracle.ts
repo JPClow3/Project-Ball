@@ -154,6 +154,7 @@ async function runOracle(): Promise<void> {
   }
 
   const results = await fetchFinishedResults();
+  let recordedAny = false;
   for (const result of results) {
     try {
       const txHash = await resolveOnchain(result);
@@ -168,23 +169,31 @@ async function runOracle(): Promise<void> {
         sourceUpdatedAt: result.sourceUpdatedAt,
         reconciliationStatus: txHash ? "reconciled" : "pending"
       });
-      await refreshLeaderboardCache(db);
+      recordedAny = true;
       console.log(`[Oracle] Recorded ${result.match.id} ${result.homeScore}-${result.awayScore}`);
     } catch (error) {
       console.error(`[Oracle] Failed processing ${result.match.id}:`, error);
     }
   }
+
+  if (recordedAny) {
+    await refreshLeaderboardCache(db);
+  }
 }
 
-setInterval(() => {
-  runOracle().catch((error) => {
-    console.error("[Oracle] Run failed:", error);
-  });
-}, pollIntervalMs);
-
-runOracle().catch((error) => {
-  console.error("[Oracle] Initial run failed:", error);
-  if (appMode === "production") {
-    process.exit(1);
+async function pollOracle(isInitialRun = false): Promise<void> {
+  try {
+    await runOracle();
+  } catch (error) {
+    console.error(isInitialRun ? "[Oracle] Initial run failed:" : "[Oracle] Run failed:", error);
+    if (isInitialRun && appMode === "production") {
+      process.exit(1);
+    }
   }
-});
+
+  setTimeout(() => {
+    void pollOracle();
+  }, pollIntervalMs);
+}
+
+void pollOracle(true);

@@ -22,6 +22,7 @@ type BetConfirmationRow = {
   readonly bettor: string | null;
   readonly token: string | null;
   readonly amount: string | null;
+  readonly normalized_amount: string | null;
   readonly created_at: string;
 };
 
@@ -80,7 +81,7 @@ function tokenSymbolForAddress(address: string | null | undefined): StablecoinSy
 export async function getBetRows(db: D1Database): Promise<readonly BetConfirmationRow[]> {
   const rows = await db
     .prepare(
-      `SELECT bettor, token, amount, created_at
+      `SELECT bettor, token, amount, COALESCE(normalized_amount, amount) AS normalized_amount, created_at
        FROM bet_confirmations
        ORDER BY created_at DESC`
     )
@@ -118,7 +119,7 @@ function statsFromBetRows(rows: readonly BetConfirmationRow[]): StatsSnapshot {
   const dailyUsers = new Set<string>();
   const monthlyUsers = new Set<string>();
   const allUsers = new Set<string>();
-  const volume = rows.reduce((total, row) => total + toBigIntAmount(row.amount), 0n);
+  const volume = rows.reduce((total, row) => total + toBigIntAmount(row.normalized_amount ?? row.amount), 0n);
 
   for (const row of rows) {
     const bettor = row.bettor?.toLowerCase();
@@ -194,7 +195,7 @@ export async function getTokenVolumes(env?: RuntimeEnv, preFetchedRows?: readonl
         continue;
       }
 
-      amounts.set(symbol, (amounts.get(symbol) ?? 0n) + toBigIntAmount(row.amount));
+      amounts.set(symbol, (amounts.get(symbol) ?? 0n) + toBigIntAmount(row.normalized_amount ?? row.amount));
     }
 
     const total = [...amounts.values()].reduce((sum, amount) => sum + amount, 0n);

@@ -5,7 +5,6 @@ packages:
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - esbuild
-  - "@esbuild/win32-x64"
 
 overrides:
   yaml: 2.8.3

@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "forge build",
-    "check": "forge build",
-    "format": "forge fmt --check",
-    "lint": "forge fmt --check",
-    "test": "forge test"
+    "build": "node scripts/with-forge.mjs build",
+    "check": "node scripts/with-forge.mjs build",
+    "format": "node scripts/with-forge.mjs fmt --check",
+    "lint": "node scripts/with-forge.mjs fmt --check",
+    "test": "node scripts/with-forge.mjs test"
   }
 }

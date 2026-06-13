@@ -9,6 +9,7 @@ if (!adminSecret) {
   if (process.env.APP_MODE === "production" || process.env.NODE_ENV === "production") {
     process.exit(1);
   }
+  process.exit(0);
 }
 
 async function runCron() {
